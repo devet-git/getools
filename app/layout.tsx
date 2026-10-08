@@ -7,11 +7,11 @@ import { AppShell } from "@/components/AppShell";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: 'Git Downloader & Batch Clone Suite',
-  description: 'Download files/folders from GitHub, GitLab, or Bitbucket with custom ZIP options, batch-clone group repositories, manage bookmarks & history, and download GitHub Releases.',
+  title: 'GeTools',
+  description: 'Bộ công cụ GeTools: tải file/thư mục từ GitHub, GitLab, Bitbucket, clone hàng loạt, GitHub Releases, TTS, STT, chuyển HTML sang Markdown và so sánh file.',
   openGraph: {
-    title: 'Git Downloader & Batch Clone Suite',
-    description: 'Download files/folders from GitHub, GitLab, or Bitbucket with custom ZIP options, batch-clone group repositories, manage bookmarks & history, and download GitHub Releases.',
+    title: 'GeTools',
+    description: 'Bộ công cụ GeTools: tải file/thư mục từ GitHub, GitLab, Bitbucket, clone hàng loạt, GitHub Releases, TTS, STT, chuyển HTML sang Markdown và so sánh file.',
   },
 };
 

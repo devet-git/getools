@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   FolderDown, 
-  Github, 
-  Gitlab, 
   Package, 
   Clock, 
   Star, 
@@ -25,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/components/AppContext';
+import { Logo } from '@/components/Logo';
 
 interface NavItem {
   name: string;
@@ -125,12 +124,10 @@ export function Sidebar() {
       {/* Mobile Top Header */}
       <header className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-white border-b border-border shadow-xs">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold shadow-xs">
-            <FolderDown className="h-4 w-4" />
-          </div>
+          <Logo className="h-8 w-8" />
           <div>
-            <span className="font-semibold text-sm tracking-tight block">Git Downloader</span>
-            <span className="text-[10px] text-muted-foreground block -mt-1">Suite v2.0</span>
+            <span className="font-semibold text-sm tracking-tight block">GeTools</span>
+            <span className="text-[10px] text-muted-foreground block -mt-1">Bộ công cụ đa năng</span>
           </div>
         </Link>
 
@@ -192,15 +189,13 @@ export function Sidebar() {
             href="/" 
             onClick={() => setIsMobileOpen(false)} 
             className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'}`}
-            title="Git Downloader Suite"
+            title="GeTools"
           >
-            <div className="h-10 w-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md shrink-0">
-              <FolderDown className="h-5 w-5" />
-            </div>
+            <Logo className="h-10 w-10" />
             {!isSidebarCollapsed && (
               <div className="min-w-0">
-                <span className="font-bold text-base tracking-tight text-slate-900 block truncate">Git Downloader</span>
-                <span className="text-xs text-muted-foreground block truncate">Công cụ tải & Clone Git</span>
+                <span className="font-bold text-base tracking-tight text-slate-900 block truncate">GeTools</span>
+                <span className="text-xs text-muted-foreground block truncate">Bộ công cụ Git & văn bản</span>
               </div>
             )}
           </Link>
@@ -454,43 +449,6 @@ export function Sidebar() {
           </div>
         </div>
 
-        {/* Footer / Info */}
-        <div className={`border-t border-border bg-slate-50/60 ${isSidebarCollapsed ? 'p-3 flex flex-col items-center gap-2' : 'p-4 space-y-3'}`}>
-          {!isSidebarCollapsed ? (
-            <>
-              <div className="text-[11px] text-slate-500 space-y-1">
-                <div className="flex items-center gap-1.5 font-medium text-slate-700">
-                  <Github className="h-3.5 w-3.5" />
-                  <Gitlab className="h-3.5 w-3.5 text-orange-600" />
-                  <span>Hỗ trợ Git Nền Tảng</span>
-                </div>
-                <p className="text-[10px] leading-relaxed text-muted-foreground">
-                  GitHub · GitLab · Bitbucket (bao gồm cả máy chủ nội bộ self-hosted).
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between pt-1 text-[11px] text-muted-foreground border-t border-border/60">
-                <span>Client-side Secure</span>
-                <button
-                  type="button"
-                  onClick={() => setIsSettingsOpen(true)}
-                  className="text-primary hover:underline flex items-center gap-1"
-                >
-                  <Settings className="h-3 w-3" /> Cài đặt
-                </button>
-              </div>
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIsSettingsOpen(true)}
-              title="Cài đặt hệ thống & API Tokens"
-              className="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 transition-colors"
-            >
-              <Settings className="h-4 w-4" />
-            </button>
-          )}
-        </div>
       </aside>
     </>
   );
