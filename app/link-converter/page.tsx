@@ -435,7 +435,7 @@ export default function LinkConverterPage() {
               </button>
             </div>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto overflow-y-hidden">
             <table className="w-full text-xs border-collapse min-w-[760px]">
               <thead>
                 <tr className="bg-slate-50 text-slate-500 text-left">

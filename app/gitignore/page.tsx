@@ -232,7 +232,7 @@ export default function GitignorePage() {
                 </div>
               )}
 
-              <div className="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
+              <div className="space-y-2.5">
                 {grouped.length === 0 && <p className="text-sm text-slate-500">Không tìm thấy mẫu phù hợp.</p>}
                 {grouped.map(([cat, list]) => (
                   <div key={cat}>
