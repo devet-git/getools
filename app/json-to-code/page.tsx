@@ -18,6 +18,7 @@ import {
 } from '@/lib/json-to-code';
 
 import { SendToButton } from '@/components/SendToButton';
+import { Select as SearchSelect } from '@/components/ui/searchable-select';
 const MAX_DISPLAY = 300_000;
 const MAX_SHARE_ROOT = 40;
 
@@ -61,7 +62,7 @@ function Select<T extends string>({
   return (
     <label className="flex items-center gap-1.5 text-xs text-slate-600">
       {label}
-      <select
+      <SearchSelect
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
         className="px-1.5 py-1 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 outline-hidden focus:border-indigo-500"
@@ -71,7 +72,7 @@ function Select<T extends string>({
             {o.label}
           </option>
         ))}
-      </select>
+      </SearchSelect>
     </label>
   );
 }
@@ -205,7 +206,7 @@ export default function JsonToCodePage() {
   const stats = result.ok ? result.stats : null;
 
   return (
-    <div className="space-y-3.5">
+    <div className="lg-fit-screen space-y-3.5 lg:space-y-0 lg:gap-3.5 lg:[&>*]:shrink-0">
       <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center shrink-0">
@@ -235,9 +236,9 @@ export default function JsonToCodePage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 items-stretch lg:flex-1! lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
         {/* Đầu vào */}
-        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col min-h-[420px]">
+        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col min-h-[420px] lg:min-h-0 lg:h-full">
           <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">JSON đầu vào</span>
             <div className="flex items-center gap-1.5">
@@ -272,7 +273,7 @@ export default function JsonToCodePage() {
             onChange={(e) => setText(e.target.value)}
             spellCheck={false}
             placeholder={'Dán JSON vào đây. Có thể dán nhiều mẫu (mảng các object hoặc nhiều JSON nối tiếp) để suy luận trường tùy chọn.'}
-            className="flex-1 w-full min-h-[300px] p-3 text-xs font-mono bg-slate-50/60 focus:bg-white outline-hidden resize-none leading-relaxed text-slate-800 whitespace-pre"
+            className="flex-1 w-full min-h-[300px] lg:min-h-0 p-3 text-xs font-mono bg-slate-50/60 focus:bg-white outline-hidden resize-none leading-relaxed text-slate-800 whitespace-pre"
           />
           {!result.ok && !empty && (
             <div className="border-t border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
@@ -306,7 +307,7 @@ export default function JsonToCodePage() {
         </div>
 
         {/* Đầu ra */}
-        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col min-h-[420px]">
+        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col min-h-[420px] lg:min-h-0 lg:h-full">
           <div className="px-2.5 pt-2.5 border-b border-slate-100 bg-slate-50/60">
             <div className="flex gap-1 overflow-x-auto pb-2.5">
               {LANGS.map((l) => (
@@ -388,7 +389,7 @@ export default function JsonToCodePage() {
             )}
           </div>
 
-          <div className="relative flex-1 min-h-[260px] bg-slate-900">
+          <div className="relative flex-1 min-h-[260px] lg:min-h-0 bg-slate-900">
             {result.ok ? (
               <pre className="absolute inset-0 overflow-auto p-3 text-xs font-mono text-slate-100 leading-relaxed whitespace-pre">
                 {shown}

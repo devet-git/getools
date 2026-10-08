@@ -1,5 +1,6 @@
 'use client';
 
+import { Select } from '@/components/ui/searchable-select';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ImagePlus,
@@ -1090,7 +1091,7 @@ function CopyBlock({ title, text, onCopy, copied }: { title: string; text: strin
           {copied ? 'Đã chép' : 'Sao chép'}
         </button>
       </div>
-      <pre className="bg-slate-900 text-slate-100 text-xs rounded-lg p-3 overflow-x-auto whitespace-pre font-mono max-h-64">{text}</pre>
+      <pre className="bg-slate-900 text-slate-100 text-xs rounded-lg p-3 overflow-x-auto whitespace-pre font-mono">{text}</pre>
     </div>
   );
 }
@@ -1470,11 +1471,11 @@ export default function OgImagePage() {
             <h2 className={h2Cls}>Xuất ảnh</h2>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Định dạng">
-                <select value={s.format} onChange={(e) => set('format', e.target.value as ExportFormat)} className={inputCls}>
+                <Select value={s.format} onChange={(e) => set('format', e.target.value as ExportFormat)} className={inputCls}>
                   <option value="png">PNG (không mất chất lượng)</option>
                   <option value="jpeg">JPEG (nhẹ, tương thích nhất)</option>
                   <option value="webp">WebP (nhẹ nhất)</option>
-                </select>
+                </Select>
               </Field>
               {s.format !== 'png' ? (
                 <Range label="Chất lượng" value={Math.round(s.quality * 100)} min={30} max={100} onChange={(v) => set('quality', v / 100)} unit="%" />
@@ -1757,22 +1758,22 @@ export default function OgImagePage() {
             <h2 className={h2Cls}>Chữ & bố cục</h2>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Phông chữ">
-                <select value={s.fontFamily} onChange={(e) => set('fontFamily', e.target.value as FontId)} className={inputCls}>
+                <Select searchThreshold={0} value={s.fontFamily} onChange={(e) => set('fontFamily', e.target.value as FontId)} className={inputCls}>
                   {FONT_STACKS.map((f) => (
                     <option key={f.id} value={f.id}>
                       {f.label}
                     </option>
                   ))}
-                </select>
+                </Select>
               </Field>
               <Field label="Độ đậm">
-                <select value={s.weight} onChange={(e) => set('weight', Number(e.target.value))} className={inputCls}>
+                <Select value={s.weight} onChange={(e) => set('weight', Number(e.target.value))} className={inputCls}>
                   {[400, 500, 600, 700, 800, 900].map((wt) => (
                     <option key={wt} value={wt}>
                       {wt}
                     </option>
                   ))}
-                </select>
+                </Select>
               </Field>
             </div>
             <Field label="Căn lề">
@@ -1793,13 +1794,13 @@ export default function OgImagePage() {
                 Tự vừa cỡ chữ tiêu đề
               </label>
               <Field label="Số dòng tối đa">
-                <select value={s.maxLines} onChange={(e) => set('maxLines', Number(e.target.value))} className={inputCls}>
+                <Select value={s.maxLines} onChange={(e) => set('maxLines', Number(e.target.value))} className={inputCls}>
                   {[1, 2, 3, 4, 5, 6].map((n) => (
                     <option key={n} value={n}>
                       {n} dòng
                     </option>
                   ))}
-                </select>
+                </Select>
               </Field>
             </div>
             {!s.titleAuto && <Range label="Cỡ chữ tiêu đề" value={s.titleSize} min={20} max={220} onChange={(v) => set('titleSize', v)} unit="px" />}

@@ -1,6 +1,8 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
+  // Cho phép chạy nhiều server dev/build song song (mỗi tiến trình một thư mục build riêng)
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,

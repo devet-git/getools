@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { AppProvider, useApp } from '@/components/AppContext';
 import { Sidebar } from '@/components/Sidebar';
 import { SettingsModal } from '@/components/SettingsModal';
@@ -28,9 +30,16 @@ function GlobalToast() {
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { isSidebarCollapsed } = useApp();
+  const pathname = usePathname();
+  const mainRef = useRef<HTMLElement>(null);
+
+  // Vùng cuộn chính là <main> (không phải cửa sổ): về đầu mỗi khi chuyển trang
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [pathname]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
+    <div className="h-dvh overflow-hidden bg-slate-50 flex flex-col lg:flex-row">
       <Sidebar />
       <GlobalToast />
       <CommandPalette />
@@ -43,12 +52,13 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <HistoryBookmarksModal />
 
       {/* Main Content Area */}
-      <main 
-        className={`flex-1 flex flex-col min-h-screen transition-[padding] duration-200 ease-in-out ${
+      <main
+        ref={mainRef}
+        className={`flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden transition-[padding] duration-200 ease-in-out ${
           isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-72'
         }`}
       >
-        <div className="flex-1 p-2 sm:p-3.5 lg:p-4 max-w-[1700px] w-full mx-auto">
+        <div className="p-2 sm:p-3.5 lg:p-4 max-w-[1700px] w-full min-w-0 mx-auto">
           <ShareBoot>
             <AiToolGate>{children}</AiToolGate>
           </ShareBoot>

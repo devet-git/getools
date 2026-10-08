@@ -50,6 +50,7 @@ import {
 } from '@/lib/readme-builder';
 
 import { SendToButton } from '@/components/SendToButton';
+import { Select } from '@/components/ui/searchable-select';
 const DRAFT_KEY = 'getools:readme-builder:draft';
 const TREE_KEY = 'getools:readme-builder:tree';
 
@@ -306,8 +307,8 @@ export default function ReadmeBuilderPage() {
   const selectedList = resolved.filter((r) => r.badge) as { sel: SelectedBadge; badge: Badge }[];
 
   return (
-    <div className="space-y-3.5">
-      <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
+    <div className="lg-fit-screen space-y-3.5 lg:space-y-0 lg:gap-3.5">
+      <div className="shrink-0 bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center shrink-0">
             <NotebookText className="h-4 w-4" />
@@ -322,24 +323,24 @@ export default function ReadmeBuilderPage() {
         <ShareLinkButton params={{ type, lang }} />
       </div>
 
-      <div className="grid xl:grid-cols-2 gap-3.5 items-start">
-        <div className="space-y-3.5 min-w-0">
+      <div className="grid lg:grid-cols-2 gap-3.5 items-start lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
+        <div className="space-y-3.5 min-w-0 lg:min-h-0 lg:h-full lg:overflow-y-auto lg:pr-1">
           {/* PROJECT */}
           <div className={card}>
             <h2 className="text-xs font-bold text-slate-700">Thông tin dự án</h2>
             <div className="grid sm:grid-cols-2 gap-2">
               <label className="text-[11px] text-slate-600 space-y-1">
                 <span>Loại dự án</span>
-                <select className={inputCls} value={type} onChange={(e) => changeType(e.target.value as ProjectType)}>
+                <Select className={inputCls} value={type} onChange={(e) => changeType(e.target.value as ProjectType)}>
                   {PROJECT_TYPES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
-                </select>
+                </Select>
               </label>
               <label className="text-[11px] text-slate-600 space-y-1">
                 <span>Ngôn ngữ README</span>
-                <select className={inputCls} value={lang} onChange={(e) => setLang(e.target.value as Lang)}>
+                <Select className={inputCls} value={lang} onChange={(e) => setLang(e.target.value as Lang)}>
                   <option value="vi">Tiếng Việt</option>
                   <option value="en">English</option>
-                </select>
+                </Select>
               </label>
               <label className="text-[11px] text-slate-600 space-y-1">
                 <span>Tên dự án</span>
@@ -550,8 +551,8 @@ export default function ReadmeBuilderPage() {
         </div>
 
         {/* OUTPUT */}
-        <div className="xl:sticky xl:top-3 min-w-0">
-          <div className={card}>
+        <div className="min-w-0 lg:min-h-0 lg:h-full">
+          <div className={card + ' lg:h-full lg:flex lg:flex-col lg:min-h-0'}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex gap-1">
                 <button type="button" onClick={() => setView('preview')} className={`${btn} ${view === 'preview' ? '!bg-indigo-600 !text-white !border-indigo-600' : ''}`}><Eye className="h-3.5 w-3.5" /> Xem trước</button>
@@ -563,7 +564,7 @@ export default function ReadmeBuilderPage() {
                 <button type="button" className={btn} onClick={downloadReadme}><Download className="h-3.5 w-3.5" /> README.md</button>
               </div>
             </div>
-            <div className="border border-slate-200 rounded-lg overflow-auto max-h-[75vh] bg-white p-3">
+            <div className="border border-slate-200 rounded-lg overflow-auto max-h-[75vh] lg:max-h-none lg:flex-1 lg:min-h-0 bg-white p-3">
               {view === 'preview' ? (
                 <div className={PREVIEW_CLASS}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{deferredReadme}</ReactMarkdown>

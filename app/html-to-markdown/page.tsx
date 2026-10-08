@@ -29,6 +29,7 @@ import {
 } from '@/lib/markdown-converter';
 
 import { SendToButton } from '@/components/SendToButton';
+import { Select } from '@/components/ui/searchable-select';
 export default function HtmlToMarkdownPage() {
   const { showToast } = useApp();
   const [inputText, setInputText] = useState(() => {
@@ -141,7 +142,7 @@ export default function HtmlToMarkdownPage() {
   const charCount = markdownOutput.length;
 
   return (
-    <div className="space-y-3.5">
+    <div className="lg-fit-screen space-y-3.5 lg:space-y-0 lg:gap-3.5 lg:[&>*]:shrink-0">
       {/* COMPACT SLIM HEADER */}
       <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
@@ -197,9 +198,9 @@ export default function HtmlToMarkdownPage() {
       </div>
 
       {/* Main Dual-Pane Converter Workspace */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 items-start lg:items-stretch lg:flex-1! lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
         {/* LEFT COLUMN: Input Source */}
-        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col h-[560px] overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col h-[560px] lg:h-full lg:min-h-0 overflow-hidden">
           {/* Header & Controls */}
           <div className="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
             <div className="flex items-center gap-2">
@@ -257,7 +258,7 @@ export default function HtmlToMarkdownPage() {
         </div>
 
         {/* RIGHT COLUMN: Output Markdown */}
-        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col h-[560px] overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col h-[560px] lg:h-full lg:min-h-0 overflow-hidden">
           {/* Header & View Tabs */}
           <div className="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
             <div className="flex items-center gap-2">
@@ -375,14 +376,14 @@ export default function HtmlToMarkdownPage() {
 
               <label className="flex items-center gap-1.5 text-slate-700 font-medium">
                 <span className="text-slate-500">Tiêu đề:</span>
-                <select
-                  value={options.headingStyle}
+                <Select
+                  value={options.headingStyle ?? "atx"}
                   onChange={(e) => setOptions({ ...options, headingStyle: e.target.value as any })}
                   className="text-xs bg-white rounded border border-slate-200 px-1 py-0.5"
                 >
                   <option value="atx"># ATX</option>
                   <option value="setext">Setext (===)</option>
-                </select>
+                </Select>
               </label>
             </div>
           )}

@@ -87,7 +87,7 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile Top Header */}
-      <header className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-white border-b border-border shadow-xs">
+      <header className="lg:hidden sticky top-0 z-40 shrink-0 flex items-center justify-between px-4 py-3 bg-white border-b border-border shadow-xs">
         <Link href="/" className="flex items-center gap-2.5">
           <Logo className="h-8 w-8" />
           <div>

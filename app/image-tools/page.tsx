@@ -37,6 +37,7 @@ import {
   isLossy,
   extForMime,
 } from '@/lib/image-tools';
+import { Select } from '@/components/ui/searchable-select';
 
 const CONCURRENCY = 3;
 
@@ -518,7 +519,7 @@ export default function ImageToolsPage() {
         <div className="bg-white rounded-xl border border-slate-200 p-3.5 space-y-3.5">
           <div>
             <label className={labelCls}>Định dạng đầu ra</label>
-            <select
+            <Select
               className={inputCls}
               value={opts.format}
               onChange={(e) => updateOpts({ format: e.target.value as OutputFormat })}
@@ -527,7 +528,7 @@ export default function ImageToolsPage() {
               <option value="jpeg">JPEG</option>
               <option value="png">PNG</option>
               <option value="webp">WebP</option>
-            </select>
+            </Select>
           </div>
 
           {showQuality && (
@@ -549,7 +550,7 @@ export default function ImageToolsPage() {
 
           <div className="space-y-2">
             <label className={labelCls}>Đổi kích thước</label>
-            <select
+            <Select
               className={inputCls}
               value={rz.mode}
               onChange={(e) => updateResize({ mode: e.target.value as ResizeMode })}
@@ -558,7 +559,7 @@ export default function ImageToolsPage() {
               <option value="max">Giới hạn rộng / cao tối đa (giữ tỉ lệ)</option>
               <option value="exact">Rộng × cao cụ thể</option>
               <option value="percent">Theo tỉ lệ %</option>
-            </select>
+            </Select>
 
             {rz.mode === 'max' && (
               <>

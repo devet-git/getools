@@ -1,5 +1,6 @@
 'use client';
 
+import { Select } from '@/components/ui/searchable-select';
 import { useEffect, useMemo, useState } from 'react';
 import { Timer, Copy, Check, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
@@ -288,7 +289,7 @@ export default function CronPage() {
               return (
                 <div key={key} className="flex flex-wrap items-center gap-2">
                   <span className="w-28 text-xs font-medium text-slate-700 shrink-0">{FIELD_LABEL[key]}</span>
-                  <select
+                  <Select
                     value={b.mode}
                     onChange={(e) => updateB(key, { mode: e.target.value as Mode })}
                     className={inputCls}
@@ -296,7 +297,7 @@ export default function CronPage() {
                     {(Object.keys(MODE_LABEL) as Mode[]).map((m) => (
                       <option key={m} value={m}>{MODE_LABEL[m]}</option>
                     ))}
-                  </select>
+                  </Select>
                   {b.mode === 'step' && (
                     <input
                       type="number" min={1} max={RANGES[key][1] + 1} value={b.step}
@@ -305,16 +306,16 @@ export default function CronPage() {
                     />
                   )}
                   {(b.mode === 'value' || b.mode === 'range') && (
-                    <select value={b.a} onChange={(e) => updateB(key, { a: e.target.value })} className={inputCls}>
+                    <Select value={b.a} onChange={(e) => updateB(key, { a: e.target.value })} className={inputCls}>
                       {opts.map((o) => <option key={o.v} value={o.v}>{o.l}</option>)}
-                    </select>
+                    </Select>
                   )}
                   {b.mode === 'range' && (
                     <>
                       <span className="text-xs text-slate-400">đến</span>
-                      <select value={b.b} onChange={(e) => updateB(key, { b: e.target.value })} className={inputCls}>
+                      <Select value={b.b} onChange={(e) => updateB(key, { b: e.target.value })} className={inputCls}>
                         {opts.map((o) => <option key={o.v} value={o.v}>{o.l}</option>)}
-                      </select>
+                      </Select>
                     </>
                   )}
                   {b.mode === 'list' && (
@@ -338,9 +339,9 @@ export default function CronPage() {
           <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Các lần chạy kế tiếp</h2>
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
             Múi giờ
-            <select value={tz} onChange={(e) => setTz(e.target.value)} className={inputCls + ' max-w-[220px]'}>
+            <Select searchThreshold={0} aria-label="Múi giờ" value={tz} onChange={(e) => setTz(e.target.value)} className={inputCls + ' w-[220px]'}>
               {(zones.includes(tz) ? zones : [tz, ...zones]).map((z) => <option key={z} value={z}>{z}</option>)}
-            </select>
+            </Select>
             {offsetNow && <span className="font-mono text-slate-400">UTC{offsetNow}</span>}
             Số lần
             <input

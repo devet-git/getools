@@ -5,6 +5,7 @@ import QRCode from 'qrcode';
 import {
   Fingerprint, Copy, Check, Download, RefreshCw, Trash2, ShieldAlert, Plus, ImageIcon,
 } from 'lucide-react';
+import { Select } from '@/components/ui/searchable-select';
 import { useApp } from '@/components/AppContext';
 import {
   ALGORITHMS, OtpAlgorithm, OtpType, base32Decode, base32Encode, buildOtpUri, formatSecret, generateSecret,
@@ -240,15 +241,15 @@ export default function TotpPage() {
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       <div>
         <label className={labelCls}>Thuật toán</label>
-        <select className={inputCls} value={algorithm} onChange={(e) => setAlgorithm(e.target.value as OtpAlgorithm)}>
+        <Select className={inputCls} value={algorithm} onChange={(e) => setAlgorithm(e.target.value as OtpAlgorithm)}>
           {ALGORITHMS.map((a) => <option key={a} value={a}>{a}</option>)}
-        </select>
+        </Select>
       </div>
       <div>
         <label className={labelCls}>Số chữ số</label>
-        <select className={inputCls} value={digits} onChange={(e) => setDigits(Number(e.target.value))}>
+        <Select className={inputCls} value={digits} onChange={(e) => setDigits(Number(e.target.value))}>
           {[6, 7, 8].map((d) => <option key={d} value={d}>{d}</option>)}
-        </select>
+        </Select>
       </div>
       <div>
         <label className={labelCls}>Chu kỳ (giây)</label>
@@ -300,9 +301,9 @@ export default function TotpPage() {
               onChange={(e) => onSecretChange(e.target.value)}
             />
           </div>
-          <select className="rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs" value={bits} onChange={(e) => setBits(Number(e.target.value))} title="Độ dài secret">
+          <Select className="rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs" value={bits} onChange={(e) => setBits(Number(e.target.value))} title="Độ dài secret">
             {[128, 160, 256, 384, 512].map((b) => <option key={b} value={b}>{b} bit</option>)}
-          </select>
+          </Select>
           <button className={btnCls} onClick={newSecret}><RefreshCw size={14} /> Tạo secret mới</button>
           <button className={btnCls} onClick={() => setSecret(SAMPLE_SECRET)}>Mẫu</button>
         </div>
@@ -407,10 +408,10 @@ export default function TotpPage() {
               </div>
               <div>
                 <label className={labelCls}>Loại</label>
-                <select className={inputCls} value={otpType} onChange={(e) => setOtpType(e.target.value as OtpType)}>
+                <Select className={inputCls} value={otpType} onChange={(e) => setOtpType(e.target.value as OtpType)}>
                   <option value="totp">TOTP (theo thời gian)</option>
                   <option value="hotp">HOTP (theo bộ đếm)</option>
-                </select>
+                </Select>
               </div>
               {otpType === 'hotp' && (
                 <div>

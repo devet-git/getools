@@ -18,6 +18,7 @@ import {
   Sparkles,
   Clock,
 } from 'lucide-react';
+import { Select } from '@/components/ui/searchable-select';
 import { useApp } from '@/components/AppContext';
 import { ShareLinkButton } from '@/components/ShareLinkButton';
 import { readShareParams } from '@/lib/share-link';
@@ -134,17 +135,17 @@ function PermEditor({ items, onChange }: { items: KV[]; onChange: (v: KV[]) => v
     <div className="space-y-1.5">
       {items.map((it, i) => (
         <div key={i} className="flex gap-1.5 items-center">
-          <select className={inputCls} value={it.k} onChange={(e) => onChange(items.map((x, j) => (j === i ? { ...x, k: e.target.value } : x)))}>
+          <Select className={inputCls} value={it.k} onChange={(e) => onChange(items.map((x, j) => (j === i ? { ...x, k: e.target.value } : x)))}>
             <option value="">-- scope --</option>
             {PERMISSION_SCOPES.map((s) => (
               <option key={s}>{s}</option>
             ))}
-          </select>
-          <select className={inputCls + ' w-28'} value={it.v} onChange={(e) => onChange(items.map((x, j) => (j === i ? { ...x, v: e.target.value } : x)))}>
+          </Select>
+          <Select className={inputCls + ' w-28'} value={it.v} onChange={(e) => onChange(items.map((x, j) => (j === i ? { ...x, v: e.target.value } : x)))}>
             <option>read</option>
             <option>write</option>
             <option>none</option>
-          </select>
+          </Select>
           <button className={iconBtn} onClick={() => onChange(items.filter((_, j) => j !== i))}>
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -319,17 +320,17 @@ function InputsEditor({ inputs, onChange, forCall }: { inputs: InputDef[]; onCha
         <div key={i} className="rounded-lg bg-slate-50 border border-slate-200 p-2 space-y-1.5">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
             <input className={monoCls} value={inp.name} placeholder="tên input" onChange={(e) => set(i, { name: e.target.value })} />
-            <select className={inputCls} value={inp.type} onChange={(e) => set(i, { type: e.target.value as InputDef['type'] })}>
+            <Select className={inputCls} value={inp.type} onChange={(e) => set(i, { type: e.target.value as InputDef['type'] })}>
               {types.map((t) => (
                 <option key={t}>{t}</option>
               ))}
-            </select>
+            </Select>
             {inp.type === 'boolean' ? (
-              <select className={inputCls} value={inp.default} onChange={(e) => set(i, { default: e.target.value })}>
+              <Select className={inputCls} value={inp.default} onChange={(e) => set(i, { default: e.target.value })}>
                 <option value="">(mặc định: không)</option>
                 <option value="true">true</option>
                 <option value="false">false</option>
-              </select>
+              </Select>
             ) : (
               inp.type !== 'environment' && <input className={monoCls} value={inp.default} placeholder="giá trị mặc định" onChange={(e) => set(i, { default: e.target.value })} />
             )}
@@ -421,12 +422,12 @@ function StepEditor({ s, index, total, onChange, onMove, onRemove }: { s: StepDe
               <input className={monoCls} value={s.if} placeholder="github.ref == 'refs/heads/main'" onChange={(e) => onChange({ if: e.target.value })} />
             </Field>
             <Field label="shell">
-              <select className={inputCls} value={s.shell} onChange={(e) => onChange({ shell: e.target.value })}>
+              <Select className={inputCls} value={s.shell} onChange={(e) => onChange({ shell: e.target.value })}>
                 <option value="">(mặc định)</option>
                 {['bash', 'sh', 'pwsh', 'powershell', 'python', 'cmd'].map((x) => (
                   <option key={x}>{x}</option>
                 ))}
-              </select>
+              </Select>
             </Field>
             <Field label="working-directory">
               <input className={monoCls} value={s.workingDirectory} onChange={(e) => onChange({ workingDirectory: e.target.value })} />
@@ -566,11 +567,11 @@ function JobEditor({
                       <textarea className={monoCls} rows={2} value={m.exclude} onChange={(e) => setM({ exclude: e.target.value })} placeholder="os=windows-latest, node-version=18" />
                     </Field>
                     <Field label="fail-fast">
-                      <select className={inputCls} value={m.failFast} onChange={(e) => setM({ failFast: e.target.value as typeof m.failFast })}>
+                      <Select className={inputCls} value={m.failFast} onChange={(e) => setM({ failFast: e.target.value as typeof m.failFast })}>
                         <option value="default">(mặc định: true)</option>
                         <option value="true">true</option>
                         <option value="false">false</option>
-                      </select>
+                      </Select>
                     </Field>
                     <Field label="max-parallel">
                       <input className={monoCls} value={m.maxParallel} onChange={(e) => setM({ maxParallel: e.target.value })} placeholder="(không giới hạn)" />
@@ -632,7 +633,8 @@ function JobEditor({
               <button className={btnCls} onClick={() => onChange({ steps: [...job.steps, newStep({ name: '', run: '' })] })}>
                 <Plus className="h-3 w-3" /> Step trống
               </button>
-              <select
+              <Select
+                searchThreshold={0}
                 className={inputCls + ' !w-auto'}
                 value=""
                 onChange={(e) => {
@@ -644,7 +646,7 @@ function JobEditor({
                 {SNIPPETS.map((x) => (
                   <option key={x.label}>{x.label}</option>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
         </div>
@@ -842,13 +844,13 @@ export default function GithubActionsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {preset.option && (
                   <Field label={preset.option.label}>
-                    <select className={inputCls} value={opt} onChange={(e) => applyPreset(presetId, e.target.value, branch)}>
+                    <Select className={inputCls} value={opt} onChange={(e) => applyPreset(presetId, e.target.value, branch)}>
                       {preset.option.choices.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.label}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </Field>
                 )}
                 <Field label="Nhánh chính" hint="Áp dụng khi chọn lại preset">
@@ -913,13 +915,13 @@ export default function GithubActionsPage() {
 
             <Card title="Quyền, concurrency, env, defaults" defaultOpen={false}>
               <Field label="permissions (cấp workflow)" hint="Nguyên tắc đặc quyền tối thiểu: bắt đầu từ contents: read, rồi nâng quyền theo từng job.">
-                <select className={inputCls} value={wf.permMode} onChange={(e) => patch({ permMode: e.target.value as PermMode })}>
+                <Select className={inputCls} value={wf.permMode} onChange={(e) => patch({ permMode: e.target.value as PermMode })}>
                   <option value="read">contents: read (khuyến nghị)</option>
                   <option value="empty">{'{}'} (không quyền nào)</option>
                   <option value="read-all">read-all</option>
                   <option value="custom">Tùy chỉnh...</option>
                   <option value="none">Không khai báo (dùng mặc định repo)</option>
-                </select>
+                </Select>
               </Field>
               {wf.permMode === 'custom' && <PermEditor items={wf.permissions} onChange={(permissions) => patch({ permissions })} />}
               <div className="rounded-lg border border-slate-200 p-2.5 space-y-2">
@@ -930,10 +932,10 @@ export default function GithubActionsPage() {
                       <input className={monoCls} value={wf.concurrency.group} onChange={(e) => patch({ concurrency: { ...wf.concurrency, group: e.target.value } })} />
                     </Field>
                     <Field label="cancel-in-progress">
-                      <select className={inputCls} value={wf.concurrency.cancel} onChange={(e) => patch({ concurrency: { ...wf.concurrency, cancel: e.target.value } })}>
+                      <Select className={inputCls} value={wf.concurrency.cancel} onChange={(e) => patch({ concurrency: { ...wf.concurrency, cancel: e.target.value } })}>
                         <option value="true">true (hủy lượt cũ)</option>
                         <option value="false">false (xếp hàng)</option>
-                      </select>
+                      </Select>
                     </Field>
                   </div>
                 )}
@@ -943,12 +945,12 @@ export default function GithubActionsPage() {
               </Field>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Field label="defaults.run.shell">
-                  <select className={inputCls} value={wf.defaultsShell} onChange={(e) => patch({ defaultsShell: e.target.value })}>
+                  <Select className={inputCls} value={wf.defaultsShell} onChange={(e) => patch({ defaultsShell: e.target.value })}>
                     <option value="">(mặc định)</option>
                     {['bash', 'sh', 'pwsh', 'powershell'].map((x) => (
                       <option key={x}>{x}</option>
                     ))}
-                  </select>
+                  </Select>
                 </Field>
                 <Field label="defaults.run.working-directory">
                   <input className={monoCls} value={wf.defaultsWorkingDir} onChange={(e) => patch({ defaultsWorkingDir: e.target.value })} placeholder="./app" />
@@ -963,7 +965,7 @@ export default function GithubActionsPage() {
             </Card>
           </div>
 
-          <div className="space-y-3 min-w-0 xl:sticky xl:top-3">
+          <div className="space-y-3 min-w-0">
             <section className="bg-white rounded-xl border border-slate-200 shadow-xs">
               <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 border-b border-slate-100">
                 <div className="text-xs font-mono text-slate-600 truncate">.github/workflows/{fileName}</div>
@@ -985,7 +987,7 @@ export default function GithubActionsPage() {
                   </button>
                 </div>
               </div>
-              <pre className="p-3.5 text-[11.5px] leading-relaxed font-mono bg-slate-900 text-slate-100 rounded-b-xl overflow-auto max-h-[460px] whitespace-pre">{yamlText}</pre>
+              <pre className="p-3.5 text-[11.5px] leading-relaxed font-mono bg-slate-900 text-slate-100 rounded-b-xl overflow-x-auto whitespace-pre">{yamlText}</pre>
             </section>
             <Card title="Kiểm tra tự động" right={<CountBadges counts={genLint.counts} />}>
               <IssueList issues={genLint.issues} />
@@ -1020,7 +1022,8 @@ export default function GithubActionsPage() {
               onChange={(e) => setLintText(e.target.value)}
               spellCheck={false}
               placeholder={'name: CI\non: push\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4'}
-              className="w-full h-[460px] p-3.5 text-[12px] leading-4 font-mono bg-slate-50 text-slate-800 rounded-b-xl resize-y focus:outline-hidden"
+              rows={Math.max(20, Math.min(2000, lintText.split('\n').length + 1))}
+              className="block w-full p-3.5 text-[12px] leading-4 font-mono bg-slate-50 text-slate-800 rounded-b-xl resize-none overflow-hidden focus:outline-hidden"
               style={{ tabSize: 2 }}
             />
             <p className="px-3.5 pb-2.5 text-[11px] text-slate-400">Mẹo: bấm vào mã quy tắc (vd GHA061 · dòng 12) để nhảy tới dòng đó. Kiểm tra mang tính tham khảo; hãy dùng thêm actionlint cho CI thực tế.</p>
@@ -1056,13 +1059,13 @@ export default function GithubActionsPage() {
                 <div key={d.uid} className="rounded-lg border border-slate-200 bg-slate-50/60 p-2.5 space-y-2">
                   <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
                     <Field label="package-ecosystem">
-                      <select className={inputCls} value={d.ecosystem} onChange={(e) => set({ ecosystem: e.target.value })}>
+                      <Select searchThreshold={0} className={inputCls} value={d.ecosystem} onChange={(e) => set({ ecosystem: e.target.value })}>
                         {DEPENDABOT_ECOSYSTEMS.map((e) => (
                           <option key={e.id} value={e.id}>
                             {e.id} — {e.label}
                           </option>
                         ))}
-                      </select>
+                      </Select>
                     </Field>
                     <Field label="directory">
                       <input className={monoCls} value={d.directory} onChange={(e) => set({ directory: e.target.value })} />
@@ -1073,18 +1076,18 @@ export default function GithubActionsPage() {
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <Field label="Tần suất">
-                      <select className={inputCls} value={d.interval} onChange={(e) => set({ interval: e.target.value as DependabotEntry['interval'] })}>
+                      <Select className={inputCls} value={d.interval} onChange={(e) => set({ interval: e.target.value as DependabotEntry['interval'] })}>
                         <option value="daily">daily</option>
                         <option value="weekly">weekly</option>
                         <option value="monthly">monthly</option>
-                      </select>
+                      </Select>
                     </Field>
                     <Field label="Ngày (weekly)">
-                      <select className={inputCls} disabled={d.interval !== 'weekly'} value={d.day} onChange={(e) => set({ day: e.target.value })}>
+                      <Select className={inputCls} disabled={d.interval !== 'weekly'} value={d.day} onChange={(e) => set({ day: e.target.value })}>
                         {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((x) => (
                           <option key={x}>{x}</option>
                         ))}
-                      </select>
+                      </Select>
                     </Field>
                     <Field label="Giờ (HH:MM)">
                       <input className={monoCls} value={d.time} placeholder="09:00" onChange={(e) => set({ time: e.target.value })} />
@@ -1112,7 +1115,7 @@ export default function GithubActionsPage() {
             </div>
             <p className="text-[11px] text-slate-500">Dependabot cũng cập nhật phiên bản GitHub Actions (github-actions) — nên bật để các action trong workflow luôn mới. Thời gian tính theo UTC.</p>
           </Card>
-          <section className="bg-white rounded-xl border border-slate-200 shadow-xs min-w-0 xl:sticky xl:top-3">
+          <section className="bg-white rounded-xl border border-slate-200 shadow-xs min-w-0">
             <div className="flex items-center justify-between px-3.5 py-2 border-b border-slate-100">
               <div className="text-xs font-mono text-slate-600">.github/dependabot.yml</div>
               <div className="flex gap-1.5">
@@ -1124,7 +1127,7 @@ export default function GithubActionsPage() {
                 </button>
               </div>
             </div>
-            <pre className="p-3.5 text-[11.5px] leading-relaxed font-mono bg-slate-900 text-slate-100 rounded-b-xl overflow-auto max-h-[560px] whitespace-pre">{depsYaml}</pre>
+            <pre className="p-3.5 text-[11.5px] leading-relaxed font-mono bg-slate-900 text-slate-100 rounded-b-xl overflow-x-auto whitespace-pre">{depsYaml}</pre>
           </section>
         </div>
       )}

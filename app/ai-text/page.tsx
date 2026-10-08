@@ -5,6 +5,7 @@ import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Sparkles, Upload, Copy, Download, Loader2, X, RotateCw, Mic, Trash2, AlertTriangle, Zap, Globe, Cpu, CheckCircle2, FileSearch } from 'lucide-react';
+import { Select } from '@/components/ui/searchable-select';
 import { useApp } from '@/components/AppContext';
 import { useAiSettings } from '@/lib/use-ai-config';
 import { AiKeyNotice } from '@/components/AiKeyNotice';
@@ -595,18 +596,18 @@ export default function AiTextPage() {
               <>
                 <div className="grid grid-cols-2 gap-2.5">
                   <Field label="Độ dài">
-                    <select className={selectCls} value={length} onChange={(e) => setLength(e.target.value)}>
+                    <Select className={selectCls} value={length} onChange={(e) => setLength(e.target.value)}>
                       <option value="short">Ngắn</option>
                       <option value="medium">Vừa</option>
                       <option value="long">Chi tiết</option>
-                    </select>
+                    </Select>
                   </Field>
                   <Field label="Kiểu trình bày">
-                    <select className={selectCls} value={style} onChange={(e) => setStyle(e.target.value)}>
+                    <Select className={selectCls} value={style} onChange={(e) => setStyle(e.target.value)}>
                       <option value="paragraph">Đoạn văn</option>
                       <option value="bullets">Gạch đầu dòng</option>
                       <option value="tldr">TL;DR</option>
-                    </select>
+                    </Select>
                   </Field>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -631,15 +632,15 @@ export default function AiTextPage() {
               <>
                 <div className="grid grid-cols-2 gap-2.5">
                   <Field label="Ngôn ngữ nguồn">
-                    <select className={selectCls} value={source} onChange={(e) => setSource(e.target.value)}>
+                    <Select searchThreshold={0} className={selectCls} value={source} onChange={(e) => setSource(e.target.value)}>
                       <option value="auto">Tự phát hiện</option>
                       {langOptions.map(([c, l]) => <option key={c} value={c}>{l}</option>)}
-                    </select>
+                    </Select>
                   </Field>
                   <Field label="Dịch sang">
-                    <select className={selectCls} value={target} onChange={(e) => setTarget(e.target.value)}>
+                    <Select searchThreshold={0} className={selectCls} value={target} onChange={(e) => setTarget(e.target.value)}>
                       {langOptions.map(([c, l]) => <option key={c} value={c}>{l}</option>)}
-                    </select>
+                    </Select>
                   </Field>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -710,20 +711,20 @@ export default function AiTextPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {mode === 'summarize' && (
                   <Field label="Ngôn ngữ đầu ra">
-                    <select className={selectCls} value={outLang} onChange={(e) => setOutLang(e.target.value)}>
+                    <Select searchThreshold={0} className={selectCls} value={outLang} onChange={(e) => setOutLang(e.target.value)}>
                       <option value="auto">Giống văn bản gốc</option>
                       {langOptions.map(([c, l]) => <option key={c} value={c}>{l}</option>)}
-                    </select>
+                    </Select>
                   </Field>
                 )}
                 {mode === 'translate' && (
                   <>
                     <Field label="Giọng văn">
-                      <select className={selectCls} value={tone} onChange={(e) => setTone(e.target.value)}>
+                      <Select className={selectCls} value={tone} onChange={(e) => setTone(e.target.value)}>
                         <option value="keep">Giữ nguyên</option>
                         <option value="formal">Trang trọng</option>
                         <option value="casual">Thân mật</option>
-                      </select>
+                      </Select>
                     </Field>
                     <div className="col-span-2 flex items-end">
                       <Check label="Giữ nguyên Markdown / code" checked={preserveMd} onChange={setPreserveMd} />
@@ -733,10 +734,10 @@ export default function AiTextPage() {
                 {mode === 'explain-code' && (
                   <>
                     <Field label="Trình độ người đọc">
-                      <select className={selectCls} value={level} onChange={(e) => setLevel(e.target.value)}>
+                      <Select className={selectCls} value={level} onChange={(e) => setLevel(e.target.value)}>
                         <option value="beginner">Người mới</option>
                         <option value="expert">Có kinh nghiệm</option>
-                      </select>
+                      </Select>
                     </Field>
                     <div className="flex flex-col justify-end gap-1.5 col-span-2">
                       <Check label="Độ phức tạp" checked={complexity} onChange={setComplexity} />

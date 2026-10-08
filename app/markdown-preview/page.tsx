@@ -487,7 +487,7 @@ export default function MarkdownPreviewPage() {
   const showPreview = mode !== 'edit';
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3.5 lg-fit-screen">
       <style>{PRINT_CSS}</style>
 
       {/* Header */}
@@ -594,10 +594,10 @@ export default function MarkdownPreviewPage() {
         </button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-3.5 items-stretch">
+      <div className="flex flex-col lg:flex-row gap-3.5 items-stretch lg-fill">
         {/* Outline */}
         {showOutline && (
-          <aside className="bg-white rounded-xl border border-slate-200/90 shadow-xs lg:w-56 shrink-0 max-h-48 lg:max-h-[640px] overflow-auto">
+          <aside className="bg-white rounded-xl border border-slate-200/90 shadow-xs lg:w-56 shrink-0 max-h-48 lg:max-h-none lg:h-full overflow-auto">
             <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
               <ListTree className="h-4 w-4 text-indigo-600" />
               Dàn ý
@@ -625,11 +625,11 @@ export default function MarkdownPreviewPage() {
           </aside>
         )}
 
-        <div className={`flex-1 min-w-0 grid gap-3.5 grid-cols-1 ${mode === 'split' ? 'lg:grid-cols-2' : ''}`}>
+        <div className={`flex-1 min-w-0 grid gap-3.5 grid-cols-1 lg:grid-rows-[minmax(0,1fr)] ${mode === 'split' ? 'lg:grid-cols-2' : ''}`}>
           {/* Editor */}
           {showEditor && (
             <div
-              className={`bg-white rounded-xl border shadow-xs flex flex-col h-[520px] lg:h-[640px] overflow-hidden min-w-0 ${
+              className={`bg-white rounded-xl border shadow-xs flex flex-col h-[520px] lg:h-full overflow-hidden min-w-0 ${
                 dragOver ? 'border-indigo-500 ring-2 ring-indigo-200' : 'border-slate-200/90'
               }`}
               onDragOver={(e) => {
@@ -687,7 +687,7 @@ export default function MarkdownPreviewPage() {
 
           {/* Preview */}
           {showPreview && (
-            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col h-[520px] lg:h-[640px] overflow-hidden min-w-0">
+            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col h-[520px] lg:h-full overflow-hidden min-w-0">
               <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                 <Eye className="h-4 w-4 text-emerald-600" />
                 Xem trước

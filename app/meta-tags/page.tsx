@@ -30,6 +30,7 @@ import {
   truncateChars,
   validateMeta,
 } from '@/lib/meta-tags';
+import { Select } from '@/components/ui/searchable-select';
 
 const inputCls =
   'w-full px-2 py-1 text-xs rounded-md border border-slate-200 bg-white text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400';
@@ -543,9 +544,9 @@ export default function MetaTagsPage() {
               <div className="grid grid-cols-3 gap-2">
                 <Field label="max-snippet"><input className={inputCls} inputMode="numeric" placeholder="-1" value={s.robots.maxSnippet} onChange={(e) => upd((d) => { d.robots.maxSnippet = e.target.value; })} /></Field>
                 <Field label="max-image-preview">
-                  <select className={inputCls} value={s.robots.maxImagePreview} onChange={(e) => upd((d) => { d.robots.maxImagePreview = e.target.value as MetaState['robots']['maxImagePreview']; })}>
+                  <Select className={inputCls} value={s.robots.maxImagePreview} onChange={(e) => upd((d) => { d.robots.maxImagePreview = e.target.value as MetaState['robots']['maxImagePreview']; })}>
                     <option value="">(không đặt)</option><option value="none">none</option><option value="standard">standard</option><option value="large">large</option>
-                  </select>
+                  </Select>
                 </Field>
                 <Field label="max-video-preview"><input className={inputCls} inputMode="numeric" placeholder="-1" value={s.robots.maxVideoPreview} onChange={(e) => upd((d) => { d.robots.maxVideoPreview = e.target.value; })} /></Field>
               </div>
@@ -617,10 +618,10 @@ export default function MetaTagsPage() {
               <Check2 checked={s.twitter.enabled} onChange={(v) => upd((d) => { d.twitter.enabled = v; })}>Xuất thẻ Twitter Card</Check2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Field label="twitter:card">
-                  <select className={inputCls} value={s.twitter.card} onChange={(e) => upd((d) => { d.twitter.card = e.target.value as 'summary' | 'summary_large_image'; })}>
+                  <Select className={inputCls} value={s.twitter.card} onChange={(e) => upd((d) => { d.twitter.card = e.target.value as 'summary' | 'summary_large_image'; })}>
                     <option value="summary_large_image">summary_large_image</option>
                     <option value="summary">summary</option>
-                  </select>
+                  </Select>
                 </Field>
                 <span />
                 <Field label="twitter:site"><input className={inputCls} placeholder="@tenban" value={s.twitter.site} onChange={(e) => upd((d) => { d.twitter.site = e.target.value; })} /></Field>

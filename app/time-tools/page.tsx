@@ -25,6 +25,7 @@ import {
   zonedToInstant,
   type Duration,
 } from '@/lib/time-tools';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -81,14 +82,23 @@ function Panel({ icon: Icon, title, children, right }: {
 const inputCls =
   'px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200';
 
+const TZ_ALIASES: Record<string, string> = {
+  'Asia/Saigon': 'Ho Chi Minh Viet Nam Vietnam Sai Gon',
+  'Asia/Ho_Chi_Minh': 'Saigon Viet Nam Vietnam',
+  'Asia/Bangkok': 'Hanoi Ha Noi Thai Lan',
+  'Asia/Kolkata': 'Calcutta India An Do',
+  'Asia/Shanghai': 'Beijing Trung Quoc China',
+  'Asia/Seoul': 'Han Quoc Korea',
+  'Asia/Tokyo': 'Nhat Ban Japan',
+};
+
 function TzSelect({ value, onChange, zones }: { value: string; onChange: (v: string) => void; zones: string[] }) {
-  const list = zones.includes(value) ? zones : [value, ...zones];
+  const options = useMemo(() => {
+    const list = zones.includes(value) ? zones : [value, ...zones];
+    return list.map((z) => ({ value: z, label: z, keywords: z.replace(/[_/]/g, ' ') + (TZ_ALIASES[z] ? ' ' + TZ_ALIASES[z] : '') }));
+  }, [zones, value]);
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value)} className={inputCls + ' max-w-full'}>
-      {list.map((z) => (
-        <option key={z} value={z}>{z}</option>
-      ))}
-    </select>
+    <SearchableSelect value={value} onChange={onChange} options={options} className={inputCls + ' max-w-full'} searchThreshold={0} searchPlaceholder="Tìm múi giờ (vd: ho chi, tokyo)..." aria-label="Múi giờ" />
   );
 }
 

@@ -46,6 +46,7 @@ import {
   type TreeOptions,
 } from '@/lib/tree-gen';
 
+import { Select } from '@/components/ui/searchable-select';
 import { SendToButton } from '@/components/SendToButton';
 const SAMPLE = `package.json  # Khai báo dependency và script
 README.md
@@ -404,7 +405,7 @@ export default function TreeGenPage() {
                 spellCheck={false}
                 rows={13}
                 placeholder={'Dán vào đây, ví dụ:\nsrc/index.ts\nsrc/lib/utils.ts  # ghi chú\n\nhoặc thả một thư mục vào ô này'}
-                className="w-full px-3 py-2 text-xs font-mono border border-slate-200 rounded-lg bg-slate-50 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-y"
+                className="w-full px-3 py-2 text-xs font-mono border border-slate-200 rounded-lg bg-slate-50 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-y field-sizing-content min-h-[17rem] max-h-[70vh]"
               />
             </div>
             {loadNote && <p className="text-[11px] text-emerald-700">{loadNote}</p>}
@@ -422,9 +423,9 @@ export default function TreeGenPage() {
             <div className="grid grid-cols-2 gap-2">
               <label className="text-[11px] text-slate-600 space-y-1">
                 <span>Sắp xếp</span>
-                <select className={inputCls} value={opts.sort} onChange={(e) => set('sort', e.target.value as SortMode)}>
+                <Select className={inputCls} value={opts.sort} onChange={(e) => set('sort', e.target.value as SortMode)}>
                   {SORTS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
-                </select>
+                </Select>
               </label>
               <label className="text-[11px] text-slate-600 space-y-1">
                 <span>Độ sâu tối đa (0 = không giới hạn)</span>
@@ -462,7 +463,7 @@ export default function TreeGenPage() {
                   <button type="button" className="text-slate-500 hover:underline" onClick={() => set('ignore', '')}>Xóa</button>
                 </span>
               </span>
-              <textarea rows={3} spellCheck={false} className={inputCls + ' font-mono'} value={opts.ignore}
+              <textarea rows={3} spellCheck={false} className={inputCls + ' font-mono field-sizing-content max-h-96'} value={opts.ignore}
                 placeholder={'node_modules\n*.log\n/build\n!keep.log'}
                 onChange={(e) => set('ignore', e.target.value)} />
             </label>
@@ -474,9 +475,9 @@ export default function TreeGenPage() {
           <div className="bg-white border border-slate-200 rounded-xl p-3 space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-xs font-bold text-slate-700">Kết quả</h2>
-              <select className={inputCls + ' !w-auto'} value={style} onChange={(e) => setStyle(e.target.value as OutputStyle)}>
+              <Select className={inputCls + ' !w-auto'} value={style} onChange={(e) => setStyle(e.target.value as OutputStyle)}>
                 {STYLES.map((s) => <option key={s} value={s}>{STYLE_LABELS[s]}</option>)}
-              </select>
+              </Select>
             </div>
             <div className="flex flex-wrap gap-1.5 text-[11px]">
               <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">{counts.files.toLocaleString('vi-VN')} file</span>
@@ -489,7 +490,7 @@ export default function TreeGenPage() {
             {output.length > 200000 ? (
               <p className="text-xs text-amber-700">Kết quả quá lớn để hiển thị ({output.length.toLocaleString('vi-VN')} ký tự); vẫn có thể sao chép/tải về.</p>
             ) : (
-              <pre className="bg-slate-900 text-slate-100 rounded-lg p-3 text-xs font-mono overflow-auto max-h-[420px] whitespace-pre">
+              <pre className="bg-slate-900 text-slate-100 rounded-lg p-3 text-xs font-mono overflow-x-auto whitespace-pre">
                 {parsed.format === 'empty' ? 'Chưa có dữ liệu để tạo sơ đồ.' : output}
               </pre>
             )}
@@ -537,7 +538,7 @@ export default function TreeGenPage() {
         {rows.length === 0 ? (
           <p className="text-xs text-slate-400 py-6 text-center">Chưa có mục nào để hiển thị.</p>
         ) : (
-          <div className="border border-slate-200 rounded-lg divide-y divide-slate-100 max-h-[520px] overflow-auto">
+          <div className="border border-slate-200 rounded-lg divide-y divide-slate-100 overflow-x-auto">
             {rows.map(({ node, depth }) => {
               const dir = node.isDir || node.children.length > 0;
               const drafting = draft && draft.id === node.id ? draft : null;

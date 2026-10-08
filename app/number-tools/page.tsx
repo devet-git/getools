@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Calculator, Copy, Check, Upload, ArrowLeftRight, AlertTriangle, Sparkles } from 'lucide-react';
+import { Select } from '@/components/ui/searchable-select';
 import { useApp } from '@/components/AppContext';
 import { ShareLinkButton } from '@/components/ShareLinkButton';
 import { readShareParams } from '@/lib/share-link';
@@ -181,14 +182,14 @@ function BaseTab({ initial, onShare }: { initial: URLSearchParams; onShare: (p: 
               aria-label="Số cần đổi"
               className={inputCls}
             />
-            <select value={baseSel} onChange={(e) => setBaseSel(e.target.value)} className={selectCls} aria-label="Cơ số nhập">
+            <Select value={baseSel} onChange={(e) => setBaseSel(e.target.value)} className={selectCls} aria-label="Cơ số nhập">
               {['2', '8', '10', '16', '32', '36'].map((b) => (
                 <option key={b} value={b}>
                   Cơ số {b}
                 </option>
               ))}
               <option value="custom">Tuỳ chọn…</option>
-            </select>
+            </Select>
             {baseSel === 'custom' && (
               <input type="number" min={2} max={36} value={custom} onChange={(e) => setCustom(e.target.value)} className={`${inputCls} w-20`} aria-label="Cơ số tuỳ chọn" />
             )}
@@ -223,13 +224,13 @@ function BaseTab({ initial, onShare }: { initial: URLSearchParams; onShare: (p: 
           <Panel
             title="Bù hai & kiểu có/không dấu"
             right={
-              <select value={width} onChange={(e) => setWidth(Number(e.target.value))} className={selectCls} aria-label="Độ rộng bit">
+              <Select value={width} onChange={(e) => setWidth(Number(e.target.value))} className={selectCls} aria-label="Độ rộng bit">
                 {WIDTHS.map((w) => (
                   <option key={w} value={w}>
                     {w} bit
                   </option>
                 ))}
-              </select>
+              </Select>
             }
           >
             <Row label={`Bù 2 (${width} bit)`} value={groupDigits(info.bin, 4)} />
@@ -426,13 +427,13 @@ function BitsTab({ initial, onShare }: { initial: URLSearchParams; onShare: (p: 
       <div className="lg:col-span-2 space-y-3">
         <Panel title="Phép toán bit">
           <div className="flex gap-2">
-            <select value={op} onChange={(e) => setOp(e.target.value as BitOp)} className={selectCls} aria-label="Phép toán">
+            <Select value={op} onChange={(e) => setOp(e.target.value as BitOp)} className={selectCls} aria-label="Phép toán">
               {BIT_OPS.map((o) => (
                 <option key={o.id} value={o.id}>
                   {o.label}
                 </option>
               ))}
-            </select>
+            </Select>
             {!spec.unary && (
               <input className={inputCls} value={opB} onChange={(e) => setOpB(e.target.value)} placeholder={spec.shift ? 'n (số bit)' : 'B (0x…, 0b…, thập phân)'} aria-label="Toán hạng B" spellCheck={false} />
             )}
@@ -690,13 +691,13 @@ function SizeTab({ initial, onShare }: { initial: URLSearchParams; onShare: (p: 
           <div className="flex flex-wrap gap-2 items-center text-xs text-slate-600">
             Tốc độ
             <input className={`${inputCls} w-24`} value={speed} onChange={(e) => setSpeed(e.target.value)} inputMode="decimal" aria-label="Tốc độ" />
-            <select value={speedUnit} onChange={(e) => setSpeedUnit(e.target.value)} className={selectCls} aria-label="Đơn vị tốc độ">
+            <Select value={speedUnit} onChange={(e) => setSpeedUnit(e.target.value)} className={selectCls} aria-label="Đơn vị tốc độ">
               {SPEED_UNITS.map((u) => (
                 <option key={u.id} value={u.id}>
                   {u.label}
                 </option>
               ))}
-            </select>
+            </Select>
             Hiệu suất
             <input className={`${inputCls} w-16`} value={eff} onChange={(e) => setEff(e.target.value)} inputMode="decimal" aria-label="Hiệu suất (%)" />%
           </div>
@@ -784,13 +785,13 @@ function BytesTab({ initial, onShare }: { initial: URLSearchParams; onShare: (p:
         <Panel
           title="Số → byte"
           right={
-            <select value={ntype} onChange={(e) => setNtype(e.target.value as NumType)} className={selectCls} aria-label="Kiểu số">
+            <Select value={ntype} onChange={(e) => setNtype(e.target.value as NumType)} className={selectCls} aria-label="Kiểu số">
               {NUM_TYPES.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.id}
                 </option>
               ))}
-            </select>
+            </Select>
           }
         >
           <input value={numText} onChange={(e) => setNumText(e.target.value)} className={inputCls} spellCheck={false} aria-label="Số" placeholder="0x12345678, -1, 3.14" />

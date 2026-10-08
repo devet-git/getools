@@ -34,6 +34,7 @@ import {
   syncHeaderAlg,
   verifyJwt,
 } from '@/lib/jwt-tools';
+import { Select } from '@/components/ui/searchable-select';
 
 type Tab = 'verify' | 'sign' | 'keys';
 
@@ -78,21 +79,21 @@ function Panel({ title, children, right }: { title: string; children: React.Reac
 
 function AlgSelect({ value, onChange, label }: { value: JwtAlg; onChange: (a: JwtAlg) => void; label: string }) {
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value as JwtAlg)} className={inputCls + ' w-auto font-mono'} aria-label={label}>
+    <Select value={value} onChange={(e) => onChange(e.target.value as JwtAlg)} className={inputCls + ' w-auto font-mono'} aria-label={label}>
       {ALGS.map((a) => (
         <option key={a} value={a}>{a}</option>
       ))}
-    </select>
+    </Select>
   );
 }
 
 function EncodingSelect({ value, onChange }: { value: SecretEncoding; onChange: (e: SecretEncoding) => void }) {
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value as SecretEncoding)} className={inputCls + ' w-auto'} aria-label="Định dạng secret">
+    <Select value={value} onChange={(e) => onChange(e.target.value as SecretEncoding)} className={inputCls + ' w-auto'} aria-label="Định dạng secret">
       <option value="text">Secret dạng văn bản</option>
       <option value="base64">Secret dạng Base64</option>
       <option value="hex">Secret dạng hex</option>
-    </select>
+    </Select>
   );
 }
 

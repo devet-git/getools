@@ -47,6 +47,7 @@ import {
   type LoadedItem,
   type ChainAnalysis,
 } from '@/lib/x509';
+import { Select } from '@/components/ui/searchable-select';
 
 /* ---------------- Mẫu (chứng chỉ thử nghiệm, không có khóa riêng) ---------------- */
 
@@ -887,8 +888,9 @@ export default function X509Page() {
         <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 flex flex-wrap items-center justify-between gap-2">
           <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Dữ liệu đầu vào</span>
           <div className="flex flex-wrap items-center gap-1.5">
-            <select
+            <Select
               aria-label="Chọn mẫu"
+              searchThreshold={0}
               value=""
               onChange={(e) => {
                 const s = SAMPLES.find((x) => x.id === e.target.value);
@@ -902,7 +904,7 @@ export default function X509Page() {
                   {s.name}
                 </option>
               ))}
-            </select>
+            </Select>
             <button onClick={() => fileRef.current?.click()} className="px-2 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 flex items-center gap-1">
               <Upload className="h-3.5 w-3.5" />
               Chọn file

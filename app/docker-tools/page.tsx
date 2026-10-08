@@ -56,7 +56,7 @@ function WarningList({ warnings }: { warnings: Warning[] }) {
         {warns.length > 0 && <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 normal-case">{warns.length} cảnh báo</span>}
         {infos.length > 0 && <span className="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 normal-case">{infos.length} ghi chú</span>}
       </div>
-      <ul className="p-3 space-y-1.5 max-h-60 overflow-auto">
+      <ul className="p-3 space-y-1.5">
         {warns.map((w, i) => row(w, i, true))}
         {infos.map((w, i) => row(w, i + 1000, false))}
       </ul>
@@ -216,7 +216,7 @@ export default function DockerToolsPage() {
 
       {/* EDITORS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden h-[420px]">
+        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden min-h-[420px]">
           <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
             <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
               {mode === 'run2compose' ? 'Lệnh docker run (một hoặc nhiều)' : 'docker-compose.yml'}
@@ -239,7 +239,8 @@ export default function DockerToolsPage() {
                 ? 'Dán lệnh docker run vào đây, ví dụ:\ndocker run -d --name web -p 8080:80 nginx'
                 : 'Dán nội dung docker-compose.yml vào đây...'
             }
-            className="flex-1 w-full p-3 text-xs font-mono bg-slate-50/60 focus:bg-white outline-hidden resize-none leading-relaxed text-slate-800 whitespace-pre"
+            rows={Math.min(3000, Math.max(18, input.split('\n').length + 1))}
+            className="flex-1 w-full p-3 text-xs font-mono bg-slate-50/60 focus:bg-white outline-hidden resize-none overflow-hidden leading-relaxed text-slate-800 whitespace-pre"
           />
           <div className="px-3 py-1.5 border-t border-slate-100 text-[11px] text-slate-400 flex justify-between">
             <span>{input ? input.split(/\r\n|\r|\n/).length : 0} dòng</span>
@@ -247,7 +248,7 @@ export default function DockerToolsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden h-[420px]">
+        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden min-h-[420px]">
           <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
               <ArrowRight className="h-3.5 w-3.5 text-indigo-500" />
@@ -279,7 +280,7 @@ export default function DockerToolsPage() {
             </div>
           </div>
           {error ? (
-            <div className="flex-1 p-4 text-sm text-red-700 bg-red-50/60 overflow-auto">
+            <div className="flex-1 p-4 text-sm text-red-700 bg-red-50/60 overflow-x-auto break-words">
               <div className="font-semibold mb-1">Không chuyển đổi được</div>
               {error}
             </div>
@@ -288,7 +289,7 @@ export default function DockerToolsPage() {
               {input.trim() ? 'Không có kết quả.' : 'Nhập nội dung ở bên trái để xem kết quả.'}
             </div>
           ) : (
-            <pre className="flex-1 overflow-auto p-3 text-xs font-mono bg-slate-900 text-slate-100 leading-relaxed whitespace-pre">{output}</pre>
+            <pre className="flex-1 overflow-x-auto p-3 text-xs font-mono bg-slate-900 text-slate-100 leading-relaxed whitespace-pre">{output}</pre>
           )}
         </div>
       </div>
@@ -330,7 +331,7 @@ export default function DockerToolsPage() {
                       ))}
                     </ul>
                   )}
-                  <pre className="p-2.5 text-xs font-mono bg-slate-900 text-slate-100 overflow-auto whitespace-pre max-h-64">{text}</pre>
+                  <pre className="p-2.5 text-xs font-mono bg-slate-900 text-slate-100 overflow-x-auto whitespace-pre">{text}</pre>
                 </div>
               );
             })}

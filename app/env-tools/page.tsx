@@ -39,6 +39,7 @@ import {
   sortDotenv,
 } from '@/lib/env-tools';
 
+import { Select } from '@/components/ui/searchable-select';
 import { SendToButton } from '@/components/SendToButton';
 type Tab = 'convert' | 'lint' | 'diff' | 'example' | 'resolve';
 
@@ -85,7 +86,7 @@ function Editor({
   height?: string;
 }) {
   return (
-    <div className={`bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden ${height}`}>
+    <div className={`bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden ${height} lg:h-full lg:min-h-0`}>
       <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
         <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">{title}</span>
         {onClear && (
@@ -118,7 +119,7 @@ function Editor({
 function Warnings({ items }: { items: string[] }) {
   if (!items.length) return null;
   return (
-    <div className="bg-amber-50/60 border border-amber-200 rounded-xl px-3 py-2 space-y-1">
+    <div className="bg-amber-50/60 border border-amber-200 rounded-xl px-3 py-2 space-y-1 shrink-0 max-h-24 overflow-auto">
       {items.map((w, i) => (
         <div key={i} className="flex items-start gap-2 text-xs text-slate-700">
           <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
@@ -272,9 +273,9 @@ export default function EnvToolsPage() {
   };
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3.5 lg-fit-screen lg:space-y-0 lg:gap-3.5">
       {/* HEADER */}
-      <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs shrink-0 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center shrink-0">
             <FileCog className="h-4 w-4" />
@@ -296,7 +297,7 @@ export default function EnvToolsPage() {
       </div>
 
       {/* TABS */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 shrink-0">
         <div className="flex flex-wrap bg-slate-200/80 p-0.5 rounded-lg text-xs">
           {TABS.map((t) => (
             <button
@@ -331,26 +332,26 @@ export default function EnvToolsPage() {
       {/* ===== CONVERT ===== */}
       {tab === 'convert' && (
         <>
-          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs px-3 py-2.5 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs px-3 py-2.5 flex flex-wrap items-center gap-x-4 gap-y-2 shrink-0">
             <label className="flex items-center gap-1.5 text-xs font-medium text-slate-700">
               Từ
-              <select value={from} onChange={(e) => setFrom(e.target.value as InFormat)} className={selectCls}>
+              <Select value={from} onChange={(e) => setFrom(e.target.value as InFormat)} className={selectCls}>
                 {IN_FORMATS.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
             <label className="flex items-center gap-1.5 text-xs font-medium text-slate-700">
               Sang
-              <select value={to} onChange={(e) => setTo(e.target.value as OutFormat)} className={selectCls}>
+              <Select value={to} onChange={(e) => setTo(e.target.value as OutFormat)} className={selectCls} searchThreshold={0}>
                 {OUT_FORMATS.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
             {to.startsWith('k8s') && (
               <>
@@ -371,7 +372,7 @@ export default function EnvToolsPage() {
             <Toggle checked={maskPreview} onChange={setMaskPreview} label="Che bí mật trong xem trước" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
             <Editor
               title={`Đầu vào${conv?.detected && from === 'auto' ? ` (nhận diện: ${IN_FORMATS.find((f) => f.id === conv.detected)?.label})` : ''}`}
               value={input}
@@ -380,7 +381,7 @@ export default function EnvToolsPage() {
               placeholder="Dán nội dung .env, JSON, YAML, lệnh docker run, ConfigMap/Secret..."
               height="h-[420px]"
             />
-            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden h-[420px]">
+            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden h-[420px] lg:h-full lg:min-h-0">
               <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between gap-2">
                 <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                   Kết quả
@@ -431,9 +432,9 @@ export default function EnvToolsPage() {
 
       {/* ===== LINT ===== */}
       {tab === 'lint' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
           <Editor title="Nội dung .env" value={input} onChange={setInput} onClear={() => setInput('')} placeholder="Dán nội dung .env để kiểm tra..." height="h-[420px]" />
-          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden h-[420px]">
+          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden h-[420px] lg:h-full lg:min-h-0">
             <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 text-xs font-bold text-slate-800 uppercase tracking-wider flex flex-wrap items-center gap-2">
               Kết quả kiểm tra
               <span className="px-1.5 py-0.5 rounded bg-red-100 text-red-700 normal-case">{lint.filter((l) => l.level === 'error').length} lỗi</span>
@@ -465,12 +466,12 @@ export default function EnvToolsPage() {
       {/* ===== DIFF ===== */}
       {tab === 'diff' && (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 lg:flex-[2] lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
             <Editor title="File A (gốc)" value={input} onChange={setInput} onClear={() => setInput('')} placeholder="Dán .env gốc..." height="h-[260px]" />
             <Editor title="File B (mới)" value={inputB} onChange={setInputB} onClear={() => setInputB('')} placeholder="Dán .env mới..." height="h-[260px]" />
           </div>
-          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
-            <div className="p-3 border-b border-slate-100 bg-slate-50/60 flex flex-wrap items-center justify-between gap-2">
+          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col lg:flex-[3] lg:min-h-0">
+            <div className="p-3 shrink-0 border-b border-slate-100 bg-slate-50/60 flex flex-wrap items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <span className="font-bold text-slate-800 uppercase tracking-wider">Khác biệt</span>
                 <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-semibold">+{diffStats.added} thêm</span>
@@ -483,7 +484,7 @@ export default function EnvToolsPage() {
             {diff.length === 0 ? (
               <div className="p-8 text-center text-sm text-slate-400">Nhập nội dung ở cả hai bên để so sánh.</div>
             ) : (
-              <div className="max-h-[420px] overflow-auto">
+              <div className="max-h-[420px] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-auto">
                 <table className="w-full text-xs font-mono border-collapse">
                   <thead className="sticky top-0 bg-slate-50 text-slate-500 text-left">
                     <tr>
@@ -526,14 +527,14 @@ export default function EnvToolsPage() {
       {/* ===== EXAMPLE ===== */}
       {tab === 'example' && (
         <>
-          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs px-3 py-2.5 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs px-3 py-2.5 flex flex-wrap items-center gap-x-4 gap-y-2 shrink-0">
             <label className="flex items-center gap-1.5 text-xs font-medium text-slate-700">
               Giá trị
-              <select value={exMode} onChange={(e) => setExMode(e.target.value as ExampleMode)} className={selectCls}>
+              <Select value={exMode} onChange={(e) => setExMode(e.target.value as ExampleMode)} className={selectCls}>
                 <option value="placeholder">Bí mật → your_ten_bien, giữ giá trị thường</option>
                 <option value="keep">Giữ giá trị thường, bí mật để trống</option>
                 <option value="empty">Để trống tất cả</option>
-              </select>
+              </Select>
             </label>
             <Toggle checked={exComments} onChange={setExComments} label="Giữ comment & dòng trống" />
             <Toggle checked={exSort} onChange={setExSort} label="Sắp xếp khóa A→Z" />
@@ -547,9 +548,9 @@ export default function EnvToolsPage() {
               Sắp xếp .env gốc (giữ comment)
             </button>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
             <Editor title="File .env gốc" value={input} onChange={setInput} onClear={() => setInput('')} height="h-[420px]" />
-            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden h-[420px]">
+            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden h-[420px] lg:h-full lg:min-h-0">
               <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">.env.example</span>
                 <div className="flex items-center gap-1.5">
@@ -576,9 +577,9 @@ export default function EnvToolsPage() {
 
       {/* ===== RESOLVE ===== */}
       {tab === 'resolve' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
           <Editor title="Nội dung .env" value={input} onChange={setInput} onClear={() => setInput('')} height="h-[420px]" />
-          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden h-[420px]">
+          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden h-[420px] lg:h-full lg:min-h-0">
             <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between gap-2">
               <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Giá trị sau khi nội suy</span>
               {revealBtn()}
@@ -626,7 +627,7 @@ export default function EnvToolsPage() {
         </div>
       )}
 
-      <p className="text-[11px] text-slate-500 px-1 leading-relaxed">
+      <p className="text-[11px] text-slate-500 px-1 leading-relaxed shrink-0">
         <b>Mẹo:</b> các biến có tên chứa KEY / SECRET / TOKEN / PASSWORD được coi là bí mật và bị che trong phần xem trước. Nội dung .env chỉ được xử lý trên trình duyệt của bạn
         và không bao giờ được đưa vào link chia sẻ. Base64 của Kubernetes Secret chỉ là mã hóa, không phải bảo mật.
       </p>

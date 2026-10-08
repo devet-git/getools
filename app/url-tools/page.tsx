@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Globe, Copy, Check, Plus, Trash2, ArrowUp, ArrowDown, CopyPlus, Sparkles, Download, ChevronDown, ChevronRight } from 'lucide-react';
+import { Select } from '@/components/ui/searchable-select';
 import { useApp } from '@/components/AppContext';
 import { SendToButton } from '@/components/SendToButton';
 import { ShareLinkButton } from '@/components/ShareLinkButton';
@@ -53,6 +54,7 @@ const TABS = [
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
+const selCls = 'px-2 py-1 text-xs font-mono rounded-md border border-slate-200 bg-white text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/40';
 const inputCls =
   'w-full px-2 py-1 text-xs font-mono rounded-md border border-slate-200 bg-white text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400';
 const btnCls =
@@ -226,11 +228,11 @@ export default function UrlToolsPage() {
       <Check2 checked={norm.forceHttps} onChange={(v) => setNormOpt('forceHttps', v)}>http thành https</Check2>
       <label className="inline-flex items-center gap-1.5 text-xs text-slate-700">
         Dấu / cuối:
-        <select className={inputCls + ' w-auto'} value={norm.trailingSlash} onChange={(e) => setNormOpt('trailingSlash', e.target.value as NormalizeOptions['trailingSlash'])}>
+        <Select className={selCls} value={norm.trailingSlash} onChange={(e) => setNormOpt('trailingSlash', e.target.value as NormalizeOptions['trailingSlash'])}>
           <option value="keep">Giữ nguyên</option>
           <option value="remove">Bỏ</option>
           <option value="add">Thêm</option>
-        </select>
+        </Select>
       </label>
     </div>
   );
@@ -433,20 +435,20 @@ export default function UrlToolsPage() {
                   <Check2 checked={decodeView} onChange={setDecodeView}>Hiển thị đã giải mã (+ và %XX)</Check2>
                   <label className="inline-flex items-center gap-1.5 text-xs text-slate-700">
                     Mã hóa khi ghi:
-                    <select className={inputCls + ' w-auto'} value={encMode} onChange={(e) => setEncMode(e.target.value as EncodeMode)} disabled={!decodeView}>
+                    <Select className={selCls} value={encMode} onChange={(e) => setEncMode(e.target.value as EncodeMode)} disabled={!decodeView}>
                       <option value="percent">%20 (RFC 3986)</option>
                       <option value="plus">+ cho khoảng trắng (form)</option>
                       <option value="none">Không mã hóa</option>
-                    </select>
+                    </Select>
                   </label>
                   <label className="inline-flex items-center gap-1.5 text-xs text-slate-700">
                     Kiểu mảng:
-                    <select className={inputCls + ' w-auto'} value={arrStyle} onChange={(e) => setArrStyle(e.target.value as ArrayStyle)}>
+                    <Select className={selCls} value={arrStyle} onChange={(e) => setArrStyle(e.target.value as ArrayStyle)}>
                       <option value="repeat">a=1&amp;a=2 (lặp khóa)</option>
                       <option value="brackets">a[]=1&amp;a[]=2</option>
                       <option value="index">a[0]=1&amp;a[1]=2</option>
                       <option value="comma">a=1,2</option>
-                    </select>
+                    </Select>
                   </label>
                   <button className={btnCls} onClick={() => writeParams(params, arrStyle)}>Áp dụng kiểu mảng</button>
                   <button className={btnCls} onClick={() => writeParams(flattenArrayKeys(params))}>Gỡ [] khỏi khóa</button>
@@ -680,13 +682,13 @@ export default function UrlToolsPage() {
             <Check2 checked={dedupe} onChange={setDedupe}>Loại trùng (theo URL đã chuẩn hóa)</Check2>
             <label className="inline-flex items-center gap-1.5 text-xs text-slate-700">
               Sắp xếp:
-              <select className={inputCls + ' w-auto'} value={sort} onChange={(e) => setSort(e.target.value as BatchSort)}>
+              <Select className={selCls} value={sort} onChange={(e) => setSort(e.target.value as BatchSort)}>
                 <option value="none">Giữ thứ tự</option>
                 <option value="url">URL</option>
                 <option value="host">Host</option>
                 <option value="path">Path</option>
                 <option value="params">Số tham số</option>
-              </select>
+              </Select>
             </label>
             <CopyBtn text={batchRows.filter((r) => r.ok).map((r) => r.normalized).join('\n')} label="Chép danh sách chuẩn hóa" />
             <button className={btnCls} onClick={downloadCsv} disabled={!batchRows.length}><Download className="h-3 w-3" />Tải CSV</button>

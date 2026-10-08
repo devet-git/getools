@@ -8,6 +8,7 @@ import {
   GitCommitHorizontal, Upload, Copy, Loader2, X, Trash2, AlertTriangle, CheckCircle2, ShieldAlert, Sparkles, Cpu,
   ChevronDown, ChevronUp, FileSearch, FlaskConical, Bug, KeyRound,
 } from 'lucide-react';
+import { Select } from '@/components/ui/searchable-select';
 import { useApp } from '@/components/AppContext';
 import { useAiSettings } from '@/lib/use-ai-config';
 import { AiKeyNotice } from '@/components/AiKeyNotice';
@@ -299,18 +300,18 @@ export default function AiCommitPage() {
           <div className="grid grid-cols-2 gap-2.5">
             <label className="block">
               <span className={lbl}>Kiểu commit</span>
-              <select className={sel} value={style} onChange={(e) => setStyle(e.target.value as CommitStyle)}>
+              <Select className={sel} value={style} onChange={(e) => setStyle(e.target.value as CommitStyle)}>
                 <option value="conventional">Conventional Commits</option>
                 <option value="short">Ngắn gọn</option>
                 <option value="detailed">Chi tiết</option>
-              </select>
+              </Select>
             </label>
             <label className="block">
               <span className={lbl}>Ngôn ngữ</span>
-              <select className={sel} value={language} onChange={(e) => setLanguage(e.target.value as Lang)}>
+              <Select searchThreshold={0} className={sel} value={language} onChange={(e) => setLanguage(e.target.value as Lang)}>
                 <option value="en">Tiếng Anh</option>
                 <option value="vi">Tiếng Việt</option>
-              </select>
+              </Select>
             </label>
             <label className="block">
               <span className={lbl}>Ghi đè scope (tuỳ chọn)</span>
@@ -616,21 +617,21 @@ export default function AiCommitPage() {
             <div className="grid grid-cols-2 gap-2.5 max-w-md">
               <label className="block">
                 <span className={lbl}>Trọng tâm</span>
-                <select className={sel} value={focus} onChange={(e) => setFocus(e.target.value)}>
+                <Select className={sel} value={focus} onChange={(e) => setFocus(e.target.value)}>
                   <option value="all">Toàn diện</option>
                   <option value="bugs">Lỗi logic</option>
                   <option value="security">Bảo mật</option>
                   <option value="performance">Hiệu năng</option>
                   <option value="style">Phong cách / dễ đọc</option>
                   <option value="tests">Kiểm thử</option>
-                </select>
+                </Select>
               </label>
               <label className="block">
                 <span className={lbl}>Ngôn ngữ review</span>
-                <select className={sel} value={reviewLang} onChange={(e) => setReviewLang(e.target.value)}>
+                <Select searchThreshold={0} className={sel} value={reviewLang} onChange={(e) => setReviewLang(e.target.value)}>
                   <option value="vi">Tiếng Việt</option>
                   <option value="en">Tiếng Anh</option>
-                </select>
+                </Select>
               </label>
             </div>
             <div className="flex gap-2">

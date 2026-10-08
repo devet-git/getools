@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { Select } from '@/components/ui/searchable-select';
 import { useApp } from '@/components/AppContext';
 import { ShareLinkButton } from '@/components/ShareLinkButton';
 import { readShareParams } from '@/lib/share-link';
@@ -340,7 +341,7 @@ function CopyBlock({ title, text, onCopy, copied }: { title: string; text: strin
           {copied ? 'Đã chép' : 'Sao chép'}
         </button>
       </div>
-      <pre className="bg-slate-900 text-slate-100 text-xs rounded-lg p-3 overflow-x-auto whitespace-pre font-mono max-h-64">
+      <pre className="bg-slate-900 text-slate-100 text-xs rounded-lg p-3 overflow-x-auto whitespace-pre font-mono">
         {text}
       </pre>
     </div>
@@ -892,13 +893,13 @@ export default function FaviconGenPage() {
                 </div>
                 <div>
                   <label className={labelCls}>Phông chữ</label>
-                  <select value={text.family} onChange={(e) => set('family', e.target.value)} className={inputCls}>
+                  <Select searchThreshold={0} value={text.family} onChange={(e) => set('family', e.target.value)} className={inputCls}>
                     {FAMILIES.map((f) => (
                       <option key={f.id} value={f.id}>
                         {f.label}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               </div>
               <div className="flex flex-wrap gap-1">
@@ -915,21 +916,21 @@ export default function FaviconGenPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelCls}>Độ đậm</label>
-                  <select value={text.weight} onChange={(e) => set('weight', Number(e.target.value))} className={inputCls}>
+                  <Select value={text.weight} onChange={(e) => set('weight', Number(e.target.value))} className={inputCls}>
                     {[400, 600, 700, 900].map((w) => (
                       <option key={w} value={w}>
                         {w}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
                 <div>
                   <label className={labelCls}>Hình dạng</label>
-                  <select value={text.shape} onChange={(e) => set('shape', e.target.value as IconShape)} className={inputCls}>
+                  <Select value={text.shape} onChange={(e) => set('shape', e.target.value as IconShape)} className={inputCls}>
                     <option value="square">Vuông</option>
                     <option value="rounded">Bo góc</option>
                     <option value="circle">Tròn</option>
-                  </select>
+                  </Select>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -967,10 +968,10 @@ export default function FaviconGenPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelCls}>Chế độ khớp</label>
-                  <select value={fit} onChange={(e) => setFit(e.target.value as FitMode)} className={inputCls}>
+                  <Select value={fit} onChange={(e) => setFit(e.target.value as FitMode)} className={inputCls}>
                     <option value="cover">Cover (lấp đầy, cắt phần thừa)</option>
                     <option value="contain">Contain (hiện đủ ảnh)</option>
-                  </select>
+                  </Select>
                 </div>
                 <label className="text-xs text-slate-600 flex flex-col gap-1">
                   <span className={labelCls}>Thu phóng {Math.round(zoom * 100)}%</span>
@@ -1048,12 +1049,12 @@ export default function FaviconGenPage() {
               </div>
               <div>
                 <label className={labelCls}>Chất lượng thu nhỏ</label>
-                <select value={quality} onChange={(e) => setQuality(e.target.value as Quality)} className={inputCls}>
+                <Select value={quality} onChange={(e) => setQuality(e.target.value as Quality)} className={inputCls}>
                   <option value="high">Cao (thu nhỏ từng bậc)</option>
                   <option value="medium">Trung bình</option>
                   <option value="low">Nhanh</option>
                   <option value="pixel">Pixel art (không làm mịn)</option>
-                </select>
+                </Select>
               </div>
             </div>
             <div className="flex flex-wrap gap-x-5 gap-y-2">

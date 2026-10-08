@@ -116,7 +116,45 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* ===== Khung ứng dụng khớp màn hình =====
+   Khung ngoài luôn đúng bằng chiều cao màn hình; chỉ có MỘT vùng cuộn chính (<main>) hoặc các vùng cuộn bên trong
+   của tool. `.fit-screen` cho trang "ứng dụng" (nhiều ô cuộn) chiếm đúng phần màn hình còn lại để không cuộn đôi. */
+:root {
+  --app-pad: 0.5rem;
+  --app-header: 3.75rem; /* thanh trên cùng trên điện thoại */
+}
+@media (min-width: 640px) { :root { --app-pad: 0.875rem; } }
+@media (min-width: 1024px) { :root { --app-pad: 1rem; --app-header: 0rem; } }
+
+.fit-screen {
+  height: calc(100dvh - var(--app-header) - 2 * var(--app-pad));
+  min-height: 30rem; /* màn hình quá thấp: nhường cho vùng cuộn chính thay vì nén vỡ giao diện */
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.lg-fit-screen { min-width: 0; }
+@media (min-width: 1024px) {
+  /* Trang nhiều ô cuộn: trên desktop khung đúng bằng phần màn hình còn lại, các ô tự cuộn bên trong */
+  .lg-fit-screen {
+    height: calc(100dvh - 2 * var(--app-pad));
+    min-height: 30rem;
+    display: flex;
+    flex-direction: column;
+  }
+  /* con trực tiếp giữ nguyên kích thước; chỉ khối đánh dấu .lg-fill co giãn lấp phần còn lại */
+  .lg-fit-screen > * { flex-shrink: 0; }
+  .lg-fit-screen > .lg-fill { flex: 1 1 0%; min-height: 0; }
+}
+.fit-screen > .fit-fill { flex: 1 1 0%; min-height: 0; min-width: 0; }
+.fit-scroll { overflow: auto; min-height: 0; overscroll-behavior: contain; }
+
 @layer base {
+  /* Lưới chưa khai báo cột: dùng 1 cột co được (mặc định "auto" bị khối <pre>/ô nhập không xuống dòng kéo rộng ra ngoài màn hình).
+     Các lớp grid-cols-* của Tailwind (utilities) vẫn ghi đè bình thường. */
+  .grid:not(.grid-flow-col):not(.grid-flow-col-dense) {
+    grid-template-columns: minmax(0, 1fr);
+  }
   * {
     @apply border-border outline-ring/50;
     }

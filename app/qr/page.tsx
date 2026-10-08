@@ -13,6 +13,7 @@ import {
   buildWifi, buildVCard, buildEmail, buildSms, buildTel, buildGeo, qrContrast, parseQrContent, isSafeHttpUrl,
   WifiSecurity, VCardInput,
 } from '@/lib/qr-tools';
+import { Select } from '@/components/ui/searchable-select';
 
 type ContentType = 'text' | 'wifi' | 'vcard' | 'email' | 'sms' | 'tel' | 'geo';
 const TYPES: { id: ContentType; label: string }[] = [
@@ -198,9 +199,9 @@ function Creator({ showToast }: { showToast: (m: string) => void }) {
             <Field label="Tên mạng (SSID)"><input className={inputCls} value={wifi.ssid} onChange={(e) => set(setWifi, 'ssid', e.target.value)} /></Field>
             <Field label="Mật khẩu"><input className={inputCls} value={wifi.password} disabled={wifi.security === 'nopass'} onChange={(e) => set(setWifi, 'password', e.target.value)} /></Field>
             <Field label="Bảo mật">
-              <select className={inputCls} value={wifi.security} onChange={(e) => set(setWifi, 'security', e.target.value)}>
+              <Select className={inputCls} value={wifi.security} onChange={(e) => set(setWifi, 'security', e.target.value)}>
                 <option value="WPA">WPA/WPA2/WPA3</option><option value="WEP">WEP</option><option value="nopass">Không mật khẩu</option>
-              </select>
+              </Select>
             </Field>
             <label className="flex items-center gap-2 text-xs text-slate-600 mt-5">
               <input type="checkbox" checked={wifi.hidden} onChange={(e) => set(setWifi, 'hidden', e.target.checked)} /> Mạng ẩn

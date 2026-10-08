@@ -1,5 +1,7 @@
 'use client';
 
+import { Select } from '@/components/ui/searchable-select';
+
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Boxes,
@@ -109,6 +111,7 @@ const inputCls =
 
 const KEYWORD_RE = /^(\s*)(FROM|RUN|CMD|LABEL|MAINTAINER|EXPOSE|ENV|ADD|COPY|ENTRYPOINT|VOLUME|USER|WORKDIR|ARG|ONBUILD|STOPSIGNAL|HEALTHCHECK|SHELL)\b/i;
 const MAX_RENDER_LINES = 3000;
+const FIT_H = 'max-h-[560px] lg:max-h-none lg:flex-1 lg:min-h-0';
 
 function CodeView({
   text,
@@ -239,7 +242,9 @@ function IssueList({
   onSelect,
   onApplyFix,
   canFix,
+  maxHeight = 'max-h-[560px]',
 }: {
+  maxHeight?: string;
   issues: LintIssue[];
   selectedKey: string | null;
   onSelect: (key: string) => void;
@@ -248,7 +253,7 @@ function IssueList({
 }) {
   if (!issues.length) return <div className="text-xs text-slate-500 p-3">Không có vấn đề nào ở mức độ này.</div>;
   return (
-    <ul className="divide-y divide-slate-100 max-h-[560px] overflow-auto">
+    <ul className={`divide-y divide-slate-100 ${maxHeight} overflow-auto`}>
       {issues.map((it) => {
         const key = `${it.id}:${it.line}:${it.message}`;
         const sel = key === selectedKey;
@@ -455,9 +460,9 @@ export default function DockerfilePage() {
   const hasBuild = !['static', 'php'].includes(opts.stack);
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3.5 lg-fit-screen lg:space-y-0 lg:gap-3.5">
       {/* HEADER */}
-      <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs shrink-0 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center shrink-0">
             <Boxes className="h-4 w-4" />
@@ -478,7 +483,7 @@ export default function DockerfilePage() {
       </div>
 
       {/* TABS */}
-      <div className="flex gap-1.5">
+      <div className="flex gap-1.5 shrink-0">
         {([['gen', 'Tạo Dockerfile', FileCode], ['lint', 'Kiểm tra (Lint)', ShieldCheck]] as const).map(([id, label, Icon]) => (
           <button
             key={id}
@@ -492,9 +497,9 @@ export default function DockerfilePage() {
       </div>
 
       {tab === 'gen' && (
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-3.5 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-3.5 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
           {/* OPTIONS */}
-          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-3 space-y-3">
+          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-3 space-y-3 min-w-0 lg:h-full lg:min-h-0 lg:overflow-auto">
             <div>
               <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Công nghệ</div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
@@ -530,16 +535,16 @@ export default function DockerfilePage() {
             <div className="grid grid-cols-2 gap-2">
               {showPmField && (
                 <Field label="Trình quản lý gói">
-                  <select value={eff.pm} onChange={(e) => set('pm', e.target.value)} className={inputCls}>
+                  <Select value={eff.pm} onChange={(e) => set('pm', e.target.value)} className={inputCls}>
                     {def.pms.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-                  </select>
+                  </Select>
                 </Field>
               )}
               {def.frameworks.length > 0 && (
                 <Field label="Framework / cách chạy">
-                  <select value={eff.framework} onChange={(e) => set('framework', e.target.value)} className={inputCls}>
+                  <Select value={eff.framework} onChange={(e) => set('framework', e.target.value)} className={inputCls}>
                     {def.frameworks.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
-                  </select>
+                  </Select>
                 </Field>
               )}
               <Field label="Cổng (EXPOSE)">
@@ -606,11 +611,11 @@ export default function DockerfilePage() {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <Field label="Init (PID 1)">
-                <select value={opts.init} onChange={(e) => set('init', e.target.value as InitMode)} className={inputCls}>
+                <Select value={opts.init} onChange={(e) => set('init', e.target.value as InitMode)} className={inputCls}>
                   <option value="none">Không</option>
                   <option value="tini">tini</option>
                   <option value="dumb-init">dumb-init</option>
-                </select>
+                </Select>
               </Field>
               <Field label="Múi giờ (TZ)">
                 <input value={opts.tz} onChange={(e) => set('tz', e.target.value)} placeholder="Asia/Ho_Chi_Minh" className={inputCls} />
@@ -625,9 +630,9 @@ export default function DockerfilePage() {
           </div>
 
           {/* OUTPUT */}
-          <div className="space-y-3.5 min-w-0">
-            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
-              <div className="px-2 pt-2 flex flex-wrap items-center gap-1 border-b border-slate-100 bg-slate-50/60">
+          <div className="flex flex-col gap-3.5 min-w-0 lg:h-full lg:min-h-0">
+            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col lg:flex-1 lg:min-h-0">
+              <div className="px-2 pt-2 shrink-0 flex flex-wrap items-center gap-1 border-b border-slate-100 bg-slate-50/60">
                 {outTabs.map((k) => (
                   <button
                     key={k}
@@ -657,14 +662,14 @@ export default function DockerfilePage() {
                   </button>
                 </div>
               </div>
-              <div className="p-3">
+              <div className="p-3 flex flex-col lg:flex-1 lg:min-h-0">
                 {curOut === outputs.dockerfile ? (
-                  <CodeView text={gen.dockerfile} issues={genIssues} selected={genSelected} onSelectLine={(ln) => {
+                  <CodeView maxHeight={FIT_H} text={gen.dockerfile} issues={genIssues} selected={genSelected} onSelectLine={(ln) => {
                     const hit = genIssues.find((i) => ln >= i.line && ln <= i.endLine);
                     if (hit) setGenSelKey(keyOf(hit));
                   }} />
                 ) : curOut === outputs.notes ? (
-                  <div className="space-y-2 max-h-[560px] overflow-auto">
+                  <div className="space-y-2 max-h-[560px] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-auto">
                     {gen.notes.map((n, i) => (
                       <p key={i} className="text-xs text-slate-700 leading-relaxed flex gap-2">
                         <Info className="h-3.5 w-3.5 text-indigo-400 shrink-0 mt-0.5" />
@@ -673,7 +678,7 @@ export default function DockerfilePage() {
                     ))}
                   </div>
                 ) : curOut === outputs.extra ? (
-                  <div className="space-y-3">
+                  <div className="space-y-3 lg:flex-1 lg:min-h-0 overflow-auto">
                     {gen.extras.map((ex) => (
                       <div key={ex.name}>
                         <div className="text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between gap-2">
@@ -685,13 +690,13 @@ export default function DockerfilePage() {
                     ))}
                   </div>
                 ) : (
-                  <pre className="bg-slate-900 text-slate-100 rounded-lg p-3 text-[12px] leading-5 font-mono overflow-auto max-h-[560px] whitespace-pre">{curOut.text}</pre>
+                  <pre className="bg-slate-900 text-slate-100 rounded-lg p-3 text-[12px] leading-5 font-mono overflow-auto max-h-[560px] lg:max-h-none lg:flex-1 lg:min-h-0 whitespace-pre">{curOut.text}</pre>
                 )}
               </div>
             </div>
 
             {/* LIVE LINT */}
-            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden shrink-0">
               <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/60 flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Kiểm tra trực tiếp Dockerfile vừa tạo</span>
                 <button
@@ -709,7 +714,7 @@ export default function DockerfilePage() {
                 <Summary counts={genLint.counts} score={genLint.score} filter={null} onFilter={() => {}} />
                 {genIssues.length > 0 && (
                   <div className="border border-slate-200 rounded-lg overflow-hidden">
-                    <IssueList issues={genIssues} selectedKey={genSelKey} onSelect={(k) => { setGenSelKey(k === genSelKey ? null : k); setOutTab('dockerfile'); }} canFix={false} />
+                    <IssueList maxHeight="max-h-40" issues={genIssues} selectedKey={genSelKey} onSelect={(k) => { setGenSelKey(k === genSelKey ? null : k); setOutTab('dockerfile'); }} canFix={false} />
                   </div>
                 )}
                 <p className="text-[11px] text-slate-500">
@@ -722,10 +727,10 @@ export default function DockerfilePage() {
       )}
 
       {tab === 'lint' && (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3.5 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
           {/* EDITOR / CODE VIEW */}
-          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden min-w-0">
-            <div className="px-2 pt-2 flex flex-wrap items-center gap-1 border-b border-slate-100 bg-slate-50/60">
+          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden min-w-0 flex flex-col lg:h-full lg:min-h-0">
+            <div className="px-2 pt-2 shrink-0 flex flex-wrap items-center gap-1 border-b border-slate-100 bg-slate-50/60">
               {([['edit', 'Soạn thảo'], ['view', 'Xem dòng & lỗi']] as const).map(([k, label]) => (
                 <button
                   key={k}
@@ -751,17 +756,18 @@ export default function DockerfilePage() {
                 </button>
               </div>
             </div>
-            <div className="p-3 space-y-2">
+            <div className="p-3 flex flex-col gap-2 lg:flex-1 lg:min-h-0">
               {view === 'edit' ? (
                 <textarea
                   value={lintText}
                   onChange={(e) => { setLintText(e.target.value); setSelKey(null); }}
                   spellCheck={false}
                   placeholder={'Dán nội dung Dockerfile vào đây…\n\nFROM node:24-bookworm-slim\nWORKDIR /app\n…'}
-                  className="w-full h-[480px] p-3 rounded-lg border border-slate-200 bg-slate-50 font-mono text-[12px] leading-5 text-slate-800 resize-y focus:outline-hidden focus:ring-2 focus:ring-indigo-500/40"
+                  className="w-full h-[480px] lg:h-auto lg:flex-1 lg:min-h-0 p-3 rounded-lg border border-slate-200 bg-slate-50 font-mono text-[12px] leading-5 text-slate-800 resize-y lg:resize-none focus:outline-hidden focus:ring-2 focus:ring-indigo-500/40"
                 />
               ) : lintText ? (
                 <CodeView
+                  maxHeight={FIT_H}
                   text={lintText}
                   issues={lint.issues}
                   selected={lintSelected}
@@ -773,7 +779,7 @@ export default function DockerfilePage() {
               ) : (
                 <div className="text-xs text-slate-500 p-6 text-center">Chưa có nội dung. Dán Dockerfile ở tab &quot;Soạn thảo&quot; hoặc bấm &quot;Mẫu lỗi&quot;.</div>
               )}
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <button
                   disabled={!fixCount}
                   onClick={() => {
@@ -813,8 +819,9 @@ export default function DockerfilePage() {
           </div>
 
           {/* RESULTS */}
-          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden min-w-0">
-            <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/60 text-xs font-bold text-slate-800 uppercase tracking-wider">Kết quả kiểm tra</div>
+          <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden min-w-0 flex flex-col lg:h-full lg:min-h-0">
+            <div className="px-3 py-2 shrink-0 border-b border-slate-100 bg-slate-50/60 text-xs font-bold text-slate-800 uppercase tracking-wider">Kết quả kiểm tra</div>
+            <div className="lg:flex-1 lg:min-h-0 lg:overflow-auto">
             {!lintText.trim() ? (
               <div className="p-6 text-xs text-slate-500 text-center space-y-1">
                 <p>Dán một Dockerfile ở bên trái để kiểm tra ngay (xử lý tại trình duyệt, không gửi đi đâu).</p>
@@ -827,6 +834,7 @@ export default function DockerfilePage() {
                   {deferredLint !== lintText && <p className="text-[11px] text-slate-400 mt-1">Đang cập nhật…</p>}
                 </div>
                 <IssueList
+                  maxHeight="max-h-[560px] lg:max-h-none lg:overflow-visible"
                   issues={lintIssues}
                   selectedKey={selKey}
                   canFix
@@ -845,7 +853,7 @@ export default function DockerfilePage() {
             )}
             <details className="border-t border-slate-100">
               <summary className="px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer select-none">Danh sách quy tắc ({Object.keys(RULES).length})</summary>
-              <ul className="px-3 pb-3 grid grid-cols-1 gap-1 max-h-72 overflow-auto">
+              <ul className="px-3 pb-3 grid grid-cols-1 gap-1 max-h-72 lg:max-h-none overflow-auto lg:overflow-visible">
                 {Object.entries(RULES).map(([id, r]) => (
                   <li key={id} className="text-[11px] flex items-start gap-2">
                     <span className="font-mono font-semibold text-slate-800 w-14 shrink-0">{id}</span>
@@ -855,6 +863,7 @@ export default function DockerfilePage() {
                 ))}
               </ul>
             </details>
+            </div>
           </div>
         </div>
       )}

@@ -20,17 +20,9 @@ export function AiToolGate({ children }: { children: React.ReactNode }) {
   const locked = ai.isToolLocked(tool);
   const active = locked && !!tool;
 
-  // Khi bị khóa: đưa trang về đầu để thẻ hướng dẫn luôn nằm trong tầm nhìn
+  // Khi bị khóa: đưa vùng cuộn chính về đầu để thẻ hướng dẫn luôn nằm trong tầm nhìn
   useEffect(() => {
-    if (!active) return;
-    window.scrollTo(0, 0);
-    // Khóa cuộn cả trang trong lúc bị khóa (trả lại như cũ khi mở khóa hoặc rời trang)
-    const html = document.documentElement;
-    const prev = html.style.overflow;
-    html.style.overflow = 'hidden';
-    return () => {
-      html.style.overflow = prev;
-    };
+    if (active) document.querySelector('main')?.scrollTo({ top: 0, left: 0 });
   }, [active]);
 
   if (!active || !tool) return <>{children}</>;
@@ -43,7 +35,7 @@ export function AiToolGate({ children }: { children: React.ReactNode }) {
 
   // Chiều cao đúng bằng vùng nhìn thấy + ẩn phần tràn => trang không còn gì để cuộn
   return (
-    <div className="relative overflow-hidden h-[calc(100dvh-5rem)] lg:h-[calc(100dvh-2rem)]">
+    <div className="relative overflow-hidden fit-screen">
       <div
         inert
         aria-hidden="true"

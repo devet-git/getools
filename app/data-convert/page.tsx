@@ -1,5 +1,6 @@
 'use client';
 
+import { Select } from '@/components/ui/searchable-select';
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Table2, Upload, ArrowLeftRight, Trash2, Copy, Check, Download, Sparkles, AlertTriangle } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
@@ -188,9 +189,9 @@ export default function DataConvertPage() {
   const b = (v: boolean) => (v ? '1' : '0');
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3.5 lg:space-y-0 lg:gap-3.5 lg-fit-screen">
       {/* HEADER */}
-      <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="shrink-0 bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center shrink-0">
             <Table2 className="h-4 w-4" />
@@ -233,10 +234,10 @@ export default function DataConvertPage() {
       </div>
 
       {/* OPTIONS */}
-      <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs px-3 py-2.5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+      <div className="shrink-0 bg-white rounded-xl border border-slate-200/90 shadow-xs px-3 py-2.5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
         <label className="flex items-center gap-1.5 font-medium text-slate-700">
           Đầu vào
-          <select
+          <Select
             value={inFmt}
             onChange={(e) => setInFmt(e.target.value as InFormat | 'auto')}
             className={selectCls}
@@ -247,12 +248,12 @@ export default function DataConvertPage() {
                 {IN_LABEL[f]}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         {detected === 'csv' && (
           <label className="flex items-center gap-1.5 font-medium text-slate-700">
             Phân cách đọc
-            <select
+            <Select
               value={opts.delimiter}
               onChange={(e) => setOpt('delimiter', e.target.value as ConvertOptions['delimiter'])}
               className={selectCls}
@@ -266,23 +267,23 @@ export default function DataConvertPage() {
                   {DELIM_LABEL[d]}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
         )}
         <label className="flex items-center gap-1.5 font-medium text-slate-700">
           Đầu ra
-          <select value={outFmt} onChange={(e) => setOutFmt(e.target.value as OutFormat)} className={selectCls}>
+          <Select value={outFmt} onChange={(e) => setOutFmt(e.target.value as OutFormat)} className={selectCls}>
             {OUT_FORMATS.map((f) => (
               <option key={f} value={f}>
                 {OUT_LABEL[f]}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         {outFmt === 'csv' && (
           <label className="flex items-center gap-1.5 font-medium text-slate-700">
             Phân cách ghi
-            <select
+            <Select
               value={opts.outDelimiter}
               onChange={(e) => setOpt('outDelimiter', e.target.value as Delimiter)}
               className={selectCls}
@@ -292,7 +293,7 @@ export default function DataConvertPage() {
                   {DELIM_LABEL[d]}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
         )}
         {outFmt === 'sql' && (
@@ -320,7 +321,7 @@ export default function DataConvertPage() {
       </div>
 
       {/* INPUT / OUTPUT */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-3.5 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-3.5 items-stretch lg:flex-[3] lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
         <div
           onDragOver={(e) => {
             e.preventDefault();
@@ -333,7 +334,7 @@ export default function DataConvertPage() {
             const f = e.dataTransfer.files?.[0];
             if (f) void loadFile(f);
           }}
-          className={`bg-white rounded-xl border shadow-xs flex flex-col h-[360px] overflow-hidden transition ${
+          className={`bg-white rounded-xl border shadow-xs flex flex-col h-[360px] lg:h-full lg:min-h-0 overflow-hidden transition ${
             dragging ? 'border-indigo-500 ring-2 ring-indigo-200' : 'border-slate-200/90'
           }`}
         >
@@ -402,7 +403,7 @@ export default function DataConvertPage() {
           </button>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col h-[360px] overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col h-[360px] lg:h-full lg:min-h-0 overflow-hidden">
           <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
               Kết quả <span className="normal-case tracking-normal font-medium text-emerald-600">· {OUT_LABEL[outFmt]}</span>
@@ -453,8 +454,8 @@ export default function DataConvertPage() {
       </div>
 
       {/* PREVIEW */}
-      <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
-        <div className="p-3 border-b border-slate-100 bg-slate-50/60 flex flex-wrap items-center gap-2 text-xs">
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col lg:flex-[2] lg:min-h-0">
+        <div className="shrink-0 p-3 border-b border-slate-100 bg-slate-50/60 flex flex-wrap items-center gap-2 text-xs">
           <span className="font-bold text-slate-800 uppercase tracking-wider">Xem trước dữ liệu</span>
           <span className="px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 font-semibold">{rowCount.toLocaleString('vi-VN')} dòng</span>
           <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-semibold">{cols} cột</span>
@@ -477,7 +478,7 @@ export default function DataConvertPage() {
             {parsed.error ? 'Không thể hiển thị do dữ liệu đầu vào chưa hợp lệ.' : 'Nhập hoặc chọn file để xem trước bảng dữ liệu.'}
           </div>
         ) : (
-          <div className="max-h-[420px] overflow-auto">
+          <div className="max-h-[420px] lg:max-h-none flex-1 min-h-0 overflow-auto">
             <table className="w-full text-xs border-collapse">
               <thead className="sticky top-0">
                 <tr>

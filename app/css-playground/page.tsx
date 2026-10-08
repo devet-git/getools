@@ -5,6 +5,7 @@ import { LayoutGrid, Copy, Check, Plus, Trash2, Eraser, Wand2 } from 'lucide-rea
 import { useApp } from '@/components/AppContext';
 import { ShareLinkButton } from '@/components/ShareLinkButton';
 import { readShareParams } from '@/lib/share-link';
+import { Select } from '@/components/ui/searchable-select';
 import {
   COMMON_BREAKPOINTS,
   CSS_UNITS,
@@ -98,7 +99,7 @@ function CodeBlock({ title, code, light }: { title: string; code: string; light?
         </button>
       </div>
       <pre
-        className={`p-3 text-xs font-mono whitespace-pre-wrap break-all max-h-72 overflow-auto ${
+        className={`p-3 text-xs font-mono whitespace-pre-wrap break-all overflow-x-auto ${
           light ? 'bg-slate-50 text-slate-800' : 'bg-slate-900 text-slate-100'
         }`}
       >
@@ -140,13 +141,13 @@ function Sel<T extends string>({
   return (
     <label className="block text-[11px] font-medium text-slate-600">
       {label}
-      <select value={value} onChange={(e) => onChange(e.target.value as T)} className={`${inputCls} mt-0.5`}>
+      <Select value={value} onChange={(e) => onChange(e.target.value as T)} className={`${inputCls} mt-0.5`}>
         {options.map((o) => {
           const v = typeof o === 'string' ? o : o.value;
           const l = typeof o === 'string' ? o : o.label;
           return <option key={v} value={v}>{l}</option>;
         })}
-      </select>
+      </Select>
     </label>
   );
 }
@@ -263,7 +264,7 @@ function FlexTab() {
       <div className="space-y-3 min-w-0">
         <div className={`${card} p-3`}>
           <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Xem trước (bấm ô để chọn item)</div>
-          <div className="overflow-auto rounded-lg bg-slate-50 border border-dashed border-slate-300 p-2">
+          <div className="overflow-x-auto rounded-lg bg-slate-50 border border-dashed border-slate-300 p-2">
             <div style={{ ...cStyle, minHeight: 40 }} className="bg-white border border-slate-300 rounded-md box-border">
               {items.map((it, i) => (
                 <button
@@ -317,18 +318,18 @@ function TrackEditor({ title, tracks, onChange }: { title: string; tracks: Track
       {tracks.map((t, i) => (
         <div key={i} className="flex items-center gap-1">
           <span className="text-[10px] text-slate-400 w-4 shrink-0">{i + 1}</span>
-          <select value={t.kind} onChange={(e) => set(i, { kind: e.target.value as TrackKind })} className={`${inputCls} w-28! shrink-0`}>
+          <Select value={t.kind} onChange={(e) => set(i, { kind: e.target.value as TrackKind })} className={`${inputCls} w-28! shrink-0`}>
             {TRACK_KINDS.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}
-          </select>
+          </Select>
           {(t.kind === 'fr' || t.kind === 'px' || t.kind === '%') && (
             <input type="number" min={0} step={t.kind === 'fr' ? 0.5 : 1} value={Number.isFinite(t.v) ? t.v : ''} onChange={(e) => set(i, { v: e.target.value === '' ? NaN : Number(e.target.value) })} className={inputCls} />
           )}
           {t.kind === 'repeat' && (
-            <select value={t.rep} onChange={(e) => set(i, { rep: e.target.value })} className={`${inputCls} w-24! shrink-0`}>
+            <Select value={t.rep} onChange={(e) => set(i, { rep: e.target.value })} className={`${inputCls} w-24! shrink-0`}>
               <option value="auto-fit">auto-fit</option>
               <option value="auto-fill">auto-fill</option>
               {[2, 3, 4, 5, 6].map((n) => <option key={n} value={String(n)}>{n} lần</option>)}
-            </select>
+            </Select>
           )}
           {(t.kind === 'minmax' || t.kind === 'repeat') && (
             <>
@@ -462,7 +463,7 @@ function GridTab() {
               <button type="button" disabled={!val.names.length} onClick={() => setItems(val.names.map((n) => ({ ...newGridItem(nextId.current++), area: n })))} className={`${btnCls} disabled:opacity-40`}><Wand2 className="h-3 w-3" />Item từ vùng</button>
             </div>
           </div>
-          <div className="overflow-auto rounded-lg bg-slate-50 border border-dashed border-slate-300 p-2">
+          <div className="overflow-x-auto rounded-lg bg-slate-50 border border-dashed border-slate-300 p-2">
             <div style={{ ...cStyle, minHeight: 120 }} className="bg-white border border-slate-300 rounded-md box-border">
               {items.map((it, i) => (
                 <div
@@ -594,7 +595,7 @@ function FluidTab({ sp }: { sp: URLSearchParams }) {
                 </p>
                 <FluidGraph r={r} minVw={minVw} maxVw={maxVw} />
               </div>
-              <div className={`${card} p-3 overflow-auto`}>
+              <div className={`${card} p-3 overflow-x-auto`}>
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="text-left text-slate-500">
@@ -635,7 +636,7 @@ function FluidTab({ sp }: { sp: URLSearchParams }) {
         <Tip>dùng viewport &amp; root ở khung trên. Tỉ lệ @min nhỏ hơn @max giúp chữ tiêu đề lớn dần mượt hơn trên màn hình rộng.</Tip>
         {scale.ok ? (
           <div className="grid lg:grid-cols-2 gap-3">
-            <div className="overflow-auto rounded-lg border border-slate-200">
+            <div className="overflow-x-auto rounded-lg border border-slate-200">
               <table className="w-full text-xs">
                 <thead className="bg-slate-50 text-slate-500 text-left">
                   <tr><th className="p-1.5">Bước</th><th className="p-1.5">Min → Max (px)</th><th className="p-1.5">@{demoVw}px</th></tr>
@@ -741,7 +742,7 @@ function ConvertTab({ sp }: { sp: URLSearchParams }) {
           <span>Đã đổi {bulk.count} giá trị. Bỏ qua url(), chuỗi và comment.</span>
           <button type="button" onClick={() => copy(bulk.out, 'bulk')} className={btnCls}><Copy className="h-3 w-3" />Sao chép kết quả</button>
         </div>
-        <pre className="p-3 text-xs font-mono bg-slate-900 text-slate-100 rounded-lg max-h-64 overflow-auto whitespace-pre-wrap break-all">{bulk.out}</pre>
+        <pre className="p-3 text-xs font-mono bg-slate-900 text-slate-100 rounded-lg overflow-x-auto whitespace-pre-wrap break-all">{bulk.out}</pre>
         <Tip>media query dùng rem tính theo cỡ chữ mặc định của trình duyệt, không theo html {'{'} font-size {'}'} — nên mặc định giữ px.</Tip>
       </div>
     </div>
@@ -916,7 +917,7 @@ function SpecTab({ sp }: { sp: URLSearchParams }) {
       <div className={`${card} p-3 space-y-2 min-w-0`}>
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">Xếp theo độ ưu tiên (cao → thấp)</h3>
         {ranked.length === 0 && <p className="text-xs text-slate-400">Chưa có selector nào.</p>}
-        <div className="space-y-1 max-h-[32rem] overflow-auto">
+        <div className="space-y-1">
           {ranked.map(({ result: r, index }, k) => (
             <div key={index} className="rounded-lg border border-slate-200 px-2 py-1.5">
               <div className="flex items-center gap-2">

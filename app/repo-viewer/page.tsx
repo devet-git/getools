@@ -28,6 +28,7 @@ import {
   Info,
 } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
+import { Select } from '@/components/ui/searchable-select';
 import { ShareLinkButton } from '@/components/ShareLinkButton';
 import { readShareParams } from '@/lib/share-link';
 import {
@@ -552,11 +553,12 @@ export default function RepoViewerPage() {
           {/* Chọn nhánh */}
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <GitBranch className="h-4 w-4 text-slate-500" />
-            <select
+            <Select
               value={gitRef}
               onChange={(e) => setGitRef(e.target.value)}
               aria-label="Chọn nhánh hoặc tag"
-              className="px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-sm max-w-full"
+              searchThreshold={0}
+              className="px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-sm max-w-full min-w-40"
             >
               {refOptions.branches.length > 0 && (
                 <optgroup label="Nhánh">
@@ -573,7 +575,7 @@ export default function RepoViewerPage() {
                 </optgroup>
               )}
               {refOptions.branches.length === 0 && refOptions.tags.length === 0 && gitRef && <option value={gitRef}>{gitRef}</option>}
-            </select>
+            </Select>
             <Tag className="h-3.5 w-3.5 text-slate-400" />
             <span className="text-xs text-slate-500">
               {branches.length} nhánh, {tags.length} tag{branches.length >= 300 || tags.length >= 300 ? ' (hiển thị tối đa 300)' : ''}

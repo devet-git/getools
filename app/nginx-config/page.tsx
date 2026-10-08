@@ -18,6 +18,7 @@ import {
   ArrowRightLeft,
   ChevronDown,
 } from 'lucide-react';
+import { Select } from '@/components/ui/searchable-select';
 import { useApp } from '@/components/AppContext';
 import { ShareLinkButton } from '@/components/ShareLinkButton';
 import { readShareParams } from '@/lib/share-link';
@@ -319,12 +320,12 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
           {isRedirect && (
             <>
               <Field label="Kiểu redirect">
-                <select className={inputCls} value={o.redirectKind} onChange={(e) => set('redirectKind', e.target.value as GenOptions['redirectKind'])}>
+                <Select className={inputCls} value={o.redirectKind} onChange={(e) => set('redirectKind', e.target.value as GenOptions['redirectKind'])}>
                   <option value="http2https">HTTP → HTTPS (mọi host)</option>
                   <option value="www2apex">www.domain → domain</option>
                   <option value="apex2www">domain → www.domain</option>
                   <option value="migrate">Chuyển miền cũ → miền mới (301)</option>
-                </select>
+                </Select>
               </Field>
               {o.redirectKind === 'migrate' && (
                 <Field label="Tên miền đích" hint="Tên miền cũ nhập ở server_name phía trên. Path + query được giữ nguyên qua $request_uri.">
@@ -400,11 +401,11 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
             </div>
             {o.servers.length > 1 && (
               <Field label="Thuật toán cân bằng tải">
-                <select className={inputCls} value={o.lb} onChange={(e) => set('lb', e.target.value as GenOptions['lb'])}>
+                <Select className={inputCls} value={o.lb} onChange={(e) => set('lb', e.target.value as GenOptions['lb'])}>
                   <option value="round_robin">round-robin (mặc định, theo weight)</option>
                   <option value="least_conn">least_conn (ít kết nối nhất)</option>
                   <option value="ip_hash">ip_hash (dính theo IP client)</option>
-                </select>
+                </Select>
               </Field>
             )}
             <div className="grid grid-cols-3 gap-2">
@@ -494,10 +495,10 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
                   <Toggle label="OCSP stapling" hint="Let's Encrypt đã ngừng OCSP." checked={o.stapling} onChange={(v) => set('stapling', v)} />
                 </div>
                 <Field label="Chứng chỉ">
-                  <select className={inputCls} value={o.certMode} onChange={(e) => set('certMode', e.target.value as GenOptions['certMode'])}>
+                  <Select className={inputCls} value={o.certMode} onChange={(e) => set('certMode', e.target.value as GenOptions['certMode'])}>
                     <option value="letsencrypt">Let&apos;s Encrypt (/etc/letsencrypt/live/&lt;domain&gt;/…)</option>
                     <option value="custom">Đường dẫn tuỳ chỉnh</option>
-                  </select>
+                  </Select>
                 </Field>
                 {o.certMode === 'custom' && (
                   <div className="grid grid-cols-2 gap-2">
@@ -536,19 +537,19 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
             <Toggle label="Header bảo mật cơ bản" hint="X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy (add_header … always)" checked={o.secHeaders} onChange={(v) => set('secHeaders', v)} />
             {o.secHeaders && (
               <Field label="X-Frame-Options">
-                <select className={inputCls} value={o.xfo} onChange={(e) => set('xfo', e.target.value as GenOptions['xfo'])}>
+                <Select className={inputCls} value={o.xfo} onChange={(e) => set('xfo', e.target.value as GenOptions['xfo'])}>
                   <option value="SAMEORIGIN">SAMEORIGIN</option>
                   <option value="DENY">DENY</option>
                   <option value="off">Không gửi (dùng CSP frame-ancestors)</option>
-                </select>
+                </Select>
               </Field>
             )}
             <Field label="Content-Security-Policy" hint="Starter chỉ để bắt đầu: nên chạy Report-Only trước vì CSP dễ làm hỏng script/style inline, CDN, font.">
-              <select className={inputCls} value={o.csp} onChange={(e) => set('csp', e.target.value as GenOptions['csp'])}>
+              <Select className={inputCls} value={o.csp} onChange={(e) => set('csp', e.target.value as GenOptions['csp'])}>
                 <option value="off">Tắt</option>
                 <option value="report-only">Report-Only (an toàn để thử)</option>
                 <option value="enforce">Enforce</option>
-              </select>
+              </Select>
             </Field>
             {o.csp !== 'off' && <textarea className={inputCls + ' font-mono h-16'} value={o.cspValue} onChange={(e) => set('cspValue', e.target.value)} spellCheck={false} aria-label="Giá trị CSP" />}
             <Toggle label="server_tokens off" hint="Ẩn phiên bản nginx." checked={o.serverTokensOff} onChange={(v) => set('serverTokensOff', v)} />
@@ -569,11 +570,11 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
               </Field>
             )}
             <Field label="Cache file tĩnh" hint="“immutable” chỉ an toàn khi tên file có hash (app.3f2a1c.js).">
-              <select className={inputCls} value={o.cacheMode} onChange={(e) => set('cacheMode', e.target.value as GenOptions['cacheMode'])}>
+              <Select className={inputCls} value={o.cacheMode} onChange={(e) => set('cacheMode', e.target.value as GenOptions['cacheMode'])}>
                 <option value="hashed">1 năm + immutable (asset có hash)</option>
                 <option value="moderate">30 ngày</option>
                 <option value="off">Không đặt Cache-Control</option>
-              </select>
+              </Select>
             </Field>
             {(sc === 'static' || sc === 'spa') && <Toggle label="HTML luôn no-cache" checked={o.htmlNoCache} onChange={(v) => set('htmlNoCache', v)} />}
           </Section>
@@ -646,11 +647,11 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
             <>
               <Toggle label="Trang lỗi tuỳ chỉnh (404.html, 50x.html)" checked={o.errorPages} onChange={(v) => set('errorPages', v)} />
               <Field label="Chế độ bảo trì (503)">
-                <select className={inputCls} value={o.maintenance} onChange={(e) => set('maintenance', e.target.value as GenOptions['maintenance'])}>
+                <Select className={inputCls} value={o.maintenance} onChange={(e) => set('maintenance', e.target.value as GenOptions['maintenance'])}>
                   <option value="off">Tắt</option>
                   <option value="flag">Bật bằng file cờ (/var/www/maintenance.flag)</option>
                   <option value="always">Luôn bật (mọi request 503)</option>
-                </select>
+                </Select>
               </Field>
             </>
           )}
@@ -671,13 +672,13 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
             {o.locations.map((l, i) => (
               <div key={i} className="rounded-lg border border-slate-200 p-2 space-y-1.5 bg-slate-50">
                 <div className="flex items-center gap-1.5">
-                  <select className={inputCls + ' !w-20 font-mono'} value={l.modifier} onChange={(e) => updLoc(i, { modifier: e.target.value as LocMod })} aria-label="Modifier">
+                  <Select className={inputCls + ' !w-20 font-mono'} value={l.modifier} onChange={(e) => updLoc(i, { modifier: e.target.value as LocMod })} aria-label="Modifier">
                     <option value="">(none)</option>
                     <option value="=">=</option>
                     <option value="^~">^~</option>
                     <option value="~">~</option>
                     <option value="~*">~*</option>
-                  </select>
+                  </Select>
                   <input className={inputCls + ' font-mono'} value={l.path} onChange={(e) => updLoc(i, { path: e.target.value })} spellCheck={false} aria-label="Đường dẫn location" />
                   <button type="button" onClick={() => set('locations', o.locations.filter((_, j) => j !== i))} className="p-1 text-slate-400 hover:text-red-500" aria-label="Xoá location">
                     <Trash2 className="h-3.5 w-3.5" />
@@ -718,7 +719,7 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
       </div>
 
       {/* ---------------- CỘT KẾT QUẢ ---------------- */}
-      <div className="space-y-2.5 xl:sticky xl:top-3">
+      <div className="space-y-2.5">
         <div className="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-2 px-2.5 py-2 border-b border-slate-100">
             <div className="flex flex-wrap gap-1" role="tablist">
@@ -762,7 +763,7 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
               Kịch bản này cần thêm khai báo cấp <code className="font-mono">http {'{ }'}</code> (map / upstream / limit_req_zone…). Xem tab “Cấp http” hoặc dùng “Gộp 1 file”.
             </p>
           )}
-          <pre className="bg-slate-900 text-slate-100 text-[11.5px] leading-relaxed font-mono p-3 overflow-auto max-h-[70vh] whitespace-pre" tabIndex={0}>
+          <pre className="bg-slate-900 text-slate-100 text-[11.5px] leading-relaxed font-mono p-3 overflow-x-auto whitespace-pre" tabIndex={0}>
             {text}
           </pre>
         </div>
@@ -874,7 +875,8 @@ function AnalyzerTab({ text, setText }: { text: string; setText: (t: string) => 
             onChange={(e) => setText(e.target.value.slice(0, MAX_CONFIG_CHARS))}
             spellCheck={false}
             placeholder={'server {\n    listen 80;\n    server_name example.com;\n    ...\n}'}
-            className="w-full h-[420px] rounded-lg border border-slate-200 bg-slate-50 p-2.5 font-mono text-[12px] leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+            rows={Math.max(18, Math.min(3000, text.split('\n').length + 1))}
+            className="block w-full resize-none overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-2.5 font-mono text-[12px] leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
           />
           <p className="text-[11px] text-slate-500">
             {result.lineCount} dòng · {result.stats.servers} server · {result.stats.locations} location · {result.stats.directives} directive. Phân tích tĩnh, chạy hoàn toàn trên trình duyệt, không đọc được các file <code className="font-mono">include</code>.
@@ -915,7 +917,7 @@ function AnalyzerTab({ text, setText }: { text: string; setText: (t: string) => 
                 <Check className="h-4 w-4" /> {result.issues.length === 0 ? 'Không phát hiện vấn đề nào.' : 'Không có mục nào ở bộ lọc này.'}
               </p>
             ) : (
-              <ul className="space-y-1.5 max-h-[440px] overflow-auto pr-1">
+              <ul className="space-y-1.5">
                 {shown.map((i: Issue, idx) => {
                   const st = sevStyle[i.severity];
                   return (
@@ -935,7 +937,7 @@ function AnalyzerTab({ text, setText }: { text: string; setText: (t: string) => 
           ) : explain.length === 0 ? (
             <p className="text-xs text-slate-500 py-8 text-center">Chưa có nội dung để giải thích.</p>
           ) : (
-            <ul className="space-y-1.5 max-h-[440px] overflow-auto pr-1">
+            <ul className="space-y-1.5">
               {explain.slice(0, 1500).map((e) => (
                 <li key={`${e.line}-${e.kind}`} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5" style={{ marginLeft: Math.min(e.depth, 6) * 10 }}>
                   <p className="font-mono text-[11.5px] text-slate-800 break-all">
@@ -960,7 +962,7 @@ function AnalyzerTab({ text, setText }: { text: string; setText: (t: string) => 
           <p className="px-3 py-1.5 text-[11px] font-semibold text-slate-700 border-b border-slate-100 flex items-center gap-1.5">
             <FileText className="h-3.5 w-3.5" /> Vị trí vấn đề trong file {lines.length > LINE_CAP && <span className="font-normal text-slate-400">(hiển thị {LINE_CAP} dòng đầu)</span>}
           </p>
-          <div className="max-h-[360px] overflow-auto font-mono text-[11.5px] leading-relaxed">
+          <div className="overflow-x-auto font-mono text-[11.5px] leading-relaxed">
             {lines.slice(0, LINE_CAP).map((l, i) => {
               const sev = byLine.get(i + 1);
               return (

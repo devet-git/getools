@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import {
   ScanText, ImagePlus, Copy, Download, Loader2, X, RotateCw, RotateCcw, Trash2, AlertTriangle, Info, Sparkles, Wand2, Crop, Eye, Gauge, Languages,
 } from 'lucide-react';
+import { Select } from '@/components/ui/searchable-select';
 import { useApp } from '@/components/AppContext';
 import { useAiSettings } from '@/lib/use-ai-config';
 import { AiKeyNotice } from '@/components/AiKeyNotice';
@@ -637,17 +638,17 @@ export default function AiOcrPage() {
           <div className="grid sm:grid-cols-2 gap-2.5">
             <label className="block">
               <span className="block text-[11px] font-semibold text-slate-500 mb-1">Kiểu bố cục trang</span>
-              <select value={psm} onChange={(e) => setPsm(e.target.value as PsmMode)} className={selectCls}>
+              <Select value={psm} onChange={(e) => setPsm(e.target.value as PsmMode)} className={selectCls}>
                 {PSM_OPTIONS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-              </select>
+              </Select>
             </label>
             <label className="block">
               <span className="block text-[11px] font-semibold text-slate-500 mb-1">Đảo màu (ảnh nền tối)</span>
-              <select value={pre.invert} onChange={(e) => setPreFlag('invert', e.target.value as PreprocessOptions['invert'])} className={selectCls}>
+              <Select value={pre.invert} onChange={(e) => setPreFlag('invert', e.target.value as PreprocessOptions['invert'])} className={selectCls}>
                 <option value="off">Tắt</option>
                 <option value="auto">Tự động (nếu ảnh tối)</option>
                 <option value="on">Luôn đảo</option>
-              </select>
+              </Select>
             </label>
           </div>
           {darkHint && pre.invert === 'off' && (
@@ -670,11 +671,11 @@ export default function AiOcrPage() {
               </div>
               <label className="block">
                 <span className="block text-[11px] font-semibold text-slate-500 mb-1">Nhị phân hoá (đen/trắng)</span>
-                <select value={pre.threshold} onChange={(e) => setPreFlag('threshold', e.target.value as PreprocessOptions['threshold'])} className={selectCls}>
+                <Select value={pre.threshold} onChange={(e) => setPreFlag('threshold', e.target.value as PreprocessOptions['threshold'])} className={selectCls}>
                   <option value="off">Tắt</option>
                   <option value="otsu">Otsu (ảnh sáng đều)</option>
                   <option value="adaptive">Thích nghi (ánh sáng không đều)</option>
-                </select>
+                </Select>
               </label>
               {selected && (
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -803,17 +804,17 @@ export default function AiOcrPage() {
                 <div className="grid sm:grid-cols-2 gap-2.5">
                   <label className="block">
                     <span className="block text-[11px] font-semibold text-slate-500 mb-1">Ngôn ngữ gợi ý</span>
-                    <select value={hint} onChange={(e) => setHint(e.target.value)} className={selectCls}>
+                    <Select searchThreshold={0} value={hint} onChange={(e) => setHint(e.target.value)} className={selectCls}>
                       <option value="">Tự phát hiện</option>
                       {Object.entries(LANGUAGE_LABELS_VI).map(([c, l]) => <option key={c} value={c}>{l}</option>)}
-                    </select>
+                    </Select>
                   </label>
                   <label className="block">
                     <span className="block text-[11px] font-semibold text-slate-500 mb-1">Chế độ</span>
-                    <select value={aiMode} onChange={(e) => setAiMode(e.target.value as 'text' | 'layout')} className={selectCls}>
+                    <Select value={aiMode} onChange={(e) => setAiMode(e.target.value as 'text' | 'layout')} className={selectCls}>
                       <option value="text">Chỉ trích xuất chữ</option>
                       <option value="layout">Chữ + mô tả bố cục</option>
-                    </select>
+                    </Select>
                   </label>
                 </div>
                 <Toggle checked={keepTables} onChange={setKeepTables} label="Giữ định dạng bảng thành Markdown" />

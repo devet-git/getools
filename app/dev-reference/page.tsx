@@ -6,6 +6,7 @@ import { useApp } from '@/components/AppContext';
 import { ShareLinkButton } from '@/components/ShareLinkButton';
 import { readShareParams } from '@/lib/share-link';
 import { REF_TABLES, checkCors, filterRows, type CorsInput, type RefRow, type RefTable } from '@/lib/dev-reference';
+import { Select } from '@/components/ui/searchable-select';
 
 const STATUS_COLOR: Record<string, string> = {
   '1xx': 'bg-sky-100 text-sky-800',
@@ -73,7 +74,7 @@ function RefTableView({
   }
 
   return (
-    <div className="overflow-auto max-h-[70vh]">
+    <div className="overflow-auto max-h-[70vh] lg:max-h-none lg:flex-1 lg:min-h-0">
       <table className="w-full text-xs border-separate border-spacing-0">
         <thead className="sticky top-0 z-10">
           <tr>
@@ -246,7 +247,7 @@ export default function DevReferencePage() {
   const count = useMemo(() => (table ? filterRows(table.rows, q, cat).length : 0), [table, q, cat]);
 
   return (
-    <div className="space-y-3.5">
+    <div className="lg-fit-screen space-y-3.5 lg:space-y-0 lg:gap-3.5 lg:[&>*]:shrink-0">
       <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center shrink-0">
@@ -290,10 +291,10 @@ export default function DevReferencePage() {
         </button>
       </div>
 
-      <div className={card}>
+      <div className={card + ' lg:flex-1! lg:min-h-0 lg:flex lg:flex-col lg:overflow-auto'}>
         {table && (
           <>
-            <div className="p-3 border-b border-slate-100 space-y-2">
+            <div className="p-3 border-b border-slate-100 space-y-2 shrink-0">
               <div className="flex flex-wrap items-center gap-2">
                 <div className="relative flex-1 min-w-48">
                   <Search className="h-3.5 w-3.5 text-slate-400 absolute left-2 top-1/2 -translate-y-1/2" />
@@ -311,10 +312,10 @@ export default function DevReferencePage() {
                   )}
                 </div>
                 {table.categories.length > 0 && (
-                  <select value={cat} onChange={(e) => { setCat(e.target.value); setRow(''); }} aria-label="Lọc theo nhóm" className={`${inputCls} w-auto!`}>
+                  <Select value={cat} onChange={(e) => { setCat(e.target.value); setRow(''); }} aria-label="Lọc theo nhóm" searchThreshold={0} className={`${inputCls} w-auto!`}>
                     <option value="">Tất cả nhóm</option>
                     {table.categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-                  </select>
+                  </Select>
                 )}
                 <span className="text-xs text-slate-500">{count}/{table.rows.length} dòng</span>
               </div>

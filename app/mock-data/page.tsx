@@ -44,6 +44,7 @@ import {
   OptDef,
 } from '@/lib/mock-data';
 
+import { Select, SearchableSelect, type SelectOption } from '@/components/ui/searchable-select';
 import { SendToButton } from '@/components/SendToButton';
 const STORAGE_KEY = 'mock-data:v1';
 const PREVIEW_ROWS = 10;
@@ -51,6 +52,9 @@ const PREVIEW_CHARS = 30000;
 
 const inputCls =
   'w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400';
+const TYPE_OPTIONS: SelectOption[] = TYPE_GROUPS.flatMap((g) =>
+  FIELD_TYPES.filter((t) => t.group === g).map((t) => ({ value: t.id, label: t.label, group: g, keywords: t.id })),
+);
 const iconBtn =
   'p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition disabled:opacity-30 disabled:hover:bg-transparent';
 
@@ -59,13 +63,13 @@ function OptInput({ def, value, onChange }: { def: OptDef; value: string; onChan
     <label className={`block ${def.wide ? 'sm:col-span-2 lg:col-span-3' : ''}`}>
       <span className="block text-[10px] font-medium text-slate-500 mb-0.5">{def.label}</span>
       {def.kind === 'select' ? (
-        <select className={inputCls} value={value} onChange={(e) => onChange(e.target.value)}>
+        <Select className={inputCls} value={value} onChange={(e) => onChange(e.target.value)}>
           {def.choices?.map((c) => (
             <option key={c.v} value={c.v}>
               {c.l}
             </option>
           ))}
-        </select>
+        </Select>
       ) : def.kind === 'area' ? (
         <textarea
           className={`${inputCls} font-mono resize-y`}
@@ -111,28 +115,21 @@ function FieldRow({
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-[10px] text-slate-400 w-5 text-right tabular-nums">{index + 1}</span>
         <input
-          className={`${inputCls} font-mono sm:w-40 w-full sm:flex-none flex-1`}
+          className={`${inputCls} font-mono sm:w-40 min-w-28 sm:flex-none flex-1`}
           value={field.name}
           placeholder="tên_trường"
           aria-label="Tên trường"
           onChange={(e) => onChange({ ...field, name: e.target.value })}
         />
-        <select
-          className={`${inputCls} sm:w-52 flex-1 sm:flex-none`}
+        <SearchableSelect
+          className={`${inputCls} sm:w-52 min-w-36 flex-1 sm:flex-none`}
           value={field.type}
           aria-label="Kiểu dữ liệu"
-          onChange={(e) => onChange({ ...field, type: e.target.value, opts: defaultOpts(e.target.value) })}
-        >
-          {TYPE_GROUPS.map((g) => (
-            <optgroup key={g} label={g}>
-              {FIELD_TYPES.filter((t) => t.group === g).map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.label}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
+          options={TYPE_OPTIONS}
+          searchThreshold={0}
+          searchPlaceholder="Tìm kiểu dữ liệu..."
+          onChange={(v) => onChange({ ...field, type: v, opts: defaultOpts(v) })}
+        />
         <label className="flex items-center gap-1 text-[11px] text-slate-600 select-none" title="Đảm bảo giá trị không trùng giữa các dòng">
           <input
             type="checkbox"
@@ -404,9 +401,9 @@ export default function MockDataPage() {
   const setF = <K extends keyof FormatOptions>(k: K, v: FormatOptions[K]) => setFmt((f) => ({ ...f, [k]: v }));
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3.5 lg-fit-screen lg:space-y-0 lg:gap-3.5">
       {/* HEADER */}
-      <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs shrink-0 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center shrink-0">
             <Dices className="h-4 w-4" />
@@ -435,10 +432,10 @@ export default function MockDataPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-3.5 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-3.5 lg:flex-1 lg:min-h-0">
         {/* SCHEMA */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3 space-y-3">
-          <div className="flex flex-wrap items-end gap-3">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3 flex flex-col gap-3 min-w-0 lg:min-h-0 lg:h-full">
+          <div className="flex flex-wrap items-end gap-3 shrink-0">
             <label className="block">
               <span className="block text-[10px] font-medium text-slate-500 mb-0.5">Seed</span>
               <div className="flex gap-1">
@@ -488,7 +485,7 @@ export default function MockDataPage() {
             {activePreset && <div className="ml-auto"><ShareLinkButton params={{ preset: activePreset, seed, count: String(count), locale }} /></div>}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 lg:flex-1 lg:min-h-0 lg:overflow-auto lg:pr-1">
             {fields.map((f, i) => (
               <FieldRow
                 key={f.id}
@@ -507,12 +504,12 @@ export default function MockDataPage() {
           </div>
           <button
             onClick={addField}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition flex items-center gap-1"
+            className="self-start shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition flex items-center gap-1"
           >
             <Plus className="h-3.5 w-3.5" />
             Thêm trường
           </button>
-          <p className="text-[11px] text-slate-500 flex gap-1.5">
+          <p className="text-[11px] text-slate-500 flex gap-1.5 shrink-0">
             <Lightbulb className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-px" />
             <span>
               Mẹo: các trường &quot;Người&quot; trong cùng một dòng luôn nhất quán (họ tên, giới tính, email, CCCD, ngày sinh). Dùng &quot;Tham chiếu&quot; để tạo email từ first_name/last_name, và &quot;Công thức&quot; (ví dụ <code className="font-mono">price*qty</code>) cho cột tính toán. Chỉ nút Chia sẻ khả dụng khi dùng nguyên mẫu có sẵn.
@@ -521,8 +518,8 @@ export default function MockDataPage() {
         </div>
 
         {/* OUTPUT */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3 space-y-3 xl:sticky xl:top-3">
-          <div className="flex flex-wrap gap-1">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3 flex flex-col gap-3 min-w-0 lg:min-h-0 lg:h-full">
+          <div className="flex flex-wrap gap-1 shrink-0">
             {OUTPUT_FORMATS.map((f) => (
               <button
                 key={f.id}
@@ -546,12 +543,12 @@ export default function MockDataPage() {
               </label>
               <label className="block">
                 <span className="block text-[10px] font-medium text-slate-500 mb-0.5">Dialect</span>
-                <select className={inputCls} value={fmt.sqlDialect} onChange={(e) => setF('sqlDialect', e.target.value as SqlDialect)}>
+                <Select className={inputCls} value={fmt.sqlDialect} onChange={(e) => setF('sqlDialect', e.target.value as SqlDialect)}>
                   <option value="mysql">MySQL</option>
                   <option value="postgres">PostgreSQL</option>
                   <option value="sqlite">SQLite</option>
                   <option value="mssql">SQL Server</option>
-                </select>
+                </Select>
               </label>
               <label className="block">
                 <span className="block text-[10px] font-medium text-slate-500 mb-0.5">Dòng / INSERT</span>
@@ -612,7 +609,7 @@ export default function MockDataPage() {
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
             <SendToButton text={dataset && dataset.rows.length <= 2000 && errors.length === 0 ? getFull() : ''} fromToolId="mock-data" />
             <button
               onClick={handleCopy}
@@ -640,11 +637,11 @@ export default function MockDataPage() {
             </span>
           </div>
 
-          <div>
-            <div className="text-[10px] font-medium text-slate-500 mb-1">
+          <div className="flex flex-col lg:flex-1 lg:min-h-0">
+            <div className="text-[10px] font-medium text-slate-500 mb-1 shrink-0">
               Xem trước {bytes > PREVIEW_ROWS ? `${PREVIEW_ROWS} dòng đầu (còn ${(bytes - PREVIEW_ROWS).toLocaleString('vi-VN')} dòng khi sao chép / tải xuống)` : 'toàn bộ'}
             </div>
-            <pre className="bg-slate-900 text-slate-100 rounded-lg p-3 text-[11px] leading-relaxed font-mono overflow-auto max-h-[28rem] whitespace-pre">
+            <pre className="bg-slate-900 text-slate-100 rounded-lg p-3 text-[11px] leading-relaxed font-mono overflow-auto max-h-[28rem] lg:max-h-none lg:flex-1 lg:min-h-0 whitespace-pre">
               {errors.length > 0 ? '// Hãy sửa lỗi schema để xem dữ liệu.' : preview || '// Đang chuẩn bị…'}
             </pre>
           </div>

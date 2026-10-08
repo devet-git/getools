@@ -1,5 +1,6 @@
 'use client';
 
+import { Select } from '@/components/ui/searchable-select';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Coins,
@@ -825,9 +826,9 @@ export default function LlmTokensPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 items-end">
             <div>
               <label className={labelCls}>Họ tokenizer</label>
-              <select value={cutFam} onChange={(e) => setCutFam(e.target.value as FamilyId)} className={inputCls}>
+              <Select searchThreshold={0} value={cutFam} onChange={(e) => setCutFam(e.target.value as FamilyId)} className={inputCls}>
                 {FAMILIES.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
-              </select>
+              </Select>
             </div>
             <div>
               <label className={labelCls}>Ngân sách token</label>
@@ -847,7 +848,7 @@ export default function LlmTokensPage() {
                   Chạm ngân sách tại ký tự thứ <b>{fmt(cut.index)}</b> / {fmt(dtext.length)} (giữ lại {fmt(cut.est.likely)} token ước tính, khoảng {fmt(cut.est.min)} – {fmt(cut.est.max)}).
                 </p>
               )}
-              <pre className="mt-2 max-h-40 overflow-auto rounded-lg bg-slate-900 text-slate-100 text-xs p-3 whitespace-pre-wrap break-words">
+              <pre className="mt-2 overflow-x-auto rounded-lg bg-slate-900 text-slate-100 text-xs p-3 whitespace-pre-wrap break-words">
                 {cut.sliced.length > 1200 ? '…' + cut.sliced.slice(-1200) : cut.sliced || '(trống)'}
               </pre>
               <div className="flex gap-1.5 mt-2">
@@ -873,9 +874,9 @@ export default function LlmTokensPage() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 items-end">
             <div>
               <label className={labelCls}>Họ tokenizer</label>
-              <select value={chFam} onChange={(e) => setChFam(e.target.value as FamilyId)} className={inputCls}>
+              <Select searchThreshold={0} value={chFam} onChange={(e) => setChFam(e.target.value as FamilyId)} className={inputCls}>
                 {FAMILIES.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
-              </select>
+              </Select>
             </div>
             <div>
               <label className={labelCls}>Kích thước (token)</label>
@@ -887,11 +888,11 @@ export default function LlmTokensPage() {
             </div>
             <div>
               <label className={labelCls}>Tách theo</label>
-              <select value={chBoundary} onChange={(e) => setChBoundary(e.target.value as ChunkBoundary)} className={inputCls}>
+              <Select value={chBoundary} onChange={(e) => setChBoundary(e.target.value as ChunkBoundary)} className={inputCls}>
                 <option value="paragraph">Đoạn văn</option>
                 <option value="sentence">Câu</option>
                 <option value="line">Dòng</option>
-              </select>
+              </Select>
             </div>
             <button
               type="button"
@@ -932,7 +933,7 @@ export default function LlmTokensPage() {
                   <FileArchive className="h-3.5 w-3.5" /> .txt (zip)
                 </button>
               </div>
-              <div className="max-h-96 overflow-auto space-y-1.5">
+              <div className="space-y-1.5">
                 {chunks.slice(0, 150).map((c) => (
                   <details key={c.index} className="rounded-lg border border-slate-200 bg-slate-50/60 text-xs">
                     <summary className="cursor-pointer px-2.5 py-1.5 flex items-center gap-2">
@@ -1021,9 +1022,9 @@ export default function LlmTokensPage() {
                 <div><label className={labelCls}>Nhà cung cấp</label><input value={newModel.provider} onChange={(e) => setNewModel({ ...newModel, provider: e.target.value })} className={inputCls} /></div>
                 <div>
                   <label className={labelCls}>Họ tokenizer</label>
-                  <select value={newModel.family} onChange={(e) => setNewModel({ ...newModel, family: e.target.value as FamilyId })} className={inputCls}>
+                  <Select searchThreshold={0} value={newModel.family} onChange={(e) => setNewModel({ ...newModel, family: e.target.value as FamilyId })} className={inputCls}>
                     {FAMILIES.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
-                  </select>
+                  </Select>
                 </div>
                 <div><label className={labelCls}>Context</label>{numInput(newModel.context, (n) => setNewModel({ ...newModel, context: n }), 1)}</div>
                 <div><label className={labelCls}>Max output</label>{numInput(newModel.maxOutput, (n) => setNewModel({ ...newModel, maxOutput: n }), 1)}</div>
@@ -1053,7 +1054,7 @@ export default function LlmTokensPage() {
               <FlaskConical className="h-3.5 w-3.5" /> Chạy tự kiểm tra
             </button>
             {checks && (
-              <div className="max-h-60 overflow-auto rounded-lg border border-slate-200 bg-slate-50 p-2">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-2">
                 <p className="font-semibold mb-1">{checks.filter((c) => c.ok).length}/{checks.length} phép kiểm tra đạt</p>
                 {checks.map((c, i) => (
                   <div key={i} className={c.ok ? 'text-emerald-700' : 'text-red-600'}>

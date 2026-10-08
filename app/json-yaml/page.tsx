@@ -16,6 +16,7 @@ import {
 } from '@/lib/json-yaml';
 
 import { SendToButton } from '@/components/SendToButton';
+import { Select } from '@/components/ui/searchable-select';
 const INDENTS: { id: Indent; label: string }[] = [
   { id: 2, label: '2 khoảng trắng' },
   { id: 4, label: '4 khoảng trắng' },
@@ -150,7 +151,7 @@ export default function JsonYamlPage() {
         </div>
         <label className="flex items-center gap-1.5 text-xs font-medium text-slate-700">
           Thụt lề
-          <select
+          <Select
             value={String(indent)}
             onChange={(e) => setIndent(e.target.value === 'tab' ? 'tab' : (Number(e.target.value) as Indent))}
             disabled={mode === 'minify'}
@@ -161,7 +162,7 @@ export default function JsonYamlPage() {
                 {i.label}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         <label className="flex items-center gap-1.5 cursor-pointer select-none text-xs text-slate-700 font-medium">
           <input

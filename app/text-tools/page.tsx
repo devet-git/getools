@@ -33,6 +33,7 @@ import {
 } from '@/lib/text-tools';
 
 import { SendToButton } from '@/components/SendToButton';
+import { Select } from '@/components/ui/searchable-select';
 type Tab = 'stats' | 'lines' | 'case' | 'replace';
 
 const TABS: { id: Tab; label: string }[] = [
@@ -402,7 +403,7 @@ export default function TextToolsPage() {
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <label className="flex items-center gap-1.5 text-xs text-slate-700">
                 Sắp xếp
-                <select
+                <Select
                   value={lineOpts.sort}
                   onChange={(e) => setLine('sort', e.target.value as SortMode)}
                   className={inputCls}
@@ -412,7 +413,7 @@ export default function TextToolsPage() {
                       {s.label}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
               {lineOpts.sort === 'shuffle' && (
                 <button onClick={() => setLine('shuffleSeed', lineOpts.shuffleSeed + 1)} className={btnCls}>

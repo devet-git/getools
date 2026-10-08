@@ -35,6 +35,7 @@ import {
   type RefType,
   type DerivedItem,
 } from '@/lib/link-converter';
+import { Select } from '@/components/ui/searchable-select';
 
 const INITIAL_TEXT = SAMPLE_LINKS[1].url;
 
@@ -309,24 +310,24 @@ export default function LinkConverterPage() {
               </label>
               <label className="block">
                 <span className="block text-[11px] font-semibold text-slate-600 mb-1">Loại</span>
-                <select value={edits.kind} onChange={(e) => setEdit({ kind: e.target.value as LinkKind })} className={inputCls}>
+                <Select value={edits.kind} onChange={(e) => setEdit({ kind: e.target.value as LinkKind })} className={inputCls}>
                   {(Object.keys(KIND_LABEL) as LinkKind[]).map((k) => (
                     <option key={k} value={k}>
                       {KIND_LABEL[k]}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
               <label className="block">
                 <span className="block text-[11px] font-semibold text-slate-600 mb-1">Loại ref</span>
-                <select value={edits.refType} onChange={(e) => setEdit({ refType: e.target.value as RefType | 'auto' })} className={inputCls}>
+                <Select value={edits.refType} onChange={(e) => setEdit({ refType: e.target.value as RefType | 'auto' })} className={inputCls}>
                   <option value="auto">Tự đoán ({REF_TYPE_LABEL[effective.refType]})</option>
                   {(Object.keys(REF_TYPE_LABEL) as RefType[]).map((k) => (
                     <option key={k} value={k}>
                       {REF_TYPE_LABEL[k]}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
             </div>
 

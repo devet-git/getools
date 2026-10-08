@@ -27,6 +27,7 @@ import {
   AlignLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Select } from '@/components/ui/searchable-select';
 import { useApp } from '@/components/AppContext';
 import { AiSection } from '@/components/AiSection';
 import { SendToButton } from '@/components/SendToButton';
@@ -891,21 +892,22 @@ export default function SpeechToTextPage() {
           <label className="text-[11px] font-medium text-slate-400 hidden md:inline" htmlFor="stt-lang">
             Ngôn ngữ:
           </label>
-          <select
+          <Select
+            searchThreshold={0}
             id="stt-lang"
             value={selectedLangId}
             onChange={(e) => {
               if (isRecording) stopRecording();
               setSelectedLangId(e.target.value);
             }}
-            className="rounded-lg bg-slate-800 border border-slate-700 text-xs text-white px-2 py-1.5 outline-hidden focus:border-red-400"
+            className="w-56 max-w-full rounded-lg bg-slate-800 border border-slate-700 text-xs text-white px-2 py-1.5 outline-hidden focus:border-red-400"
           >
             {STT_LANGUAGES.map((lang) => (
               <option key={lang.id} value={lang.id}>
                 {lang.flag} {lang.name} ({lang.bcp47})
               </option>
             ))}
-          </select>
+          </Select>
           <ShareLinkButton params={{ lang: selectedLangId, cmd: cmdMode }} />
         </div>
       </div>
@@ -1063,7 +1065,7 @@ export default function SpeechToTextPage() {
             </p>
             <details className="group text-xs">
               <summary className="cursor-pointer text-indigo-700 font-medium select-none">Bảng lệnh được hỗ trợ</summary>
-              <div className="mt-2 max-h-56 overflow-auto rounded-lg border border-slate-100">
+              <div className="mt-2 overflow-x-auto rounded-lg border border-slate-100">
                 <table className="w-full text-[11px]">
                   <tbody>
                     {VOICE_COMMAND_SHEET.map((c) => (
@@ -1366,11 +1368,11 @@ export default function SpeechToTextPage() {
                 </div>
                 <div className="rounded-lg border border-slate-200 p-2.5 space-y-1.5">
                   <div className="text-xs font-semibold text-slate-800">Tóm tắt</div>
-                  <select value={aiLength} onChange={(e) => setAiLength(e.target.value as 'short' | 'medium' | 'long')} className={inputCls} aria-label="Độ dài tóm tắt">
+                  <Select value={aiLength} onChange={(e) => setAiLength(e.target.value as 'short' | 'medium' | 'long')} className={inputCls} aria-label="Độ dài tóm tắt">
                     <option value="short">Ngắn</option>
                     <option value="medium">Vừa</option>
                     <option value="long">Chi tiết</option>
-                  </select>
+                  </Select>
                   <div>
                     <button type="button" disabled={!!aiRunning} onClick={() => runAi('summarize')} className={smallBtn}>
                       <Sparkles className="h-3.5 w-3.5" /> Chạy
@@ -1379,11 +1381,11 @@ export default function SpeechToTextPage() {
                 </div>
                 <div className="rounded-lg border border-slate-200 p-2.5 space-y-1.5">
                   <div className="text-xs font-semibold text-slate-800">Dịch</div>
-                  <select value={aiTarget} onChange={(e) => setAiTarget(e.target.value)} className={inputCls} aria-label="Ngôn ngữ đích">
+                  <Select searchThreshold={0} value={aiTarget} onChange={(e) => setAiTarget(e.target.value)} className={inputCls} aria-label="Ngôn ngữ đích">
                     {TRANSLATE_TARGETS.map((t) => (
                       <option key={t.id} value={t.id}>{t.name}</option>
                     ))}
-                  </select>
+                  </Select>
                   <div>
                     <button type="button" disabled={!!aiRunning} onClick={() => runAi('translate')} className={smallBtn}>
                       <Languages className="h-3.5 w-3.5" /> Chạy
@@ -1424,7 +1426,7 @@ export default function SpeechToTextPage() {
                       <button type="button" onClick={() => setAiResult(null)} className={smallBtn} aria-label="Đóng kết quả"><X className="h-3.5 w-3.5" /></button>
                     </div>
                   </div>
-                  <div className="max-h-72 overflow-auto whitespace-pre-wrap text-xs leading-relaxed text-slate-800 bg-white rounded-lg border border-slate-200 p-2.5">
+                  <div className="whitespace-pre-wrap break-words text-xs leading-relaxed text-slate-800 bg-white rounded-lg border border-slate-200 p-2.5">
                     {aiResult.text}
                   </div>
                 </div>
@@ -1445,7 +1447,7 @@ export default function SpeechToTextPage() {
                 </button>
               </div>
 
-              <div className="space-y-1.5 max-h-40 overflow-auto">
+              <div className="space-y-1.5">
                 {historyItems.slice(0, 5).map((item) => (
                   <div
                     key={item.id}
