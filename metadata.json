@@ -1,0 +1,8 @@
+{
+  "name": "Git Downloader",
+  "description": "Download files/folders from GitHub, GitLab, or Bitbucket with custom ZIP options, batch-clone group repositories, manage bookmarks & history, and download GitHub Releases.",
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ],
+  "requestFramePermissions": []
+}
