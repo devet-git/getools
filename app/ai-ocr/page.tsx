@@ -5,6 +5,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ScanText, ImagePlus, Copy, Download, Loader2, X, RotateCw, Trash2, AlertTriangle, Info } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
+import { useAiSettings } from '@/lib/use-ai-config';
+import { AiKeyNotice } from '@/components/AiKeyNotice';
 import { AiError, callAi, toAiError } from '@/lib/ai-client';
 import { IMAGE_MIME_WHITELIST, LANGUAGE_LABELS_VI, MAX_IMAGE_BASE64_BYTES, type AiImage } from '@/lib/ai-prompts';
 
@@ -57,7 +59,8 @@ async function prepareImage(file: File, objectUrl: string): Promise<{ image: AiI
 }
 
 export default function AiOcrPage() {
-  const { keys, showToast, setIsSettingsOpen } = useApp();
+  const { showToast, setIsSettingsOpen } = useApp();
+  const { config: aiConfig, providerLabel } = useAiSettings();
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [keepTables, setKeepTables] = useState(true);
@@ -118,7 +121,7 @@ export default function AiOcrPage() {
         task: 'ocr',
         options: { keepTables, hint, mode },
         image,
-        apiKey: keys.gemini,
+        ai: aiConfig,
         signal: ctrl.signal,
       });
       setResult(text);
@@ -168,9 +171,11 @@ export default function AiOcrPage() {
         </div>
         <div>
           <h1 className="text-sm sm:text-base font-bold tracking-tight">Đọc chữ từ ảnh (OCR)</h1>
-          <p className="text-[11px] text-slate-400 leading-tight hidden sm:block">Chọn, kéo thả hoặc dán (Ctrl+V) ảnh. Ảnh sẽ được gửi tới Google Gemini để nhận dạng.</p>
+          <p className="text-[11px] text-slate-400 leading-tight hidden sm:block">Chọn, kéo thả hoặc dán (Ctrl+V) ảnh. Ảnh sẽ được gửi tới {providerLabel} để nhận dạng.</p>
         </div>
       </div>
+
+      <AiKeyNotice />
 
       <div className="grid lg:grid-cols-2 gap-3.5">
         <div className="bg-white border border-slate-200 rounded-xl p-3.5 space-y-3">
@@ -267,7 +272,7 @@ export default function AiOcrPage() {
             </div>
           )}
           {loading ? (
-            <div className="flex items-center gap-2 text-xs text-slate-500 py-8 justify-center"><Loader2 className="h-4 w-4 animate-spin" /> Đang đọc ảnh với Gemini...</div>
+            <div className="flex items-center gap-2 text-xs text-slate-500 py-8 justify-center"><Loader2 className="h-4 w-4 animate-spin" /> Đang đọc ảnh với AI...</div>
           ) : result ? (
             view === 'rendered' ? (
               <div className={PROSE}><ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown></div>

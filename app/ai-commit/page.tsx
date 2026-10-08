@@ -6,6 +6,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { GitCommitHorizontal, Upload, Copy, Loader2, X, Trash2, AlertTriangle, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
+import { useAiSettings } from '@/lib/use-ai-config';
+import { AiKeyNotice } from '@/components/AiKeyNotice';
 import { callAi, toAiError } from '@/lib/ai-client';
 import { MAX_INPUT_CHARS, buildGitCommitCommand, checkCommitMessage, splitPrText, truncateDiff } from '@/lib/ai-prompts';
 
@@ -17,7 +19,8 @@ const lbl = 'block text-[11px] font-semibold text-slate-500 mb-1';
 const btn = 'inline-flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-[11px] text-slate-600 hover:bg-slate-50';
 
 export default function AiCommitPage() {
-  const { keys, showToast, setIsSettingsOpen } = useApp();
+  const { showToast, setIsSettingsOpen } = useApp();
+  const { config: aiConfig, providerLabel } = useAiSettings();
   const [diff, setDiff] = useState('');
   const [style, setStyle] = useState('conventional');
   const [language, setLanguage] = useState('en');
@@ -49,8 +52,8 @@ export default function AiCommitPage() {
     const options = { style, language, scope, issue };
     try {
       const [c, p] = await Promise.allSettled([
-        callAi({ task: 'commit-message', input: t.text, options, apiKey: keys.gemini, signal: ctrl.signal }),
-        callAi({ task: 'pr-description', input: t.text, options, apiKey: keys.gemini, signal: ctrl.signal }),
+        callAi({ task: 'commit-message', input: t.text, options, ai: aiConfig, signal: ctrl.signal }),
+        callAi({ task: 'pr-description', input: t.text, options, ai: aiConfig, signal: ctrl.signal }),
       ]);
       if (c.status === 'fulfilled') setCommit(c.value);
       if (p.status === 'fulfilled') setPr(p.value);
@@ -104,9 +107,11 @@ export default function AiCommitPage() {
         </div>
       </div>
 
+      <AiKeyNotice />
+
       <div className="flex items-start gap-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-2.5">
         <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
-        <span>Diff của bạn sẽ được gửi tới Google Gemini để phân tích. Đừng dán diff chứa mật khẩu, khoá API hoặc mã nguồn bí mật.</span>
+        <span>Diff của bạn sẽ được gửi tới {providerLabel} để phân tích. Đừng dán diff chứa mật khẩu, khoá API hoặc mã nguồn bí mật.</span>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-3.5">
@@ -184,7 +189,7 @@ export default function AiCommitPage() {
               <button onClick={run} className="underline shrink-0">Thử lại</button>
             </div>
           )}
-          {loading && <div className="bg-white border border-slate-200 rounded-xl p-6 flex items-center gap-2 text-xs text-slate-500 justify-center"><Loader2 className="h-4 w-4 animate-spin" /> Đang phân tích diff với Gemini...</div>}
+          {loading && <div className="bg-white border border-slate-200 rounded-xl p-6 flex items-center gap-2 text-xs text-slate-500 justify-center"><Loader2 className="h-4 w-4 animate-spin" /> Đang phân tích diff với AI...</div>}
           {!hasOutput && !loading && !error && <div className="bg-white border border-slate-200 rounded-xl p-10 text-xs text-slate-400 text-center">Kết quả sẽ hiển thị ở đây.</div>}
 
           {check && (

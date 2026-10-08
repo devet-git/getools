@@ -6,20 +6,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Key } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
+import { AiSettingsSection } from '@/components/AiSettingsSection';
 
 export function SettingsModal() {
   const { isSettingsOpen, setIsSettingsOpen, keys, updateKey, showToast } = useApp();
 
   return (
     <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-      <DialogContent className="sm:max-w-[460px] p-6">
+      <DialogContent className="sm:max-w-[480px] p-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-1">
           <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
             <Key className="h-5 w-5 text-primary" />
-            Cấu hình Token & API Key
+            Cấu hình Token & Khóa AI
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Dùng để tăng giới hạn API rate limit hoặc truy cập repository riêng tư (Private). Token được lưu cục bộ trên trình duyệt của bạn.
+            Token Git giúp tăng giới hạn API rate limit và truy cập repository riêng tư; khóa AI dùng cho các tool AI. Tất cả được lưu cục bộ trên trình duyệt của bạn.
           </DialogDescription>
         </DialogHeader>
 
@@ -75,28 +76,7 @@ export function SettingsModal() {
             </p>
           </div>
 
-          <div className="grid gap-1.5 pt-1 border-t border-slate-100">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="gemini" className="text-xs font-medium flex items-center gap-1.5">
-                <span>Google Gemini API Key</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 font-semibold border border-indigo-200/50">Tùy chọn</span>
-              </Label>
-            </div>
-            <Input
-              id="gemini"
-              type="password"
-              value={keys.gemini || ''}
-              onChange={(e) => updateKey('gemini', e.target.value)}
-              placeholder="AIzaSy..."
-              className="text-xs font-mono"
-            />
-            <p className="text-[11px] text-muted-foreground">
-              Dùng cho AI Neural Text-to-Speech (TTS). Lấy miễn phí tại{' '}
-              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-primary hover:underline">
-                Google AI Studio
-              </a>.
-            </p>
-          </div>
+          <AiSettingsSection />
         </div>
 
         <div className="flex justify-end pt-2 border-t">

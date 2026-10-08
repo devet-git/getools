@@ -1,13 +1,14 @@
 /** Helper fetch gọi /api/ai ở phía client. Khoá Gemini chỉ đi qua header, không bao giờ nhúng vào bundle. */
 import type { AiImage, AiTask } from '@/lib/ai-prompts';
+import type { AiConfig } from '@/lib/ai-providers';
 
 export interface CallAiParams {
   task: AiTask;
   input?: string;
   options?: Record<string, string | boolean>;
   image?: AiImage;
-  /** Khoá Gemini của người dùng (keys.gemini); nếu trống server sẽ dùng khoá môi trường. */
-  apiKey?: string;
+  /** Cấu hình AI của người dùng (nhà cung cấp, khóa, model). Nếu thiếu khóa Gemini, server dùng khóa môi trường. */
+  ai: AiConfig;
   signal?: AbortSignal;
 }
 
@@ -25,17 +26,26 @@ export class AiError extends Error {
 export function aiErrorMessage(status: number): string {
   switch (status) {
     case 400: return 'Yêu cầu không hợp lệ.';
-    case 401: return 'Gemini API Key thiếu hoặc không hợp lệ. Vui lòng nhập khoá trong Cài đặt.';
+    case 401: return 'Khóa AI thiếu hoặc không hợp lệ. Vui lòng nhập khóa trong Cài đặt.';
     case 413: return 'Nội dung hoặc ảnh quá lớn.';
     case 429: return 'Đã vượt hạn mức hoặc gửi quá nhanh. Vui lòng thử lại sau.';
-    case 502: return 'Dịch vụ Gemini đang gặp sự cố. Vui lòng thử lại sau.';
+    case 502: return 'Dịch vụ AI đang gặp sự cố. Vui lòng thử lại sau.';
     default: return 'Đã xảy ra lỗi khi gọi AI. Vui lòng thử lại.';
   }
 }
 
-export async function callAi({ task, input = '', options = {}, image, apiKey, signal }: CallAiParams): Promise<string> {
+/** Header mang cấu hình AI tới server (khóa chỉ đi qua header, không bao giờ nằm trong URL hay bundle). */
+export function aiHeaders(ai: AiConfig): Record<string, string> {
+  const h: Record<string, string> = { 'x-ai-provider': ai.provider };
+  if (ai.key.trim()) h['x-ai-key'] = ai.key.trim();
+  if (ai.model.trim()) h['x-ai-model'] = ai.model.trim();
+  if (ai.baseUrl?.trim()) h['x-ai-base-url'] = ai.baseUrl.trim();
+  return h;
+}
+
+export async function callAi({ task, input = '', options = {}, image, ai, signal }: CallAiParams): Promise<string> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (apiKey && apiKey.trim()) headers['x-gemini-key'] = apiKey.trim();
+  Object.assign(headers, aiHeaders(ai));
 
   let res: Response;
   try {

@@ -6,6 +6,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Sparkles, Upload, Copy, Download, Loader2, X, RotateCw, Mic, Trash2, AlertTriangle } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
+import { useAiSettings } from '@/lib/use-ai-config';
+import { AiKeyNotice } from '@/components/AiKeyNotice';
 import { callAi, toAiError } from '@/lib/ai-client';
 import { LANGUAGE_LABELS_VI, MAX_INPUT_CHARS, type AiTask } from '@/lib/ai-prompts';
 
@@ -42,7 +44,8 @@ function Check({ label, checked, onChange }: { label: string; checked: boolean; 
 }
 
 export default function AiTextPage() {
-  const { keys, showToast, setIsSettingsOpen } = useApp();
+  const { showToast, setIsSettingsOpen } = useApp();
+  const { config: aiConfig, providerLabel } = useAiSettings();
   const [mode, setMode] = useState<Mode>('summarize');
   const [input, setInput] = useState('');
   const [result, setResult] = useState('');
@@ -98,7 +101,7 @@ export default function AiTextPage() {
           ? { source, target, tone, preserveMarkdown: preserveMd }
           : { language: codeLang.trim() || 'auto', level, complexity, bugs };
     try {
-      const text = await callAi({ task: mode as AiTask, input, options, apiKey: keys.gemini, signal: ctrl.signal });
+      const text = await callAi({ task: mode as AiTask, input, options, ai: aiConfig, signal: ctrl.signal });
       setResult(text);
     } catch (e) {
       const err = toAiError(e);
@@ -156,10 +159,12 @@ export default function AiTextPage() {
         <div>
           <h1 className="text-sm sm:text-base font-bold tracking-tight">Tóm tắt / Dịch / Giải thích code (AI)</h1>
           <p className="text-[11px] text-slate-400 leading-tight hidden sm:block">
-            Dùng Google Gemini. Nội dung bạn nhập sẽ được gửi tới Gemini để xử lý.
+            Nội dung bạn nhập sẽ được gửi tới {providerLabel} để xử lý.
           </p>
         </div>
       </div>
+
+      <AiKeyNotice />
 
       <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit">
         {MODES.map((m) => (
@@ -329,7 +334,7 @@ export default function AiTextPage() {
           )}
 
           {loading ? (
-            <div className="flex items-center gap-2 text-xs text-slate-500 py-8 justify-center"><Loader2 className="h-4 w-4 animate-spin" /> Đang xử lý với Gemini...</div>
+            <div className="flex items-center gap-2 text-xs text-slate-500 py-8 justify-center"><Loader2 className="h-4 w-4 animate-spin" /> Đang xử lý với AI...</div>
           ) : result ? (
             view === 'rendered' ? (
               <div className={PROSE}><ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown></div>
