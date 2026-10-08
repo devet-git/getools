@@ -1,7 +1,10 @@
+import { useId } from 'react';
 import { cn } from '@/lib/utils';
 
 /** Logo GeTools: chữ "G" bo tròn kết hợp một điểm "commit" màu hổ phách. */
 export function Logo({ className }: { className?: string }) {
+  // id riêng cho mỗi bản render: nhiều logo cùng trang (vd. header mobile bị ẩn) không được dùng chung gradient
+  const gradientId = `getools-logo-bg-${useId().replace(/:/g, '')}`;
   return (
     <svg
       viewBox="0 0 64 64"
@@ -10,12 +13,12 @@ export function Logo({ className }: { className?: string }) {
       className={cn('shrink-0 drop-shadow-sm', className)}
     >
       <defs>
-        <linearGradient id="getools-logo-bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+        <linearGradient id={gradientId} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#4f46e5" />
           <stop offset="1" stopColor="#7c3aed" />
         </linearGradient>
       </defs>
-      <rect width="64" height="64" rx="15" fill="url(#getools-logo-bg)" />
+      <rect width="64" height="64" rx="15" fill={`url(#${gradientId})`} />
       <path
         d="M45.86 24A16 16 0 1 0 48 32H35"
         fill="none"

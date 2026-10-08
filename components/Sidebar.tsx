@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -13,6 +13,7 @@ import {
   Menu, 
   X,
   ChevronRight,
+  ChevronDown,
   Code2,
   Volume2,
   PanelLeftClose,
@@ -102,6 +103,9 @@ const navCategories: NavCategory[] = [
   },
 ];
 
+const GIT_CATEGORY = 'Công cụ Git & Mã nguồn';
+const COLLAPSED_STORAGE_KEY = 'getools_sidebar_collapsed_categories';
+
 export function Sidebar() {
   const pathname = usePathname();
   const { 
@@ -116,6 +120,30 @@ export function Sidebar() {
   } = useApp();
 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [collapsedCats, setCollapsedCats] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(COLLAPSED_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (Array.isArray(parsed)) setCollapsedCats(parsed.filter((t) => typeof t === 'string'));
+    } catch {
+      /* bỏ qua: không đọc được localStorage */
+    }
+  }, []);
+
+  const toggleCategory = (title: string) => {
+    setCollapsedCats((prev) => {
+      const next = prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title];
+      try {
+        localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        /* bỏ qua */
+      }
+      return next;
+    });
+  };
 
   const hasConfiguredKeys = !!(keys.github || keys.gitlab || keys.bitbucket);
 
@@ -228,17 +256,36 @@ export function Sidebar() {
 
         {/* Navigation Routes */}
         <div className="flex-1 overflow-y-auto px-2.5 py-4 space-y-5">
-          {navCategories.map((cat, idx) => (
+          {navCategories.map((cat, idx) => {
+            const isGitCat = cat.title === GIT_CATEGORY;
+            const isCatCollapsed = !isSidebarCollapsed && collapsedCats.includes(cat.title);
+            return (
             <div key={idx}>
               {!isSidebarCollapsed ? (
-                <div className="flex items-center justify-between px-3 pb-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                  <span>{cat.title}</span>
-                  {cat.title === 'Công cụ Git & Mã nguồn' && (
+                <div className="flex items-center justify-between pb-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleCategory(cat.title)}
+                    aria-expanded={!isCatCollapsed}
+                    title={isCatCollapsed ? 'Mở rộng mục' : 'Thu gọn mục'}
+                    className="flex-1 min-w-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold text-slate-400 hover:text-slate-700 hover:bg-slate-50 uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${isCatCollapsed ? '-rotate-90' : ''}`}
+                    />
+                    <span className="truncate">{cat.title}</span>
+                    {isCatCollapsed && (
+                      <span className="ml-auto text-[10px] font-medium normal-case tracking-normal px-1.5 rounded-full bg-slate-100 text-slate-500">
+                        {cat.items.length}
+                      </span>
+                    )}
+                  </button>
+                  {isGitCat && (
                     <button
                       type="button"
                       onClick={() => setIsSettingsOpen(true)}
                       title={`Cài đặt API Tokens Git (GitHub / GitLab / Bitbucket)${hasConfiguredKeys ? ' • Đã thiết lập' : ''}`}
-                      className="flex items-center justify-center p-1 -mr-1 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors relative group cursor-pointer"
+                      className="flex items-center justify-center p-1 mr-1 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors relative group cursor-pointer"
                       aria-label="Cài đặt Công cụ Git"
                     >
                       <Settings className="h-3.5 w-3.5 group-hover:rotate-45 transition-transform duration-200" />
@@ -251,7 +298,7 @@ export function Sidebar() {
               ) : (
                 <div>
                   <div className="w-full h-px bg-slate-100 my-2" />
-                  {cat.title === 'Công cụ Git & Mã nguồn' && (
+                  {isGitCat && (
                     <button
                       type="button"
                       onClick={() => setIsSettingsOpen(true)}
@@ -267,186 +314,182 @@ export function Sidebar() {
                   )}
                 </div>
               )}
-              <nav className="space-y-1">
-                {cat.items.map((item) => {
-                  const isActive = pathname === item.href;
-                  const Icon = item.icon;
-
-                  if (isSidebarCollapsed) {
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setIsMobileOpen(false)}
-                        title={`${item.name} - ${item.description}`}
-                        className={`flex items-center justify-center p-2.5 rounded-xl transition-all relative group ${
-                          isActive
-                            ? 'bg-slate-900 text-white shadow-xs'
-                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                        }`}
-                      >
-                        <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-600 group-hover:text-slate-900'}`} />
-                        {item.badge && (
-                          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-indigo-500 ring-2 ring-white" />
-                        )}
-                      </Link>
-                    );
-                  }
-
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setIsMobileOpen(false)}
-                      className={`flex items-start gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all group ${
-                        isActive
-                          ? 'bg-slate-900 text-white shadow-xs'
-                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                      }`}
-                    >
-                      <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-900'}`} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-[13px] flex items-center gap-1.5">
-                            {item.name}
-                            {item.badge && (
-                              <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider ${
-                                isActive ? 'bg-indigo-500 text-white' : 'bg-indigo-100 text-indigo-700'
-                              }`}>
-                                {item.badge}
-                              </span>
-                            )}
-                          </span>
-                          {isActive && <ChevronRight className="h-3.5 w-3.5 opacity-70" />}
-                        </div>
-                        <p className={`text-[11px] truncate mt-0.5 ${isActive ? 'text-slate-300' : 'text-muted-foreground'}`}>
-                          {item.description}
-                        </p>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-          ))}
-
-          {/* Quick Shortcuts */}
-          <div>
-            {!isSidebarCollapsed ? (
-              <div className="px-3 pb-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                Dữ liệu & Quản lý
-              </div>
-            ) : (
-              <div className="w-full h-px bg-slate-100 my-2" />
-            )}
-            
-            <div className="space-y-1">
-              {isSidebarCollapsed ? (
+              {!isCatCollapsed && (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setHistoryModalTab('bookmarks');
-                      setIsHistoryModalOpen(true);
-                    }}
-                    title={`Bookmarks đã ghim (${bookmarksCount})`}
-                    className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
-                  >
-                    <Star className="h-5 w-5 text-amber-500 fill-amber-500/20" />
-                    {bookmarksCount > 0 && (
-                      <span className="absolute top-1 right-1 text-[9px] font-bold px-1 rounded-full bg-amber-500 text-white">
+                  <nav className="space-y-1">
+                    {cat.items.map((item) => {
+                      const isActive = pathname === item.href;
+                      const Icon = item.icon;
+
+                      if (isSidebarCollapsed) {
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsMobileOpen(false)}
+                            title={`${item.name} - ${item.description}`}
+                            className={`flex items-center justify-center p-2.5 rounded-xl transition-all relative group ${
+                              isActive
+                                ? 'bg-slate-900 text-white shadow-xs'
+                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                            }`}
+                          >
+                            <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-600 group-hover:text-slate-900'}`} />
+                            {item.badge && (
+                              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-indigo-500 ring-2 ring-white" />
+                            )}
+                          </Link>
+                        );
+                      }
+
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setIsMobileOpen(false)}
+                          className={`flex items-start gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all group ${
+                            isActive
+                              ? 'bg-slate-900 text-white shadow-xs'
+                              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                          }`}
+                        >
+                          <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-900'}`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <span className="font-semibold text-[13px] flex items-center gap-1.5">
+                                {item.name}
+                                {item.badge && (
+                                  <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider ${
+                                    isActive ? 'bg-indigo-500 text-white' : 'bg-indigo-100 text-indigo-700'
+                                  }`}>
+                                    {item.badge}
+                                  </span>
+                                )}
+                              </span>
+                              {isActive && <ChevronRight className="h-3.5 w-3.5 opacity-70" />}
+                            </div>
+                            <p className={`text-[11px] truncate mt-0.5 ${isActive ? 'text-slate-300' : 'text-muted-foreground'}`}>
+                              {item.description}
+                            </p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </nav>
+                  {isGitCat && (
+              <div className="space-y-1 mt-1">
+                {isSidebarCollapsed ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setHistoryModalTab('bookmarks');
+                        setIsHistoryModalOpen(true);
+                      }}
+                      title={`Bookmarks đã ghim (${bookmarksCount})`}
+                      className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
+                    >
+                      <Star className="h-5 w-5 text-amber-500 fill-amber-500/20" />
+                      {bookmarksCount > 0 && (
+                        <span className="absolute top-1 right-1 text-[9px] font-bold px-1 rounded-full bg-amber-500 text-white">
+                          {bookmarksCount}
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setHistoryModalTab('history');
+                        setIsHistoryModalOpen(true);
+                      }}
+                      title={`Lịch sử tải (${historyCount})`}
+                      className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
+                    >
+                      <Clock className="h-5 w-5 text-slate-500" />
+                      {historyCount > 0 && (
+                        <span className="absolute top-1 right-1 text-[9px] font-bold px-1 rounded-full bg-slate-700 text-white">
+                          {historyCount}
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsSettingsOpen(true)}
+                      title={`API Tokens (${hasConfiguredKeys ? 'Đã cài' : 'Chưa cài'})`}
+                      className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
+                    >
+                      <Key className="h-5 w-5 text-slate-500" />
+                      {hasConfiguredKeys && (
+                        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-500" />
+                      )}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setHistoryModalTab('bookmarks');
+                        setIsHistoryModalOpen(true);
+                        setIsMobileOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Star className="h-4 w-4 text-amber-500 fill-amber-500/20" />
+                        <span>Bookmarks đã ghim</span>
+                      </div>
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/50">
                         {bookmarksCount}
                       </span>
-                    )}
-                  </button>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setHistoryModalTab('history');
-                      setIsHistoryModalOpen(true);
-                    }}
-                    title={`Lịch sử tải (${historyCount})`}
-                    className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
-                  >
-                    <Clock className="h-5 w-5 text-slate-500" />
-                    {historyCount > 0 && (
-                      <span className="absolute top-1 right-1 text-[9px] font-bold px-1 rounded-full bg-slate-700 text-white">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setHistoryModalTab('history');
+                        setIsHistoryModalOpen(true);
+                        setIsMobileOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Clock className="h-4 w-4 text-slate-500" />
+                        <span>Lịch sử tải</span>
+                      </div>
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
                         {historyCount}
                       </span>
-                    )}
-                  </button>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setIsSettingsOpen(true)}
-                    title={`API Tokens (${hasConfiguredKeys ? 'Đã cài' : 'Chưa cài'})`}
-                    className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
-                  >
-                    <Key className="h-5 w-5 text-slate-500" />
-                    {hasConfiguredKeys && (
-                      <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-500" />
-                    )}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setHistoryModalTab('bookmarks');
-                      setIsHistoryModalOpen(true);
-                      setIsMobileOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Star className="h-4 w-4 text-amber-500 fill-amber-500/20" />
-                      <span>Bookmarks đã ghim</span>
-                    </div>
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/50">
-                      {bookmarksCount}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setHistoryModalTab('history');
-                      setIsHistoryModalOpen(true);
-                      setIsMobileOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Clock className="h-4 w-4 text-slate-500" />
-                      <span>Lịch sử tải</span>
-                    </div>
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                      {historyCount}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsSettingsOpen(true);
-                      setIsMobileOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Key className="h-4 w-4 text-slate-500" />
-                      <span>API Tokens</span>
-                    </div>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${hasConfiguredKeys ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' : 'bg-slate-100 text-slate-500'}`}>
-                      {hasConfiguredKeys ? 'Đã cài' : 'Chưa có'}
-                    </span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSettingsOpen(true);
+                        setIsMobileOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Key className="h-4 w-4 text-slate-500" />
+                        <span>API Tokens</span>
+                      </div>
+                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${hasConfiguredKeys ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' : 'bg-slate-100 text-slate-500'}`}>
+                        {hasConfiguredKeys ? 'Đã cài' : 'Chưa có'}
+                      </span>
+                    </button>
+                  </>
+                )}
+              </div>
+                  )}
                 </>
               )}
             </div>
-          </div>
+            );
+          })}
+
         </div>
 
       </aside>
