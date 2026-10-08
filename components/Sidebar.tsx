@@ -20,7 +20,11 @@ import {
   PanelLeftOpen,
   FileSpreadsheet,
   Mic,
-  GitCompare
+  GitCompare,
+  Braces,
+  Regex,
+  Binary,
+  Link2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/components/AppContext';
@@ -61,6 +65,13 @@ const navCategories: NavCategory[] = [
         icon: Package,
         description: 'Tìm kiếm & tải asset phiên bản đóng gói',
       },
+      {
+        name: 'Chuyển đổi link GitHub',
+        href: '/link-converter',
+        icon: Link2,
+        description: 'Đổi link sang raw, ZIP, git clone, curl, jsDelivr',
+        badge: 'Mới',
+      },
     ],
   },
   {
@@ -97,6 +108,27 @@ const navCategories: NavCategory[] = [
         href: '/compare',
         icon: GitCompare,
         description: 'So sánh hai file hoặc văn bản, làm nổi bật điểm khác nhau',
+        badge: 'Mới',
+      },
+      {
+        name: 'JSON / YAML',
+        href: '/json-yaml',
+        icon: Braces,
+        description: 'Định dạng, kiểm tra lỗi và chuyển đổi JSON ⇄ YAML',
+        badge: 'Mới',
+      },
+      {
+        name: 'Regex Tester',
+        href: '/regex',
+        icon: Regex,
+        description: 'Thử biểu thức chính quy, tô sáng match và nhóm bắt',
+        badge: 'Mới',
+      },
+      {
+        name: 'Mã hóa / Giải mã',
+        href: '/encode',
+        icon: Binary,
+        description: 'Base64, URL, HTML entities, JWT, hash, UUID',
         badge: 'Mới',
       },
     ],
