@@ -753,7 +753,7 @@ export default function LogViewerPage() {
   const maxLevel = stats ? Math.max(1, ...LEVELS.map((l) => stats.levelCounts[l])) : 1;
 
   return (
-    <div className="space-y-3.5 lg-fit-screen lg:space-y-0 lg:gap-3">
+    <div className="space-y-3.5">
       {/* HEADER */}
       <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
@@ -948,7 +948,7 @@ export default function LogViewerPage() {
           </div>
 
           {/* KHU LÀM VIỆC: danh sách + thống kê */}
-          <div className="lg-fill flex flex-col lg:flex-row gap-3 min-w-0">
+          <div className="flex flex-col lg:flex-row gap-3 min-w-0 lg:h-[max(26rem,calc(100dvh-8rem))]">
           {/* THỐNG KÊ */}
           {showStats && stats && (
             <div className="grid gap-3 grid-cols-1 content-start max-h-[60vh] overflow-auto lg:max-h-none lg:h-full lg:min-h-0 lg:w-[26rem] xl:w-[32rem] lg:shrink-0 lg:order-last">
