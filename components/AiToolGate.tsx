@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { KeyRound, Lock } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
@@ -12,22 +13,37 @@ import { findToolByHref } from '@/lib/tools';
  */
 export function AiToolGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || '/';
-  const { setIsSettingsOpen } = useApp();
+  const { openSettings } = useApp();
   const ai = useAiSettings();
 
   const tool = findToolByHref(pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname);
   const locked = ai.isToolLocked(tool);
+  const active = locked && !!tool;
 
-  if (!locked || !tool) return <>{children}</>;
+  // Khi bị khóa: đưa trang về đầu để thẻ hướng dẫn luôn nằm trong tầm nhìn
+  useEffect(() => {
+    if (!active) return;
+    window.scrollTo(0, 0);
+    // Khóa cuộn cả trang trong lúc bị khóa (trả lại như cũ khi mở khóa hoặc rời trang)
+    const html = document.documentElement;
+    const prev = html.style.overflow;
+    html.style.overflow = 'hidden';
+    return () => {
+      html.style.overflow = prev;
+    };
+  }, [active]);
+
+  if (!active || !tool) return <>{children}</>;
 
   const needsGemini = tool.requiresAi === 'gemini';
-  const openSettings = () => {
+  const openKeySettings = () => {
     if (needsGemini) ai.setProvider('gemini');
-    setIsSettingsOpen(true);
+    openSettings('ai');
   };
 
+  // Chiều cao đúng bằng vùng nhìn thấy + ẩn phần tràn => trang không còn gì để cuộn
   return (
-    <div className="relative min-h-[70vh]">
+    <div className="relative overflow-hidden h-[calc(100dvh-5rem)] lg:h-[calc(100dvh-2rem)]">
       <div
         inert
         aria-hidden="true"
@@ -36,10 +52,10 @@ export function AiToolGate({ children }: { children: React.ReactNode }) {
         {children}
       </div>
 
-      <div className="absolute inset-0 z-20 flex items-start justify-center p-4">
+      <div className="absolute inset-0 z-20 flex items-center justify-center p-4">
         <div
           role="alert"
-          className="sticky top-24 w-full max-w-md rounded-2xl border border-amber-200 bg-white p-5 shadow-xl text-center space-y-3"
+          className="w-full max-w-md rounded-2xl border border-amber-200 bg-white p-5 shadow-xl text-center space-y-3"
         >
           <div className="mx-auto h-11 w-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
             <Lock className="h-5 w-5" />
@@ -56,7 +72,7 @@ export function AiToolGate({ children }: { children: React.ReactNode }) {
           </div>
           <button
             type="button"
-            onClick={openSettings}
+            onClick={openKeySettings}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition"
           >
             <KeyRound className="h-3.5 w-3.5" />

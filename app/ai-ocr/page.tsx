@@ -59,7 +59,7 @@ async function prepareImage(file: File, objectUrl: string): Promise<{ image: AiI
 }
 
 export default function AiOcrPage() {
-  const { showToast, setIsSettingsOpen } = useApp();
+  const { showToast, openSettings } = useApp();
   const { config: aiConfig, providerLabel } = useAiSettings();
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -266,7 +266,7 @@ export default function AiOcrPage() {
               <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
               <div className="flex-1">
                 {error}
-                {/Cài đặt/.test(error) && <button onClick={() => setIsSettingsOpen(true)} className="ml-1 underline font-semibold">Mở Cài đặt</button>}
+                {/Cài đặt/.test(error) && <button onClick={() => openSettings('ai')} className="ml-1 underline font-semibold">Mở Cài đặt</button>}
               </div>
               <button onClick={run} className="underline shrink-0">Thử lại</button>
             </div>

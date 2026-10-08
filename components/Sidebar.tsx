@@ -25,7 +25,8 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAiSettings } from '@/lib/use-ai-config';
 import { TOOL_CATEGORIES, GIT_CATEGORY_TITLE } from '@/lib/tools';
 
-const COLLAPSED_STORAGE_KEY = 'getools_sidebar_collapsed_categories';
+/** Lựa chọn mở/đóng mục do người dùng tự đặt: { [tiêu đề mục]: true = mở, false = đóng }. Mặc định mọi mục đóng, trừ mục chứa trang đang xem. */
+const CATEGORY_STATE_KEY = 'getools_sidebar_category_state';
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -35,25 +36,33 @@ export function Sidebar() {
     historyCount, 
     setIsHistoryModalOpen, 
     setHistoryModalTab, 
-    setIsSettingsOpen, 
+    openSettings, 
     keys,
     isSidebarCollapsed,
     toggleSidebarCollapse
   } = useApp();
 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [collapsedCats, setCollapsedCats] = useState<string[]>([]);
+  const [catOverrides, setCatOverrides] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(COLLAPSED_STORAGE_KEY);
-      const parsed = raw ? JSON.parse(raw) : [];
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (Array.isArray(parsed)) setCollapsedCats(parsed.filter((t) => typeof t === 'string'));
+      const raw = localStorage.getItem(CATEGORY_STATE_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        const clean: Record<string, boolean> = {};
+        for (const [k, v] of Object.entries(parsed)) if (typeof v === 'boolean') clean[k] = v;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setCatOverrides(clean);
+      }
     } catch {
       /* bỏ qua: không đọc được localStorage */
     }
   }, []);
+
+  // Mục chứa trang đang xem luôn mở (trừ khi người dùng tự đóng) để thấy mình đang ở đâu
+  const activeCategory = TOOL_CATEGORIES.find((c) => c.items.some((i) => i.href === pathname))?.title;
+  const isCategoryExpanded = (title: string) => catOverrides[title] ?? title === activeCategory;
 
   const openPalette = () => {
     setIsMobileOpen(false);
@@ -61,15 +70,13 @@ export function Sidebar() {
   };
 
   const toggleCategory = (title: string) => {
-    setCollapsedCats((prev) => {
-      const next = prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title];
-      try {
-        localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        /* bỏ qua */
-      }
-      return next;
-    });
+    const next = { ...catOverrides, [title]: !isCategoryExpanded(title) };
+    setCatOverrides(next);
+    try {
+      localStorage.setItem(CATEGORY_STATE_KEY, JSON.stringify(next));
+    } catch {
+      /* bỏ qua */
+    }
   };
 
   const hasConfiguredKeys = !!(keys.github || keys.gitlab || keys.bitbucket);
@@ -118,7 +125,7 @@ export function Sidebar() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsSettingsOpen(true)}
+            onClick={() => openSettings('git')}
             className="h-8 w-8 p-0"
             title="Cài đặt API Token"
           >
@@ -236,7 +243,7 @@ export function Sidebar() {
 
           {TOOL_CATEGORIES.map((cat, idx) => {
             const isGitCat = cat.title === GIT_CATEGORY_TITLE;
-            const isCatCollapsed = !isSidebarCollapsed && collapsedCats.includes(cat.title);
+            const isCatCollapsed = !isSidebarCollapsed && !isCategoryExpanded(cat.title);
             return (
             <div key={idx}>
               {!isSidebarCollapsed ? (
@@ -261,7 +268,7 @@ export function Sidebar() {
                   {isGitCat && (
                     <button
                       type="button"
-                      onClick={() => setIsSettingsOpen(true)}
+                      onClick={() => openSettings('git')}
                       title={`Cài đặt API Tokens Git (GitHub / GitLab / Bitbucket)${hasConfiguredKeys ? ' • Đã thiết lập' : ''}`}
                       className="flex items-center justify-center p-1 mr-1 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors relative group cursor-pointer"
                       aria-label="Cài đặt Công cụ Git"
@@ -279,7 +286,7 @@ export function Sidebar() {
                   {isGitCat && (
                     <button
                       type="button"
-                      onClick={() => setIsSettingsOpen(true)}
+                      onClick={() => openSettings('git')}
                       title={`Cài đặt API Tokens Git${hasConfiguredKeys ? ' • Đã thiết lập' : ''}`}
                       className="w-full flex items-center justify-center p-2 mb-1 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors relative group cursor-pointer"
                       aria-label="Cài đặt Công cụ Git"
@@ -405,7 +412,7 @@ export function Sidebar() {
 
                     <button
                       type="button"
-                      onClick={() => setIsSettingsOpen(true)}
+                      onClick={() => openSettings('git')}
                       title={`API Tokens (${hasConfiguredKeys ? 'Đã cài' : 'Chưa cài'})`}
                       className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
                     >
@@ -456,7 +463,7 @@ export function Sidebar() {
                     <button
                       type="button"
                       onClick={() => {
-                        setIsSettingsOpen(true);
+                        openSettings('git');
                         setIsMobileOpen(false);
                       }}
                       className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"

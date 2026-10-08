@@ -19,7 +19,7 @@ const lbl = 'block text-[11px] font-semibold text-slate-500 mb-1';
 const btn = 'inline-flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-[11px] text-slate-600 hover:bg-slate-50';
 
 export default function AiCommitPage() {
-  const { showToast, setIsSettingsOpen } = useApp();
+  const { showToast, openSettings } = useApp();
   const { config: aiConfig, providerLabel } = useAiSettings();
   const [diff, setDiff] = useState('');
   const [style, setStyle] = useState('conventional');
@@ -184,7 +184,7 @@ export default function AiCommitPage() {
               <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
               <div className="flex-1">
                 {error}
-                {/Cài đặt/.test(error) && <button onClick={() => setIsSettingsOpen(true)} className="ml-1 underline font-semibold">Mở Cài đặt</button>}
+                {/Cài đặt/.test(error) && <button onClick={() => openSettings('ai')} className="ml-1 underline font-semibold">Mở Cài đặt</button>}
               </div>
               <button onClick={run} className="underline shrink-0">Thử lại</button>
             </div>

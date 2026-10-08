@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, CheckCircle2, Eye, EyeOff, Loader2, ShieldCheck, Trash2, XCircle } from 'lucide-react';
+import { CheckCircle2, ExternalLink, Eye, EyeOff, KeyRound, Loader2, ShieldCheck, Trash2, XCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -40,152 +40,176 @@ export function AiSettingsSection() {
     }
   };
 
+  const activeModel = ai.config.model || info.defaultModel || '(chưa chọn)';
+
   return (
-    <div className="grid gap-2.5 pt-1 border-t border-slate-100">
-      <div className="flex items-center gap-2">
-        <Label className="text-xs font-medium">Khóa AI của bạn</Label>
-        <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 font-semibold border border-indigo-200/50">Tùy chọn</span>
+    <div className="space-y-4">
+      {/* Trạng thái hiện tại */}
+      <div
+        className={`flex items-start gap-2.5 rounded-xl border p-3 text-xs ${
+          ai.ready ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-amber-200 bg-amber-50 text-amber-900'
+        }`}
+      >
+        {ai.ready ? <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-emerald-600" /> : <KeyRound className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />}
+        <div className="min-w-0">
+          <div className="font-semibold">
+            {ai.ready ? 'Sẵn sàng dùng các tool AI' : 'Chưa thể dùng các tool AI'}
+          </div>
+          <div className="text-[11px] opacity-80 leading-relaxed">
+            Đang chọn <b>{info.label}</b> · model <code className="font-mono">{activeModel}</code>
+            {!ai.ready && ' — nhập khóa bên dưới để mở khóa các tool AI.'}
+          </div>
+        </div>
       </div>
-      <p className="text-[11px] text-muted-foreground -mt-1">
-        Dùng cho các tool AI (tóm tắt, dịch, OCR, commit message). Chọn nhà cung cấp rồi dán khóa của bạn.
-      </p>
 
       {/* Chọn nhà cung cấp */}
-      <div className="grid grid-cols-2 gap-1.5">
-        {AI_PROVIDERS.map((p) => {
-          const hasKey = !!ai.keyFor(p).trim();
-          const active = p === provider;
-          return (
-            <button
-              key={p}
-              type="button"
-              onClick={() => selectProvider(p)}
-              aria-pressed={active}
-              className={`flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium text-left transition ${
-                active ? 'border-indigo-400 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-300' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              <span className="truncate">{PROVIDER_INFO[p].label}</span>
-              {hasKey && <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" aria-label="Đã có khóa" />}
-            </button>
-          );
-        })}
+      <div className="space-y-1.5">
+        <Label className="text-xs font-semibold text-slate-700">Nhà cung cấp</Label>
+        <div role="radiogroup" aria-label="Nhà cung cấp AI" className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {AI_PROVIDERS.map((p) => {
+            const hasKey = !!ai.keyFor(p).trim();
+            const active = p === provider;
+            return (
+              <button
+                key={p}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                onClick={() => selectProvider(p)}
+                className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border text-left transition ${
+                  active ? 'border-indigo-400 bg-indigo-50 ring-1 ring-indigo-300' : 'border-slate-200 bg-white hover:bg-slate-50'
+                }`}
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className={`h-3.5 w-3.5 rounded-full border-2 shrink-0 ${active ? 'border-indigo-600 bg-indigo-600 ring-2 ring-white ring-inset' : 'border-slate-300'}`} />
+                  <span className={`text-xs font-semibold truncate ${active ? 'text-indigo-800' : 'text-slate-700'}`}>{PROVIDER_INFO[p].label}</span>
+                </span>
+                <span
+                  className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${
+                    hasKey ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'
+                  }`}
+                >
+                  {hasKey ? 'Đã có khóa' : 'Chưa có'}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Khóa */}
-      <div className="grid gap-1.5">
-        <Label htmlFor="ai-key" className="text-xs font-medium">API Key — {info.label}</Label>
-        <div className="flex gap-1.5">
+      {/* Cấu hình của nhà cung cấp đang chọn */}
+      <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-sm font-semibold text-slate-800">{info.label}</div>
+          {info.keyUrl && (
+            <a href={info.keyUrl} target="_blank" rel="noreferrer" className="text-[11px] text-primary hover:underline inline-flex items-center gap-1">
+              Lấy khóa tại {info.keyUrlLabel} <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+
+        <div className="grid gap-1.5">
+          <Label htmlFor="ai-key" className="text-xs font-medium">API Key</Label>
+          <div className="flex gap-1.5">
+            <Input
+              id="ai-key"
+              type={show ? 'text' : 'password'}
+              value={key}
+              onChange={(e) => {
+                ai.setKey(provider, e.target.value);
+                setTest({ status: 'idle' });
+              }}
+              placeholder={info.keyPlaceholder}
+              autoComplete="off"
+              spellCheck={false}
+              className="text-xs font-mono"
+            />
+            <Button type="button" variant="outline" size="sm" onClick={() => setShow(!show)} title={show ? 'Ẩn khóa' : 'Hiện khóa'} className="px-2">
+              {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
+            {key && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  ai.setKey(provider, '');
+                  setTest({ status: 'idle' });
+                }}
+                title="Xóa khóa đã lưu"
+                className="px-2 text-red-600"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {provider === 'custom' && (
+          <div className="grid gap-1.5">
+            <Label htmlFor="ai-base" className="text-xs font-medium">Base URL</Label>
+            <Input
+              id="ai-base"
+              value={ai.settings.customBaseUrl}
+              onChange={(e) => {
+                ai.setCustomBaseUrl(e.target.value);
+                setTest({ status: 'idle' });
+              }}
+              placeholder="https://openrouter.ai/api/v1"
+              autoComplete="off"
+              spellCheck={false}
+              className="text-xs font-mono"
+            />
+            <p className="text-[11px] text-muted-foreground">Chỉ nhận địa chỉ https công khai; địa chỉ nội bộ (localhost, mạng LAN) bị chặn.</p>
+          </div>
+        )}
+
+        <div className="grid gap-1.5">
+          <Label htmlFor="ai-model" className="text-xs font-medium">
+            Model {provider !== 'custom' && <span className="text-muted-foreground font-normal">(để trống = {info.defaultModel})</span>}
+          </Label>
           <Input
-            id="ai-key"
-            type={show ? 'text' : 'password'}
-            value={key}
+            id="ai-model"
+            list="ai-model-suggestions"
+            value={model}
             onChange={(e) => {
-              ai.setKey(provider, e.target.value);
+              ai.setModel(provider, e.target.value);
               setTest({ status: 'idle' });
             }}
-            placeholder={info.keyPlaceholder}
+            placeholder={info.defaultModel || 'Tên model, ví dụ: openai/gpt-4o-mini'}
             autoComplete="off"
             spellCheck={false}
             className="text-xs font-mono"
           />
-          <Button type="button" variant="outline" size="sm" onClick={() => setShow(!show)} title={show ? 'Ẩn khóa' : 'Hiện khóa'} className="px-2">
-            {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          <datalist id="ai-model-suggestions">
+            {info.suggestedModels.map((m) => (
+              <option key={m} value={m} />
+            ))}
+          </datalist>
+        </div>
+
+        {info.note && <p className="text-[11px] text-muted-foreground leading-relaxed">{info.note}</p>}
+
+        <div className="flex flex-wrap items-center gap-2 pt-0.5">
+          <Button type="button" size="sm" variant="outline" onClick={runTest} disabled={!ai.ready || test.status === 'loading'}>
+            {test.status === 'loading' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+            Kiểm tra khóa
           </Button>
-          {key && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                ai.setKey(provider, '');
-                setTest({ status: 'idle' });
-              }}
-              title="Xóa khóa đã lưu"
-              className="px-2 text-red-600"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+          {test.status === 'ok' && (
+            <span className="text-[11px] text-emerald-700 flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Hoạt động tốt (model {test.model})
+            </span>
+          )}
+          {test.status === 'error' && (
+            <span className="text-[11px] text-red-700 flex items-start gap-1">
+              <XCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" /> {test.message}
+            </span>
           )}
         </div>
       </div>
 
-      {/* Base URL (tùy chỉnh) */}
-      {provider === 'custom' && (
-        <div className="grid gap-1.5">
-          <Label htmlFor="ai-base" className="text-xs font-medium">Base URL</Label>
-          <Input
-            id="ai-base"
-            value={ai.settings.customBaseUrl}
-            onChange={(e) => {
-              ai.setCustomBaseUrl(e.target.value);
-              setTest({ status: 'idle' });
-            }}
-            placeholder="https://openrouter.ai/api/v1"
-            autoComplete="off"
-            spellCheck={false}
-            className="text-xs font-mono"
-          />
-          <p className="text-[11px] text-muted-foreground">Chỉ nhận địa chỉ https công khai; địa chỉ nội bộ (localhost, mạng LAN) bị chặn.</p>
-        </div>
-      )}
-
-      {/* Model */}
-      <div className="grid gap-1.5">
-        <Label htmlFor="ai-model" className="text-xs font-medium">
-          Model {provider !== 'custom' && <span className="text-muted-foreground font-normal">(để trống = {info.defaultModel})</span>}
-        </Label>
-        <Input
-          id="ai-model"
-          list="ai-model-suggestions"
-          value={model}
-          onChange={(e) => {
-            ai.setModel(provider, e.target.value);
-            setTest({ status: 'idle' });
-          }}
-          placeholder={info.defaultModel || 'Tên model, ví dụ: openai/gpt-4o-mini'}
-          autoComplete="off"
-          spellCheck={false}
-          className="text-xs font-mono"
-        />
-        <datalist id="ai-model-suggestions">
-          {info.suggestedModels.map((m) => (
-            <option key={m} value={m} />
-          ))}
-        </datalist>
-      </div>
-
-      {/* Ghi chú + liên kết lấy khóa */}
-      <p className="text-[11px] text-muted-foreground">
-        {info.keyUrl && (
-          <>
-            Lấy khóa tại{' '}
-            <a href={info.keyUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline">{info.keyUrlLabel}</a>.{' '}
-          </>
-        )}
-        {info.note}
-      </p>
-
-      {/* Kiểm tra */}
-      <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" size="sm" variant="outline" onClick={runTest} disabled={!ai.ready || test.status === 'loading'}>
-          {test.status === 'loading' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
-          Kiểm tra khóa
-        </Button>
-        {test.status === 'ok' && (
-          <span className="text-[11px] text-emerald-700 flex items-center gap-1">
-            <CheckCircle2 className="h-3.5 w-3.5" /> Hoạt động tốt (model {test.model})
-          </span>
-        )}
-        {test.status === 'error' && (
-          <span className="text-[11px] text-red-700 flex items-start gap-1">
-            <XCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" /> {test.message}
-          </span>
-        )}
-      </div>
-
-      <p className="text-[10px] text-muted-foreground leading-relaxed">
-        Khóa chỉ được lưu trong trình duyệt này. Khi dùng tool AI, khóa và nội dung của bạn được gửi qua máy chủ của ứng dụng để chuyển tiếp tới nhà cung cấp; máy chủ không lưu và không ghi log chúng.
+      <p className="text-[11px] text-muted-foreground leading-relaxed">
+        Khi dùng tool AI, khóa và nội dung của bạn được gửi qua máy chủ của ứng dụng để chuyển tiếp tới nhà cung cấp; máy chủ không lưu và không ghi log chúng.
       </p>
     </div>
   );

@@ -44,7 +44,7 @@ function Check({ label, checked, onChange }: { label: string; checked: boolean; 
 }
 
 export default function AiTextPage() {
-  const { showToast, setIsSettingsOpen } = useApp();
+  const { showToast, openSettings } = useApp();
   const { config: aiConfig, providerLabel } = useAiSettings();
   const [mode, setMode] = useState<Mode>('summarize');
   const [input, setInput] = useState('');
@@ -326,7 +326,7 @@ export default function AiTextPage() {
               <div className="flex-1">
                 {error}
                 {/Cài đặt/.test(error) && (
-                  <button onClick={() => setIsSettingsOpen(true)} className="ml-1 underline font-semibold">Mở Cài đặt</button>
+                  <button onClick={() => openSettings('ai')} className="ml-1 underline font-semibold">Mở Cài đặt</button>
                 )}
               </div>
               <button onClick={run} className="underline shrink-0">Thử lại</button>

@@ -4,6 +4,8 @@ import { createContext, useContext, useState, useMemo, useSyncExternalStore } fr
 import { ApiKeys } from '@/lib/downloader';
 import { subscribeStorageSync, notifyStorageSync } from '@/lib/storage';
 
+export type SettingsTab = 'git' | 'ai';
+
 interface AppContextType {
   keys: ApiKeys;
   updateKey: (provider: keyof ApiKeys, value: string) => void;
@@ -12,6 +14,11 @@ interface AppContextType {
   refreshStats: () => void;
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
+  /** Tab đang hiển thị trong hộp thoại Cài đặt */
+  settingsTab: SettingsTab;
+  setSettingsTab: (tab: SettingsTab) => void;
+  /** Mở Cài đặt, tùy chọn nhảy thẳng tới một tab */
+  openSettings: (tab?: SettingsTab) => void;
   isHistoryModalOpen: boolean;
   setIsHistoryModalOpen: (open: boolean) => void;
   historyModalTab: 'bookmarks' | 'history';
@@ -112,6 +119,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>('git');
+  const openSettings = (tab?: SettingsTab) => {
+    if (tab) setSettingsTab(tab);
+    setIsSettingsOpen(true);
+  };
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [historyModalTab, setHistoryModalTab] = useState<'bookmarks' | 'history'>('bookmarks');
   const [copiedNotice, setCopiedNotice] = useState<string | null>(null);
@@ -145,6 +157,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         refreshStats,
         isSettingsOpen,
         setIsSettingsOpen,
+        settingsTab,
+        setSettingsTab,
+        openSettings,
         isHistoryModalOpen,
         setIsHistoryModalOpen,
         historyModalTab,

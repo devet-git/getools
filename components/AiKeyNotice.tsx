@@ -7,7 +7,7 @@ import { PROVIDER_INFO } from '@/lib/ai-providers';
 
 /** Dải thông báo trên các trang AI: nhắc thêm khóa, hoặc cho biết đang dùng nhà cung cấp / model nào. */
 export function AiKeyNotice() {
-  const { setIsSettingsOpen } = useApp();
+  const { openSettings } = useApp();
   const { config, ready, providerLabel } = useAiSettings();
 
   if (!ready) {
@@ -23,7 +23,7 @@ export function AiKeyNotice() {
         </span>
         <button
           type="button"
-          onClick={() => setIsSettingsOpen(true)}
+          onClick={() => openSettings('ai')}
           className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white transition"
         >
           Thêm khóa AI
@@ -40,7 +40,7 @@ export function AiKeyNotice() {
         Đang dùng <b className="text-slate-700">{providerLabel}</b>
         {model && <> · model <code className="font-mono">{model}</code></>}
       </span>
-      <button type="button" onClick={() => setIsSettingsOpen(true)} className="underline hover:text-slate-800">
+      <button type="button" onClick={() => openSettings('ai')} className="underline hover:text-slate-800">
         Đổi
       </button>
     </div>

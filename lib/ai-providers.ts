@@ -47,7 +47,7 @@ export const PROVIDER_INFO: Record<AiProvider, ProviderInfo> = {
   },
   custom: {
     id: 'custom',
-    label: 'Tương thích OpenAI (tùy chỉnh)',
+    label: 'OpenAI-compatible',
     defaultModel: '',
     suggestedModels: [],
     keyPlaceholder: 'API key của dịch vụ',
