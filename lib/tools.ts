@@ -6,7 +6,7 @@ import {
   ImageDown, QrCode, Palette, FileArchive,
   FileJson2, Terminal, GitCompareArrows, ListTree, Database, Container, FileCog, Dices, Calculator,
   Globe, Tags, KeyRound, FileLock, FolderTree, NotebookText, ScrollText, AppWindow, LayoutGrid, BookMarked,
-  Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
+  Receipt, Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
 } from 'lucide-react';
 
 export interface ToolDef {
@@ -133,6 +133,8 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
   {
     title: 'Tiện ích văn bản & dữ liệu',
     items: [
+      { id: 'split-bill', name: 'Chia tiền nhóm', href: '/split-bill', icon: Receipt,
+        description: 'Ghi các khoản chi chung, tự tính ai nợ ai và đề xuất chuyển khoản ít lần nhất', keywords: ['chia tien', 'split', 'bill', 'nhom', 'an uong', 'du lich', 'hoa don', 'tra tien'], badge: 'Mới' },
       { id: 'compare', name: 'So sánh File', href: '/compare', icon: GitCompare,
         description: 'So sánh hai file hoặc văn bản, làm nổi bật điểm khác nhau', keywords: ['diff', 'compare', 'so sanh'] },
       { id: 'json-yaml', name: 'JSON / YAML', href: '/json-yaml', icon: Braces,
