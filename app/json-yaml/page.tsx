@@ -1,8 +1,10 @@
 'use client';
 
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { Braces, Copy, Check, Download, ArrowLeftRight, Trash2, Sparkles, AlertCircle } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
+import { ShareLinkButton } from '@/components/ShareLinkButton';
+import { readShareParams } from '@/lib/share-link';
 import {
   convert,
   formatBytes,
@@ -26,6 +28,23 @@ export default function JsonYamlPage() {
   const [indent, setIndent] = useState<Indent>(2);
   const [sortKeys, setSortKeys] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+
+  // Khôi phục trạng thái từ link chia sẻ (đọc sau khi mount để tránh lệch hydration)
+  useEffect(() => {
+    const q = readShareParams();
+    const m = q.get('m');
+    const i = q.get('i');
+    const s = q.get('s');
+    const t = q.get('t');
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (m && MODES.some((x) => x.id === m)) setMode(m as Mode);
+    if (i === '2') setIndent(2);
+    else if (i === '4') setIndent(4);
+    else if (i === 'tab') setIndent('tab');
+    if (s === '1') setSortKeys(true);
+    if (t !== null) setInput(t.slice(0, 5000));
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
 
   // Hoãn xử lý khi gõ/dán nội dung lớn để giao diện không bị đơ
   const deferred = useDeferredValue(input);
@@ -92,6 +111,10 @@ export default function JsonYamlPage() {
           </div>
         </div>
         <div className="flex items-center gap-1.5">
+          <ShareLinkButton
+            params={{ m: mode, i: String(indent), s: sortKeys ? '1' : '0', t: input }}
+            className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"
+          />
           <button
             onClick={() => setInput(SAMPLE_JSON)}
             className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"

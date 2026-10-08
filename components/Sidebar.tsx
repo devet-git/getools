@@ -3,139 +3,26 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  FolderDown, 
-  Package, 
-  Clock, 
-  Star, 
-  Settings, 
-  Key, 
-  Menu, 
+import {
+  Clock,
+  Star,
+  Settings,
+  Key,
+  Menu,
   X,
   ChevronRight,
   ChevronDown,
-  Code2,
-  Volume2,
   PanelLeftClose,
   PanelLeftOpen,
-  FileSpreadsheet,
-  Mic,
-  GitCompare,
-  Braces,
-  Regex,
-  Binary,
-  Link2
+  House,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/components/AppContext';
 import { Logo } from '@/components/Logo';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { TOOL_CATEGORIES, GIT_CATEGORY_TITLE } from '@/lib/tools';
 
-interface NavItem {
-  name: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  description: string;
-  badge?: string;
-}
-
-interface NavCategory {
-  title: string;
-  items: NavItem[];
-}
-
-const navCategories: NavCategory[] = [
-  {
-    title: 'Công cụ Git & Mã nguồn',
-    items: [
-      {
-        name: 'Tải File / Thư mục',
-        href: '/',
-        icon: FolderDown,
-        description: 'Tải thư mục con, file lẻ hoặc file nén tùy chỉnh',
-      },
-      {
-        name: 'GitHub Org & GitLab Group',
-        href: '/group-repos',
-        icon: Code2,
-        description: 'Quét và clone hàng loạt kho mã nguồn',
-      },
-      {
-        name: 'GitHub Releases',
-        href: '/releases',
-        icon: Package,
-        description: 'Tìm kiếm & tải asset phiên bản đóng gói',
-      },
-      {
-        name: 'Chuyển đổi link GitHub',
-        href: '/link-converter',
-        icon: Link2,
-        description: 'Đổi link sang raw, ZIP, git clone, curl, jsDelivr',
-        badge: 'Mới',
-      },
-    ],
-  },
-  {
-    title: 'AI & Đa phương tiện',
-    items: [
-      {
-        name: 'Chuyển văn bản thành giọng nói (TTS)',
-        href: '/tts',
-        icon: Volume2,
-        description: 'Đọc văn bản 5 ngôn ngữ: Anh, Trung, Hàn, Nhật, Việt',
-        badge: 'TTS',
-      },
-      {
-        name: 'Chuyển giọng nói thành văn bản (STT)',
-        href: '/stt',
-        icon: Mic,
-        description: 'Ghi âm Micro & nhận diện giọng nói sang văn bản',
-        badge: 'Mới',
-      },
-      {
-        name: 'HTML / Text sang Markdown',
-        href: '/html-to-markdown',
-        icon: FileSpreadsheet,
-        description: 'Chuyển đổi HTML & bảng Excel/Sheets sang Markdown GFM',
-        badge: 'Mới',
-      },
-    ],
-  },
-  {
-    title: 'Tiện ích văn bản',
-    items: [
-      {
-        name: 'So sánh File',
-        href: '/compare',
-        icon: GitCompare,
-        description: 'So sánh hai file hoặc văn bản, làm nổi bật điểm khác nhau',
-        badge: 'Mới',
-      },
-      {
-        name: 'JSON / YAML',
-        href: '/json-yaml',
-        icon: Braces,
-        description: 'Định dạng, kiểm tra lỗi và chuyển đổi JSON ⇄ YAML',
-        badge: 'Mới',
-      },
-      {
-        name: 'Regex Tester',
-        href: '/regex',
-        icon: Regex,
-        description: 'Thử biểu thức chính quy, tô sáng match và nhóm bắt',
-        badge: 'Mới',
-      },
-      {
-        name: 'Mã hóa / Giải mã',
-        href: '/encode',
-        icon: Binary,
-        description: 'Base64, URL, HTML entities, JWT, hash, UUID',
-        badge: 'Mới',
-      },
-    ],
-  },
-];
-
-const GIT_CATEGORY = 'Công cụ Git & Mã nguồn';
 const COLLAPSED_STORAGE_KEY = 'getools_sidebar_collapsed_categories';
 
 export function Sidebar() {
@@ -165,6 +52,11 @@ export function Sidebar() {
     }
   }, []);
 
+  const openPalette = () => {
+    setIsMobileOpen(false);
+    window.dispatchEvent(new CustomEvent('getools:open-palette'));
+  };
+
   const toggleCategory = (title: string) => {
     setCollapsedCats((prev) => {
       const next = prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title];
@@ -192,6 +84,18 @@ export function Sidebar() {
         </Link>
 
         <div className="flex items-center gap-1.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={openPalette}
+            className="h-8 w-8 p-0"
+            title="Tìm công cụ"
+          >
+            <Search className="h-4 w-4" />
+          </Button>
+
+          <ThemeToggle compact />
+
           <Button
             variant="ghost"
             size="sm"
@@ -261,7 +165,8 @@ export function Sidebar() {
           </Link>
 
           {/* Desktop Toggle Button */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-0.5">
+            {!isSidebarCollapsed && <ThemeToggle compact />}
             <button
               type="button"
               onClick={toggleSidebarCollapse}
@@ -286,10 +191,48 @@ export function Sidebar() {
           </div>
         </div>
 
+        {/* Tìm nhanh công cụ (Ctrl+K) */}
+        <div className={isSidebarCollapsed ? 'px-2.5 pt-3' : 'px-3.5 pt-3'}>
+          <button
+            type="button"
+            onClick={openPalette}
+            title="Tìm công cụ (Ctrl+K)"
+            className={`w-full flex items-center rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 transition-colors ${
+              isSidebarCollapsed ? 'justify-center p-2.5' : 'gap-2 px-3 py-2 text-xs'
+            }`}
+          >
+            <Search className="h-4 w-4 shrink-0" />
+            {!isSidebarCollapsed && (
+              <>
+                <span className="flex-1 text-left">Tìm công cụ...</span>
+                <kbd className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-slate-200 bg-white text-slate-400">Ctrl K</kbd>
+              </>
+            )}
+          </button>
+          {isSidebarCollapsed && (
+            <div className="flex justify-center mt-2">
+              <ThemeToggle compact />
+            </div>
+          )}
+        </div>
+
         {/* Navigation Routes */}
         <div className="flex-1 overflow-y-auto px-2.5 py-4 space-y-5">
-          {navCategories.map((cat, idx) => {
-            const isGitCat = cat.title === GIT_CATEGORY;
+          {/* Trang chủ */}
+          <Link
+            href="/"
+            onClick={() => setIsMobileOpen(false)}
+            title="Trang chủ - tổng quan các công cụ"
+            className={`flex items-center rounded-lg text-[13px] font-semibold transition-all ${
+              isSidebarCollapsed ? 'justify-center p-2.5 rounded-xl' : 'gap-3 px-3 py-2.5'
+            } ${pathname === '/' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+          >
+            <House className="h-4 w-4 shrink-0" />
+            {!isSidebarCollapsed && <span>Trang chủ</span>}
+          </Link>
+
+          {TOOL_CATEGORIES.map((cat, idx) => {
+            const isGitCat = cat.title === GIT_CATEGORY_TITLE;
             const isCatCollapsed = !isSidebarCollapsed && collapsedCats.includes(cat.title);
             return (
             <div key={idx}>

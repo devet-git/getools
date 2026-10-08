@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Link2,
   Copy,
@@ -14,6 +14,8 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
+import { ShareLinkButton } from '@/components/ShareLinkButton';
+import { readShareParams } from '@/lib/share-link';
 import {
   parseLink,
   applyEdits,
@@ -46,6 +48,26 @@ export default function LinkConverterPage() {
   const [text, setText] = useState(INITIAL_TEXT);
   const [editState, setEditState] = useState<{ key: string; edits: LinkEdits } | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Khôi phục link (và ref / đường dẫn đã chỉnh) từ link chia sẻ, đọc sau khi mount để tránh lệch hydration
+  useEffect(() => {
+    const q = readShareParams();
+    const u = (q.get('u') ?? '').split(/\r\n|\r|\n/)[0].trim().slice(0, 2000);
+    if (!u) return;
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setText(u);
+    const parsed = parseLink(u);
+    const ref = q.get('r');
+    const path = q.get('pa');
+    if (parsed.ok && (ref !== null || path !== null)) {
+      const base = editsFromLink(parsed.link);
+      setEditState({
+        key: u,
+        edits: { ...base, ref: ref !== null ? ref.slice(0, 500) : base.ref, path: path !== null ? path.slice(0, 1000) : base.path },
+      });
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
 
   const lines: Line[] = useMemo(
     () =>
@@ -84,6 +106,16 @@ export default function LinkConverterPage() {
 
   const groups = useMemo(() => (effective ? deriveOutputs(effective) : []), [effective]);
   const candidates = useMemo(() => (singleLink ? splitCandidates(singleLink) : []), [singleLink]);
+
+  const shareParams: Record<string, string | undefined> = {};
+  if (single) {
+    shareParams.u = single.raw;
+    if (singleLink && edits) {
+      const base = editsFromLink(singleLink);
+      if (edits.ref !== base.ref) shareParams.r = edits.ref;
+      if (edits.path !== base.path) shareParams.pa = edits.path;
+    }
+  }
 
   const setEdit = (patch: Partial<LinkEdits>) => {
     if (!single || !edits) return;
@@ -172,6 +204,12 @@ export default function LinkConverterPage() {
             </p>
           </div>
         </div>
+        {single && (
+          <ShareLinkButton
+            params={shareParams}
+            className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"
+          />
+        )}
       </div>
 
       {/* INPUT */}

@@ -14,6 +14,8 @@ import {
   Download,
 } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
+import { ShareLinkButton } from '@/components/ShareLinkButton';
+import { readShareParams } from '@/lib/share-link';
 import {
   base64Encode,
   base64Decode,
@@ -146,21 +148,34 @@ function Segmented<T extends string>({
   );
 }
 
+type TabProps = { initial: Initial; onShare: (s: ShareState) => void };
+
 /* ---------- Tab chung cho Base64 / URL / HTML ---------- */
 
 type Dir = 'encode' | 'decode';
+
+type ShareState = { t: string; d?: string };
+type Initial = { tab: TabId; t: string | null; d: string | null };
 
 function TextConverter({
   convert,
   options,
   sample,
+  initial,
+  onShare,
 }: {
   convert: (input: string, dir: Dir) => string;
   options?: React.ReactNode;
   sample: string;
+  initial: Initial;
+  onShare: (s: ShareState) => void;
 }) {
-  const [dir, setDir] = useState<Dir>('encode');
-  const [input, setInput] = useState(sample);
+  const [dir, setDir] = useState<Dir>(initial.d === 'decode' ? 'decode' : 'encode');
+  const [input, setInput] = useState(initial.t ?? sample);
+
+  useEffect(() => {
+    onShare({ t: input, d: dir });
+  }, [input, dir, onShare]);
 
   const { output, error } = useMemo(() => {
     if (!input) return { output: '', error: '' };
@@ -223,7 +238,7 @@ function TextConverter({
   );
 }
 
-function Base64Tab() {
+function Base64Tab({ initial, onShare }: TabProps) {
   const [urlSafe, setUrlSafe] = useState(false);
   const convert = useMemo(
     () => (s: string, d: Dir) => (d === 'encode' ? base64Encode(s, urlSafe) : base64Decode(s)),
@@ -231,6 +246,8 @@ function Base64Tab() {
   );
   return (
     <TextConverter
+      initial={initial}
+      onShare={onShare}
       sample="Xin chào Việt Nam! 🇻🇳"
       convert={convert}
       options={
@@ -243,7 +260,7 @@ function Base64Tab() {
   );
 }
 
-function UrlTab() {
+function UrlTab({ initial, onShare }: TabProps) {
   const [mode, setMode] = useState<UrlMode>('component');
   const convert = useMemo(
     () => (s: string, d: Dir) => (d === 'encode' ? urlEncode(s, mode) : urlDecode(s, mode)),
@@ -251,6 +268,8 @@ function UrlTab() {
   );
   return (
     <TextConverter
+      initial={initial}
+      onShare={onShare}
       sample="https://example.com/tìm-kiếm?q=xin chào&lang=vi"
       convert={convert}
       options={
@@ -267,7 +286,7 @@ function UrlTab() {
   );
 }
 
-function HtmlTab() {
+function HtmlTab({ initial, onShare }: TabProps) {
   const [nonAscii, setNonAscii] = useState(false);
   const convert = useMemo(
     () => (s: string, d: Dir) => (d === 'encode' ? htmlEncode(s, nonAscii) : htmlDecode(s)),
@@ -275,6 +294,8 @@ function HtmlTab() {
   );
   return (
     <TextConverter
+      initial={initial}
+      onShare={onShare}
       sample={'<p class="note">Tom & Jerry — "Việt Nam"</p>'}
       convert={convert}
       options={
@@ -289,8 +310,11 @@ function HtmlTab() {
 
 /* ---------- JWT ---------- */
 
-function JwtTab() {
-  const [token, setToken] = useState(SAMPLE_JWT);
+function JwtTab({ initial, onShare }: TabProps) {
+  const [token, setToken] = useState(initial.t ?? SAMPLE_JWT);
+  useEffect(() => {
+    onShare({ t: token });
+  }, [token, onShare]);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 30000);
@@ -404,9 +428,12 @@ function HashRows({ result, busy }: { result: HashResult; busy: boolean }) {
   );
 }
 
-function HashTab() {
+function HashTab({ initial, onShare }: TabProps) {
   const { showToast } = useApp();
-  const [text, setText] = useState('abc');
+  const [text, setText] = useState(initial.t ?? 'abc');
+  useEffect(() => {
+    onShare({ t: text });
+  }, [text, onShare]);
   const [textHash, setTextHash] = useState<HashResult>(null);
   const [file, setFile] = useState<{ name: string; size: number } | null>(null);
   const [fileHash, setFileHash] = useState<HashResult>(null);
@@ -642,6 +669,32 @@ function GeneratorTab() {
 
 export default function EncodePage() {
   const [tab, setTab] = useState<TabId>('base64');
+  // Trạng thái khôi phục từ link chia sẻ; null cho tới khi đọc xong (tránh lệch hydration)
+  const [initial, setInitial] = useState<Initial | null>(null);
+  const [share, setShare] = useState<ShareState>({ t: '' });
+
+  useEffect(() => {
+    const q = readShareParams();
+    const rawTab = q.get('tab');
+    const t = TABS.find((x) => x.id === rawTab)?.id ?? 'base64';
+    const text = q.get('t');
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setTab(t);
+    setInitial({ tab: t, t: text !== null && t !== 'gen' ? text.slice(0, 5000) : null, d: q.get('d') });
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
+
+  const changeTab = (id: TabId) => {
+    setTab(id);
+    setShare({ t: '' });
+    // Sau lần đầu, chuyển tab dùng giá trị mặc định
+    setInitial({ tab: id, t: null, d: null });
+  };
+  const shareParams: Record<string, string | undefined> = { tab };
+  if (tab !== 'gen') {
+    shareParams.t = share.t;
+    if (share.d === 'decode') shareParams.d = 'decode';
+  }
 
   return (
     <div className="space-y-3.5">
@@ -657,6 +710,10 @@ export default function EncodePage() {
             </p>
           </div>
         </div>
+        <ShareLinkButton
+          params={shareParams}
+          className="ml-auto px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"
+        />
       </div>
 
       <div role="tablist" className="flex flex-wrap gap-1 bg-slate-200/70 p-1 rounded-xl w-fit max-w-full">
@@ -665,7 +722,7 @@ export default function EncodePage() {
             key={t.id}
             role="tab"
             aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
+            onClick={() => changeTab(t.id)}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
               tab === t.id ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
@@ -675,12 +732,12 @@ export default function EncodePage() {
         ))}
       </div>
 
-      {tab === 'base64' && <Base64Tab />}
-      {tab === 'url' && <UrlTab />}
-      {tab === 'html' && <HtmlTab />}
-      {tab === 'jwt' && <JwtTab />}
-      {tab === 'hash' && <HashTab />}
-      {tab === 'gen' && <GeneratorTab />}
+      {initial && tab === 'base64' && <Base64Tab initial={initial} onShare={setShare} />}
+      {initial && tab === 'url' && <UrlTab initial={initial} onShare={setShare} />}
+      {initial && tab === 'html' && <HtmlTab initial={initial} onShare={setShare} />}
+      {initial && tab === 'jwt' && <JwtTab initial={initial} onShare={setShare} />}
+      {initial && tab === 'hash' && <HashTab initial={initial} onShare={setShare} />}
+      {initial && tab === 'gen' && <GeneratorTab />}
     </div>
   );
 }

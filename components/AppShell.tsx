@@ -4,6 +4,9 @@ import { AppProvider, useApp } from '@/components/AppContext';
 import { Sidebar } from '@/components/Sidebar';
 import { SettingsModal } from '@/components/SettingsModal';
 import { HistoryBookmarksModal } from '@/components/HistoryBookmarksModal';
+import { CommandPalette } from '@/components/CommandPalette';
+import { ToolTracker } from '@/components/ToolTracker';
+import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister';
 import { Check } from 'lucide-react';
 
 function GlobalToast() {
@@ -25,6 +28,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
       <Sidebar />
       <GlobalToast />
+      <CommandPalette />
+      <ToolTracker />
+      <ServiceWorkerRegister />
       <SettingsModal />
       <HistoryBookmarksModal />
 

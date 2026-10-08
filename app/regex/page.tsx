@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Regex,
   Copy,
@@ -13,6 +13,8 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
+import { ShareLinkButton } from '@/components/ShareLinkButton';
+import { readShareParams } from '@/lib/share-link';
 import {
   ALL_FLAGS,
   CHEATSHEET,
@@ -52,6 +54,22 @@ export default function RegexPage() {
   const [showCheat, setShowCheat] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [replCopied, setReplCopied] = useState(false);
+
+  // Khôi phục trạng thái từ link chia sẻ (đọc sau khi mount để tránh lệch hydration)
+  useEffect(() => {
+    const q = readShareParams();
+    const p = q.get('p');
+    if (p === null) return;
+    const f = q.get('f');
+    const t = q.get('t');
+    const r = q.get('r');
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setPattern(p.slice(0, 2000));
+    if (f !== null) setFlags(Array.from(new Set(f.split(''))).filter((c) => ALL_FLAGS.includes(c as never)).join(''));
+    if (t !== null) setText(t.slice(0, 5000));
+    if (r !== null) setReplacement(r.slice(0, 500));
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
 
   const built = useMemo(() => buildRegex(pattern, flags), [pattern, flags]);
   const regex = built.regex;
@@ -96,6 +114,11 @@ export default function RegexPage() {
             </p>
           </div>
         </div>
+        <div className="flex items-center gap-1.5">
+        <ShareLinkButton
+          params={{ p: pattern, f: flags, t: text, r: replacement }}
+          className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"
+        />
         <button
           onClick={() => {
             setPattern(EXAMPLES[0].pattern);
@@ -108,6 +131,7 @@ export default function RegexPage() {
           <Sparkles className="h-3 w-3 text-amber-400" />
           Dùng mẫu thử
         </button>
+        </div>
       </div>
 
       {/* PATTERN */}

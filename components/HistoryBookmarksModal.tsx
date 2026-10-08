@@ -106,7 +106,7 @@ export function HistoryBookmarksModal() {
 
   const handleNavigateToUrl = (url: string) => {
     setIsHistoryModalOpen(false);
-    router.push(`/?url=${encodeURIComponent(url)}`);
+    router.push(`/download?url=${encodeURIComponent(url)}`);
     showToast('Đã chuyển liên kết vào trang Tải File/Folder');
   };
 

@@ -124,7 +124,7 @@ export default function GroupReposPage() {
   };
 
   const handleSendToDownloader = (webUrl: string) => {
-    router.push(`/?url=${encodeURIComponent(webUrl)}`);
+    router.push(`/download?url=${encodeURIComponent(webUrl)}`);
     showToast('Đã chuyển liên kết sang trang Tải file/folder!');
   };
 
