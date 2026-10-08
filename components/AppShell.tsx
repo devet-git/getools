@@ -6,6 +6,7 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { HistoryBookmarksModal } from '@/components/HistoryBookmarksModal';
 import { CommandPalette } from '@/components/CommandPalette';
 import { ToolTracker } from '@/components/ToolTracker';
+import { AiToolGate } from '@/components/AiToolGate';
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister';
 import { Check } from 'lucide-react';
 
@@ -41,7 +42,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         }`}
       >
         <div className="flex-1 p-2 sm:p-3.5 lg:p-4 max-w-[1700px] w-full mx-auto">
-          {children}
+          <AiToolGate>{children}</AiToolGate>
         </div>
       </main>
     </div>

@@ -11,6 +11,8 @@ import {
   subscribeAiSettings,
 } from '@/lib/ai-settings';
 import { AiConfig, AiProvider, PROVIDER_INFO } from '@/lib/ai-providers';
+import { getAiServerStatusServerSnapshot, getAiServerStatusSnapshot, subscribeAiServerStatus } from '@/lib/ai-server-status';
+import type { ToolDef } from '@/lib/tools';
 
 const serverSnapshot = () => AI_SETTINGS_SERVER_SNAPSHOT;
 
@@ -28,12 +30,16 @@ export interface UseAiSettings {
   /** Đã đủ thông tin để gọi AI (khóa, và với custom: base URL + model) */
   ready: boolean;
   providerLabel: string;
+  /** Tool này có đang bị khóa vì thiếu khóa AI không */
+  isToolLocked: (tool?: Pick<ToolDef, 'requiresAi'> | null) => boolean;
 }
 
 export function useAiSettings(): UseAiSettings {
   const { keys, updateKey } = useApp();
   const raw = useSyncExternalStore(subscribeAiSettings, getAiSettingsSnapshot, serverSnapshot);
   const settings = useMemo(() => parseAiSettings(raw), [raw]);
+  const serverStatus = useSyncExternalStore(subscribeAiServerStatus, getAiServerStatusSnapshot, getAiServerStatusServerSnapshot);
+  const serverGemini = serverStatus === 'server-gemini';
 
   const keyFor = (p: AiProvider) => (p === 'gemini' ? keys.gemini || '' : settings.keys[p] || '');
   const modelFor = (p: AiProvider) => settings.models[p] || PROVIDER_INFO[p].defaultModel;
@@ -45,7 +51,9 @@ export function useAiSettings(): UseAiSettings {
   // Chỉ gửi model khi người dùng tự chọn; để trống thì server dùng model mặc định của nhà cung cấp
   const model = (settings.models[provider] || '').trim();
   const baseUrl = settings.customBaseUrl.trim();
-  const ready = !!key && (provider !== 'custom' || (!!baseUrl && !!model));
+  // Gemini có thể dùng khóa môi trường của máy chủ (GEMINI_API_KEY) khi người dùng chưa nhập khóa riêng
+  const hasKey = !!key || (provider === 'gemini' && serverGemini);
+  const ready = hasKey && (provider !== 'custom' || (!!baseUrl && !!model));
 
   return {
     settings,
@@ -61,5 +69,10 @@ export function useAiSettings(): UseAiSettings {
     config: { provider, key, model, baseUrl: provider === 'custom' ? baseUrl : undefined },
     ready,
     providerLabel: PROVIDER_INFO[provider].label,
+    isToolLocked: (tool) => {
+      if (!tool?.requiresAi) return false;
+      if (tool.requiresAi === 'gemini') return !(keys.gemini?.trim() || serverGemini);
+      return !ready;
+    },
   };
 }

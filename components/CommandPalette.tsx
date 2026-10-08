@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, CornerDownLeft } from 'lucide-react';
 import { TOOL_CATEGORIES, type ToolDef } from '@/lib/tools';
+import { useAiSettings } from '@/lib/use-ai-config';
 
 interface Entry { tool: ToolDef; category: string; haystackName: string; haystackDesc: string; haystackKw: string }
 
@@ -37,6 +38,7 @@ function score(e: Entry, terms: string[]): number {
 }
 
 export function CommandPalette() {
+  const { isToolLocked } = useAiSettings();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -144,7 +146,7 @@ export function CommandPalette() {
                     type="button"
                     onMouseMove={() => setActive(i)}
                     onClick={() => go(e.tool)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${isToolLocked(e.tool) ? 'opacity-70' : ''} ${
                       isActive ? 'bg-indigo-50 text-indigo-800' : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
@@ -152,7 +154,12 @@ export function CommandPalette() {
                       <Icon className="h-4 w-4" />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-medium truncate">{e.tool.name}</span>
+                      <span className="block text-sm font-medium truncate">
+                        {e.tool.name}
+                        {isToolLocked(e.tool) && (
+                          <span className="ml-1.5 align-middle text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800">Cần khóa AI</span>
+                        )}
+                      </span>
                       <span className="block text-xs text-slate-500 truncate">{e.tool.description}</span>
                     </span>
                     <span className="hidden sm:block shrink-0 text-[10px] text-slate-500 bg-slate-100 rounded px-1.5 py-0.5 max-w-[9rem] truncate">{e.category}</span>

@@ -16,17 +16,20 @@ import {
   PanelLeftOpen,
   House,
   Search,
+  KeyRound,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/components/AppContext';
 import { Logo } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useAiSettings } from '@/lib/use-ai-config';
 import { TOOL_CATEGORIES, GIT_CATEGORY_TITLE } from '@/lib/tools';
 
 const COLLAPSED_STORAGE_KEY = 'getools_sidebar_collapsed_categories';
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { isToolLocked } = useAiSettings();
   const { 
     bookmarksCount, 
     historyCount, 
@@ -295,6 +298,7 @@ export function Sidebar() {
                     {cat.items.map((item) => {
                       const isActive = pathname === item.href;
                       const Icon = item.icon;
+                      const locked = isToolLocked(item);
 
                       if (isSidebarCollapsed) {
                         return (
@@ -302,16 +306,20 @@ export function Sidebar() {
                             key={item.href}
                             href={item.href}
                             onClick={() => setIsMobileOpen(false)}
-                            title={`${item.name} - ${item.description}`}
-                            className={`flex items-center justify-center p-2.5 rounded-xl transition-all relative group ${
+                            title={`${item.name} - ${item.description}${locked ? ' (cần khóa AI)' : ''}`}
+                            className={`flex items-center justify-center p-2.5 rounded-xl transition-all relative group ${locked ? 'opacity-50' : ''} ${
                               isActive
                                 ? 'bg-slate-900 text-white shadow-xs'
                                 : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                             }`}
                           >
                             <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-600 group-hover:text-slate-900'}`} />
-                            {item.badge && (
-                              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-indigo-500 ring-2 ring-white" />
+                            {locked ? (
+                              <KeyRound className="absolute top-1 right-1 h-3 w-3 text-amber-600" />
+                            ) : (
+                              item.badge && (
+                                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-indigo-500 ring-2 ring-white" />
+                              )
                             )}
                           </Link>
                         );
@@ -322,7 +330,8 @@ export function Sidebar() {
                           key={item.href}
                           href={item.href}
                           onClick={() => setIsMobileOpen(false)}
-                          className={`flex items-start gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all group ${
+                          title={locked ? 'Cần khóa AI để sử dụng' : undefined}
+                          className={`flex items-start gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all group ${locked ? 'opacity-55' : ''} ${
                             isActive
                               ? 'bg-slate-900 text-white shadow-xs'
                               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -333,7 +342,12 @@ export function Sidebar() {
                             <div className="flex items-center justify-between">
                               <span className="font-semibold text-[13px] flex items-center gap-1.5">
                                 {item.name}
-                                {item.badge && (
+                                {locked && (
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">
+                                    <KeyRound className="h-2.5 w-2.5" /> Cần khóa AI
+                                  </span>
+                                )}
+                                {!locked && item.badge && (
                                   <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider ${
                                     isActive ? 'bg-indigo-500 text-white' : 'bg-indigo-100 text-indigo-700'
                                   }`}>

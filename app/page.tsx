@@ -2,7 +2,8 @@
 
 import { useMemo, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { Search, Star, Keyboard, Clock } from 'lucide-react';
+import { Search, Star, Keyboard, Clock, KeyRound } from 'lucide-react';
+import { useAiSettings } from '@/lib/use-ai-config';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/lib/utils';
 import { ALL_TOOLS, TOOL_CATEGORIES, type ToolDef } from '@/lib/tools';
@@ -28,8 +29,10 @@ function matches(tool: ToolDef, q: string): boolean {
 
 function ToolCard({ tool, favorite }: { tool: ToolDef; favorite: boolean }) {
   const Icon = tool.icon;
+  const { isToolLocked } = useAiSettings();
+  const locked = isToolLocked(tool);
   return (
-    <div className="group relative rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-300 hover:shadow-md focus-within:ring-2 focus-within:ring-indigo-500">
+    <div className={cn('group relative rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-300 hover:shadow-md focus-within:ring-2 focus-within:ring-indigo-500', locked && 'opacity-60')}>
       <Link
         href={tool.href}
         className="flex h-full items-start gap-3 rounded-xl p-4 pr-11 outline-none"
@@ -40,7 +43,12 @@ function ToolCard({ tool, favorite }: { tool: ToolDef; favorite: boolean }) {
         <span className="min-w-0">
           <span className="flex flex-wrap items-center gap-1.5">
             <span className="text-sm font-semibold text-slate-800">{tool.name}</span>
-            {tool.badge && (
+            {locked && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
+                <KeyRound className="h-2.5 w-2.5" /> Cần khóa AI
+              </span>
+            )}
+            {!locked && tool.badge && (
               <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
                 {tool.badge}
               </span>
