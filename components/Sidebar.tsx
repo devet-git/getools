@@ -20,7 +20,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   FileSpreadsheet,
-  Mic
+  Mic,
+  GitCompare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/components/AppContext';
@@ -84,6 +85,18 @@ const navCategories: NavCategory[] = [
         href: '/html-to-markdown',
         icon: FileSpreadsheet,
         description: 'Chuyển đổi HTML & bảng Excel/Sheets sang Markdown GFM',
+        badge: 'Mới',
+      },
+    ],
+  },
+  {
+    title: 'Tiện ích văn bản',
+    items: [
+      {
+        name: 'So sánh File',
+        href: '/compare',
+        icon: GitCompare,
+        description: 'So sánh hai file hoặc văn bản, làm nổi bật điểm khác nhau',
         badge: 'Mới',
       },
     ],
