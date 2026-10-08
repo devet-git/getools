@@ -128,7 +128,7 @@
 
 .fit-screen {
   height: calc(100dvh - var(--app-header) - 2 * var(--app-pad));
-  min-height: 30rem; /* màn hình quá thấp: nhường cho vùng cuộn chính thay vì nén vỡ giao diện */
+  min-height: 40rem; /* màn hình quá thấp: nhường cho vùng cuộn chính thay vì nén vỡ giao diện */
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -138,7 +138,7 @@
   /* Trang nhiều ô cuộn: trên desktop khung đúng bằng phần màn hình còn lại, các ô tự cuộn bên trong */
   .lg-fit-screen {
     height: calc(100dvh - 2 * var(--app-pad));
-    min-height: 30rem;
+    min-height: 52rem;
     display: flex;
     flex-direction: column;
   }
