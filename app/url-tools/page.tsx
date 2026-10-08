@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Globe, Copy, Check, Plus, Trash2, ArrowUp, ArrowDown, CopyPlus, Sparkles, Download, ChevronDown, ChevronRight } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
+import { SendToButton } from '@/components/SendToButton';
 import { ShareLinkButton } from '@/components/ShareLinkButton';
 import { readShareParams } from '@/lib/share-link';
 import {
@@ -592,7 +593,7 @@ export default function UrlToolsPage() {
           ) : normResult.ok ? (
             <>
               <div>
-                <div className="flex items-center justify-between mb-1"><span className="text-[11px] font-semibold text-slate-500">Kết quả</span><CopyBtn text={normResult.url} /></div>
+                <div className="flex items-center justify-between mb-1"><span className="text-[11px] font-semibold text-slate-500">Kết quả</span><div className="flex items-center gap-1.5"><SendToButton text={normResult.url} fromToolId="url-tools" /><CopyBtn text={normResult.url} /></div></div>
                 <pre className="text-xs font-mono p-2 rounded-md bg-slate-900 text-slate-100 whitespace-pre-wrap break-all">{normResult.url}</pre>
               </div>
               <ul className="text-xs text-slate-600 list-disc pl-5 space-y-0.5">

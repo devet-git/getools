@@ -17,6 +17,7 @@ import {
   MAX_INPUT_CHARS,
 } from '@/lib/json-to-code';
 
+import { SendToButton } from '@/components/SendToButton';
 const MAX_DISPLAY = 300_000;
 const MAX_SHARE_ROOT = 40;
 
@@ -413,6 +414,7 @@ export default function JsonToCodePage() {
               )}
             </div>
             <div className="flex items-center gap-1.5">
+              <SendToButton text={code} fromToolId="json-to-code" />
               <button
                 type="button"
                 onClick={copy}

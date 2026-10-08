@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { Search, Star, Keyboard, Clock, KeyRound } from 'lucide-react';
+import { Search, Star, Keyboard, Clock, KeyRound, Sparkles, ClipboardPaste } from 'lucide-react';
 import { useAiSettings } from '@/lib/use-ai-config';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/lib/utils';
@@ -46,6 +46,14 @@ function ToolCard({ tool, favorite }: { tool: ToolDef; favorite: boolean }) {
             {locked && (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
                 <KeyRound className="h-2.5 w-2.5" /> Cần khóa AI
+              </span>
+            )}
+            {tool.aiEnhanced && (
+              <span
+                title="Dùng được miễn phí; thêm khóa AI để mở thêm tính năng nâng cao"
+                className="inline-flex items-center gap-0.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold text-violet-700"
+              >
+                <Sparkles className="h-2.5 w-2.5" /> +AI
               </span>
             )}
             {!locked && tool.badge && (
@@ -127,14 +135,24 @@ export default function HomePage() {
               className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-          <button
-            type="button"
-            onClick={openPalette}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-slate-300 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-          >
-            <Keyboard className="h-3.5 w-3.5" />
-            Nhấn Ctrl+K để tìm nhanh
-          </button>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('getools:open-smart-paste'))}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+            >
+              <ClipboardPaste className="h-3.5 w-3.5" />
+              Dán thông minh — tự nhận diện &amp; mở đúng công cụ
+            </button>
+            <button
+              type="button"
+              onClick={openPalette}
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-slate-300 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+            >
+              <Keyboard className="h-3.5 w-3.5" />
+              Nhấn Ctrl+K để tìm nhanh
+            </button>
+          </div>
         </div>
       </section>
 

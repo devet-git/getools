@@ -1,6 +1,6 @@
 'use client';
 
-import { KeyRound } from 'lucide-react';
+import { KeyRound, Sparkles } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
 import { useAiSettings } from '@/lib/use-ai-config';
 import { PROVIDER_INFO } from '@/lib/ai-providers';
@@ -11,20 +11,16 @@ export function AiKeyNotice() {
   const { config, ready, providerLabel } = useAiSettings();
 
   if (!ready) {
-    const missing =
-      config.provider === 'custom' && config.key
-        ? 'Dịch vụ tùy chỉnh cần Base URL và tên model.'
-        : `Chưa có khóa ${providerLabel}.`;
     return (
-      <div className="flex flex-wrap items-center gap-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-2.5">
-        <KeyRound className="h-4 w-4 shrink-0" />
+      <div className="flex flex-wrap items-center gap-2 text-xs text-indigo-900 bg-indigo-50 border border-indigo-200 rounded-xl p-2.5">
+        <Sparkles className="h-4 w-4 shrink-0 text-indigo-600" />
         <span className="flex-1 min-w-[200px]">
-          {missing} Thêm khóa AI của bạn để dùng tính năng này (khóa chỉ lưu trong trình duyệt này).
+          Đang dùng <b>chế độ miễn phí</b> (xử lý ngay trên trình duyệt). Thêm khóa AI của bạn để mở thêm các tính năng nâng cao.
         </span>
         <button
           type="button"
           onClick={() => openSettings('ai')}
-          className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white transition"
+          className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition"
         >
           Thêm khóa AI
         </button>

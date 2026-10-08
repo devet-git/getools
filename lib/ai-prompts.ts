@@ -8,7 +8,7 @@
 export const GEMINI_TEXT_MODEL: string =
   (typeof process !== 'undefined' && process.env?.GEMINI_TEXT_MODEL?.trim()) || 'gemini-2.5-flash';
 
-export const AI_TASKS = ['summarize', 'translate', 'explain-code', 'ocr', 'commit-message', 'pr-description'] as const;
+export const AI_TASKS = ['summarize', 'translate', 'explain-code', 'ocr', 'commit-message', 'pr-description', 'punctuate', 'action-items', 'ocr-fix', 'diff-review'] as const;
 export type AiTask = (typeof AI_TASKS)[number];
 
 export const MAX_INPUT_CHARS = 60_000;
@@ -137,6 +137,23 @@ export function validateAiRequest(body: unknown): ValidationResult {
       options.hint = typeof o.hint === 'string' && o.hint in LANGUAGES ? o.hint : '';
       options.mode = pick(o.mode, ['text', 'layout'], 'text');
       break;
+    case 'punctuate':
+      options.language = langCode(o.language, 'auto', true);
+      options.paragraphs = o.paragraphs !== false;
+      options.removeFillers = o.removeFillers === true;
+      break;
+    case 'action-items':
+      options.language = langCode(o.language, 'vi', true);
+      options.sections = pick(o.sections, ['all', 'summary', 'actions'], 'all');
+      break;
+    case 'ocr-fix':
+      options.language = langCode(o.language, 'auto', true);
+      options.keepLayout = o.keepLayout !== false;
+      break;
+    case 'diff-review':
+      options.focus = pick(o.focus, ['all', 'bugs', 'security', 'performance', 'style', 'tests'], 'all');
+      options.language = pick(o.language, ['en', 'vi'], 'vi');
+      break;
     case 'commit-message':
     case 'pr-description':
       options.style = pick(o.style, ['conventional', 'short', 'detailed'], 'conventional');
@@ -162,7 +179,7 @@ export function validateAiRequest(body: unknown): ValidationResult {
   } else if (!input.trim()) {
     return bad('Vui lòng nhập nội dung cần xử lý.');
   }
-  if (task === 'commit-message' || task === 'pr-description') {
+  if (task === 'commit-message' || task === 'pr-description' || task === 'diff-review') {
     if (!/^(diff --git |--- |\+\+\+ |@@ )/m.test(input)) {
       return bad('Nội dung không giống một bản diff (unified diff).');
     }
@@ -248,6 +265,51 @@ export function buildPrompt(req: AiRequest): BuiltPrompt {
       const issue = s('issue') ? ` Thêm dòng cuối thân "Refs ${s('issue')}".` : '';
       return {
         system: `Bạn là kỹ sư viết commit message chuẩn mực. ${GUARD}\nNhiệm vụ: viết MỘT commit message cho diff, bằng ${lang}. ${style}${scope}${issue}\nQuy tắc: dòng tiêu đề <= 72 ký tự, thể mệnh lệnh, không kết thúc bằng dấu chấm; dòng trống rồi tới phần thân (mỗi dòng <= 72 ký tự). Chỉ trả về commit message thuần văn bản, không dùng Markdown, không khối code, không lời dẫn.`,
+        user: wrapData(req.input),
+      };
+    }
+    case 'punctuate': {
+      const lang = s('language') === 'auto' ? 'cùng ngôn ngữ với văn bản gốc' : LANGUAGES[s('language')];
+      const para = o.paragraphs ? ' Chia thành các đoạn hợp lý (xuống dòng trống giữa các đoạn).' : ' Giữ thành một khối văn bản, không chia đoạn.';
+      const filler = o.removeFillers ? ' Loại bỏ từ đệm / ngập ngừng như "ừm", "à", "ờ", "uh", "um" và các từ lặp do nói lắp.' : ' Giữ nguyên từ ngữ người nói, kể cả từ đệm.';
+      return {
+        system: `Bạn là biên tập viên chỉnh văn bản từ bản phiên âm giọng nói. ${GUARD}\nNhiệm vụ: thêm dấu câu, viết hoa đúng chỗ và sửa lỗi chính tả hiển nhiên trong bản phiên âm (ngôn ngữ: ${lang}).${para}${filler} TUYỆT ĐỐI không thêm, bớt hay diễn đạt lại ý; không tóm tắt. Chỉ trả về văn bản đã chỉnh, không lời dẫn.`,
+        user: wrapData(req.input),
+      };
+    }
+    case 'action-items': {
+      const lang = s('language') === 'auto' ? 'cùng ngôn ngữ với văn bản gốc' : LANGUAGES[s('language')];
+      const which =
+        s('sections') === 'summary'
+          ? 'Chỉ gồm mục "## Tóm tắt" và "## Quyết định".'
+          : s('sections') === 'actions'
+            ? 'Chỉ gồm mục "## Việc cần làm".'
+            : 'Gồm các mục "## Tóm tắt", "## Ý chính", "## Quyết định", "## Việc cần làm", "## Câu hỏi còn mở".';
+      return {
+        system: `Bạn là thư ký ghi biên bản cuộc họp. ${GUARD}\nNhiệm vụ: từ bản ghi lời nói/ghi chú, tạo biên bản bằng ${lang}. ${which} Mục "Việc cần làm" là checklist Markdown "- [ ] Việc — người phụ trách (nếu có) — hạn (nếu có)". Chỉ dùng thông tin có trong dữ liệu, không bịa người phụ trách hay hạn chót.`,
+        user: wrapData(req.input),
+      };
+    }
+    case 'ocr-fix': {
+      const lang = s('language') === 'auto' ? 'tự nhận diện ngôn ngữ' : `ngôn ngữ: ${LANGUAGES[s('language')]}`;
+      const layout = o.keepLayout ? ' Giữ nguyên xuống dòng và bố cục gần nhất có thể.' : ' Được phép nối các dòng bị ngắt giữa câu thành đoạn văn liền mạch.';
+      return {
+        system: `Bạn là công cụ sửa lỗi sau OCR. ${GUARD}\nDữ liệu là văn bản do OCR đọc ra, có thể sai ký tự, mất dấu tiếng Việt, dính hoặc tách từ sai (${lang}). Nhiệm vụ: sửa các lỗi OCR hiển nhiên và khôi phục dấu đúng.${layout} Không thêm nội dung mới, không diễn đạt lại, không tóm tắt; số liệu và tên riêng chỉ sửa khi chắc chắn. Chỉ trả về văn bản đã sửa.`,
+        user: wrapData(req.input),
+      };
+    }
+    case 'diff-review': {
+      const lang = s('language') === 'en' ? 'English' : 'tiếng Việt';
+      const focus: Record<string, string> = {
+        all: 'Xem xét toàn diện: lỗi logic, bảo mật, hiệu năng, độ rõ ràng, test.',
+        bugs: 'Tập trung vào lỗi logic, trường hợp biên, null/undefined, race condition.',
+        security: 'Tập trung vào bảo mật: injection, XSS, SSRF, lộ bí mật, kiểm tra quyền, xử lý dữ liệu không tin cậy.',
+        performance: 'Tập trung vào hiệu năng: độ phức tạp, truy vấn N+1, cấp phát thừa, khối chặn.',
+        style: 'Tập trung vào khả năng đọc, đặt tên, trùng lặp, cấu trúc.',
+        tests: 'Tập trung vào độ phủ test: thiếu test nào, trường hợp biên cần kiểm thử.',
+      };
+      return {
+        system: `Bạn là kỹ sư review code cẩn thận. ${GUARD}\nNhiệm vụ: review diff bằng ${lang}. ${focus[s('focus')]}\nĐịnh dạng Markdown: "## Tổng quan" (2-3 câu), "## Vấn đề" là danh sách; mỗi mục bắt đầu bằng mức độ **[Cao]**, **[Trung bình]** hoặc **[Thấp]**, nêu file/vị trí nếu thấy được từ diff, vấn đề và cách sửa gợi ý; "## Gợi ý test". Chỉ nêu vấn đề có căn cứ trong diff, nói rõ khi không chắc; nếu không thấy vấn đề, nói thẳng điều đó. Không bịa số dòng.`,
         user: wrapData(req.input),
       };
     }

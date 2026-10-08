@@ -39,6 +39,7 @@ import {
   sortDotenv,
 } from '@/lib/env-tools';
 
+import { SendToButton } from '@/components/SendToButton';
 type Tab = 'convert' | 'lint' | 'diff' | 'example' | 'resolve';
 
 const TABS: { id: Tab; label: string }[] = [
@@ -394,6 +395,7 @@ export default function EnvToolsPage() {
                   )}
                 </span>
                 <div className="flex items-center gap-1.5">
+                  <SendToButton text={conv?.ok ? conv.output : ''} fromToolId="env-tools" />
                   {copyBtn(conv?.ok ? conv.output : '', 'out')}
                   <button
                     onClick={() => download(conv?.output ?? '', ext[to])}

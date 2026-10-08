@@ -6,6 +6,7 @@ import {
   ImageDown, QrCode, Palette, FileArchive,
   FileJson2, Terminal, GitCompareArrows, ListTree, Database, Container, FileCog, Dices, Calculator,
   Globe, Tags, KeyRound, FileLock, FolderTree, NotebookText, ScrollText, AppWindow, LayoutGrid, BookMarked,
+  Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
 } from 'lucide-react';
 
 export interface ToolDef {
@@ -20,6 +21,8 @@ export interface ToolDef {
   badge?: string;
   /** Tool bắt buộc có khóa AI: 'any' = khóa của nhà cung cấp đang chọn; 'gemini' = chỉ Gemini (vd. TTS) */
   requiresAi?: 'any' | 'gemini';
+  /** Tool dùng được miễn phí (tính năng của trình duyệt / xử lý cục bộ); thêm khóa AI sẽ mở thêm tính năng nâng cao */
+  aiEnhanced?: boolean;
 }
 
 export interface ToolCategory {
@@ -44,12 +47,14 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         description: 'Đổi link sang raw, ZIP, git clone, curl, jsDelivr', keywords: ['raw', 'cdn', 'curl', 'clone'] },
       { id: 'repo-viewer', name: 'Xem nhanh Repo', href: '/repo-viewer', icon: SearchCode,
         description: 'Cây thư mục, dung lượng, ngôn ngữ, README mà không cần clone', keywords: ['repo', 'tree', 'readme', 'language'], badge: 'Mới' },
+      { id: 'repo-analytics', name: 'Phân tích Repo', href: '/repo-analytics', icon: ChartNoAxesCombined,
+        description: 'Người đóng góp, biểu đồ nhiệt commit, tốc độ phát hành, issue/PR tồn đọng', keywords: ['analytics', 'contributors', 'commits', 'heatmap', 'insights', 'github', 'thong ke'], badge: 'Mới' },
       { id: 'gitignore', name: '.gitignore & LICENSE', href: '/gitignore', icon: FileMinus,
         description: 'Tạo .gitignore và LICENSE từ mẫu chính thức', keywords: ['gitignore', 'license', 'mit', 'apache'], badge: 'Mới' },
       { id: 'git-cheatsheet', name: 'Cheat sheet lệnh Git', href: '/git-cheatsheet', icon: GitBranch,
         description: 'Tra cứu lệnh Git theo tình huống, có nút sao chép', keywords: ['git', 'command', 'lenh', 'undo', 'rebase'], badge: 'Mới' },
-      { id: 'ai-commit', name: 'Commit message & mô tả PR (AI)', href: '/ai-commit', icon: GitCommitHorizontal,
-        description: 'Sinh commit message / mô tả PR từ diff bằng AI', keywords: ['commit', 'pr', 'diff', 'conventional', 'ai'], badge: 'Mới', requiresAi: 'any' },
+      { id: 'ai-commit', name: 'Commit message & mô tả PR', href: '/ai-commit', icon: GitCommitHorizontal,
+        description: 'Phân tích diff để sinh commit message, mô tả PR và cảnh báo rủi ro (miễn phí); thêm khóa AI để viết lại và review', keywords: ['commit', 'pr', 'diff', 'conventional', 'ai'], badge: 'Mới', aiEnhanced: true },
     ],
   },
   {
@@ -96,16 +101,33 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     ],
   },
   {
+    title: 'Bảo mật & DevOps',
+    items: [
+      { id: 'totp', name: 'TOTP / Mã 2FA', href: '/totp', icon: Fingerprint,
+        description: 'Sinh mã 6 số từ secret (RFC 6238), tạo mã QR provisioning để thử và debug 2FA', keywords: ['totp', 'otp', '2fa', 'authenticator', 'hotp', 'secret', 'base32'], badge: 'Mới' },
+      { id: 'x509', name: 'Chứng chỉ X.509 / PEM', href: '/x509', icon: FileBadge,
+        description: 'Đọc chủ thể, hạn dùng, SAN, vân tay và chuỗi chứng chỉ từ PEM', keywords: ['certificate', 'ssl', 'tls', 'pem', 'x509', 'csr', 'chung chi', 'fingerprint'], badge: 'Mới' },
+      { id: 'github-actions', name: 'GitHub Actions Builder', href: '/github-actions', icon: Workflow,
+        description: 'Dựng file workflow CI/CD: ngôn ngữ, cache, matrix, deploy; kiểm tra lỗi cơ bản', keywords: ['actions', 'workflow', 'ci', 'cd', 'yaml', 'github', 'pipeline'], badge: 'Mới' },
+      { id: 'dockerfile', name: 'Dockerfile Generator & Linter', href: '/dockerfile', icon: Boxes,
+        description: 'Sinh Dockerfile multi-stage theo ngôn ngữ và cảnh báo thực hành xấu', keywords: ['docker', 'dockerfile', 'lint', 'multistage', 'container', 'hadolint'], badge: 'Mới' },
+      { id: 'nginx-config', name: 'Nginx Config Generator', href: '/nginx-config', icon: Server,
+        description: 'Reverse proxy, SSL, gzip, SPA fallback, rate limit, header bảo mật', keywords: ['nginx', 'proxy', 'ssl', 'https', 'gzip', 'spa', 'rate limit', 'server'], badge: 'Mới' },
+    ],
+  },
+  {
     title: 'AI & Đa phương tiện',
     items: [
       { id: 'tts', name: 'Chuyển văn bản thành giọng nói (TTS)', href: '/tts', icon: Volume2,
-        description: 'Đọc văn bản 5 ngôn ngữ: Anh, Trung, Hàn, Nhật, Việt', keywords: ['tts', 'speech', 'giong noi'], badge: 'TTS', requiresAi: 'gemini' },
+        description: 'Đọc văn bản bằng giọng của trình duyệt (miễn phí, có chuẩn hóa số/ngày tiếng Việt); thêm khóa Gemini để dùng giọng AI', keywords: ['tts', 'speech', 'giong noi'], badge: 'TTS', aiEnhanced: true },
       { id: 'stt', name: 'Chuyển giọng nói thành văn bản (STT)', href: '/stt', icon: Mic,
-        description: 'Ghi âm Micro & nhận diện giọng nói sang văn bản', keywords: ['stt', 'micro', 'ghi am'] },
-      { id: 'ai-text', name: 'Tóm tắt / Dịch / Giải thích code (AI)', href: '/ai-text', icon: Sparkles,
-        description: 'Tóm tắt, dịch văn bản và giải thích đoạn code bằng AI', keywords: ['summarize', 'translate', 'explain', 'tom tat', 'dich', 'ai'], badge: 'Mới', requiresAi: 'any' },
+        description: 'Ghi âm và nhận diện giọng nói (miễn phí) với lệnh dấu câu, xuất phụ đề; thêm khóa AI để làm sạch, tóm tắt, biên bản', keywords: ['stt', 'micro', 'ghi am'], aiEnhanced: true },
+      { id: 'llm-tokens', name: 'Đếm token & chi phí LLM', href: '/llm-tokens', icon: Coins,
+        description: 'Ước tính số token và chi phí cho nhiều model (GPT, Claude, Gemini...)', keywords: ['token', 'tokenizer', 'cost', 'price', 'gpt', 'claude', 'gemini', 'llm', 'prompt', 'chi phi'], badge: 'Mới' },
+      { id: 'ai-text', name: 'Tóm tắt / Dịch / Giải thích code', href: '/ai-text', icon: Sparkles,
+        description: 'Tóm tắt, dịch và phân tích code ngay trên trình duyệt (miễn phí); thêm khóa AI để nâng cao chất lượng', keywords: ['summarize', 'translate', 'explain', 'tom tat', 'dich', 'ai'], badge: 'Mới', aiEnhanced: true },
       { id: 'ai-ocr', name: 'Đọc chữ từ ảnh (OCR)', href: '/ai-ocr', icon: ScanText,
-        description: 'Trích xuất văn bản từ ảnh / ảnh chụp màn hình sang Markdown', keywords: ['ocr', 'image', 'anh', 'text'], badge: 'Mới', requiresAi: 'any' },
+        description: 'Đọc chữ từ ảnh / ảnh chụp màn hình ngay trên trình duyệt (miễn phí); thêm khóa AI để giữ bảng và sửa lỗi OCR', keywords: ['ocr', 'image', 'anh', 'text'], badge: 'Mới', aiEnhanced: true },
     ],
   },
   {
@@ -140,6 +162,8 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         description: 'PNG, JPG, WebP: nén, đổi kích thước và chuyển định dạng', keywords: ['image', 'compress', 'resize', 'webp', 'png', 'jpg', 'anh'], badge: 'Mới' },
       { id: 'qr', name: 'Mã QR', href: '/qr', icon: QrCode,
         description: 'Tạo mã QR (văn bản, URL, Wi-Fi) và đọc mã QR từ ảnh', keywords: ['qr', 'barcode', 'wifi'], badge: 'Mới' },
+      { id: 'og-image', name: 'Tạo ảnh Open Graph', href: '/og-image', icon: ImagePlus,
+        description: 'Tạo ảnh social card 1200×630 từ mẫu, xuất PNG/JPEG cho meta tag', keywords: ['og', 'opengraph', 'social', 'card', 'thumbnail', 'twitter', 'share', 'banner'], badge: 'Mới' },
       { id: 'color-tools', name: 'Màu sắc & Gradient', href: '/color-tools', icon: Palette,
         description: 'Chọn màu, đổi HEX/RGB/HSL, kiểm tra tương phản, tạo gradient CSS', keywords: ['color', 'colour', 'hex', 'rgb', 'hsl', 'contrast', 'gradient', 'mau'], badge: 'Mới' },
       { id: 'file-tools', name: 'PDF & ZIP', href: '/file-tools', icon: FileArchive,

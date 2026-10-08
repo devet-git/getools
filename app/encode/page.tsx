@@ -14,6 +14,7 @@ import {
   Download,
 } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
+import { SendToButton } from '@/components/SendToButton';
 import { ShareLinkButton } from '@/components/ShareLinkButton';
 import { readShareParams } from '@/lib/share-link';
 import {
@@ -229,7 +230,7 @@ function TextConverter({
             <ArrowDownUp className="h-4 w-4 lg:-rotate-90" />
           </button>
         </div>
-        <Pane title="Kết quả" right={<CopyButton text={output} />}>
+        <Pane title="Kết quả" right={<div className="flex items-center gap-1.5"><SendToButton text={output} fromToolId="encode" /><CopyButton text={output} /></div>}>
           <textarea readOnly value={output} spellCheck={false} className={taCls} />
           {error && <ErrorBox msg={error} />}
         </Pane>
@@ -680,7 +681,7 @@ export default function EncodePage() {
     const text = q.get('t');
     /* eslint-disable react-hooks/set-state-in-effect */
     setTab(t);
-    setInitial({ tab: t, t: text !== null && t !== 'gen' ? text.slice(0, 5000) : null, d: q.get('d') });
+    setInitial({ tab: t, t: text !== null && t !== 'gen' ? text.slice(0, 500_000) : null, d: q.get('d') });
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 

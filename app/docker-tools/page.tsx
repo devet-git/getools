@@ -15,6 +15,7 @@ import {
   Warning,
 } from '@/lib/docker-tools';
 
+import { SendToButton } from '@/components/SendToButton';
 type Mode = 'run2compose' | 'compose2run';
 
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
@@ -258,6 +259,7 @@ export default function DockerToolsPage() {
               )}
             </span>
             <div className="flex items-center gap-1.5">
+              <SendToButton text={output} fromToolId="docker-tools" />
               <button
                 onClick={() => copy(output, 'all')}
                 disabled={!output}

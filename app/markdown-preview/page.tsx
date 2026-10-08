@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
 
+import { SendToButton } from '@/components/SendToButton';
 type ViewMode = 'edit' | 'split' | 'preview';
 interface OutlineItem {
   level: number;
@@ -545,6 +546,7 @@ export default function MarkdownPreviewPage() {
             e.target.value = '';
           }}
         />
+        <SendToButton text={text} fromToolId="markdown-preview" />
         <button onClick={handleCopyMd} className={btn}>
           <Copy className="h-3.5 w-3.5" />
           Chép MD

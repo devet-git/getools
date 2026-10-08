@@ -29,6 +29,7 @@ import {
   toHighlightParts,
 } from '@/lib/regex-tester';
 
+import { SendToButton } from '@/components/SendToButton';
 const DEFAULT_SAMPLE = EXAMPLES[0].sample;
 
 const MARK_COLORS = ['bg-indigo-200/80', 'bg-amber-200/80', 'bg-emerald-200/80', 'bg-pink-200/80'];
@@ -66,8 +67,8 @@ export default function RegexPage() {
     /* eslint-disable react-hooks/set-state-in-effect */
     setPattern(p.slice(0, 2000));
     if (f !== null) setFlags(Array.from(new Set(f.split(''))).filter((c) => ALL_FLAGS.includes(c as never)).join(''));
-    if (t !== null) setText(t.slice(0, 5000));
-    if (r !== null) setReplacement(r.slice(0, 500));
+    if (t !== null) setText(t.slice(0, 500_000));
+    if (r !== null) setReplacement(r.slice(0, 5000));
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
@@ -361,6 +362,7 @@ export default function RegexPage() {
         <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col">
           <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
             <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Thay thế</span>
+            <SendToButton text={replaced && !replaced.error ? replaced.output : ''} fromToolId="regex" />
             <button
               onClick={() => replaced && copy(replaced.output, 'Đã sao chép kết quả thay thế!', setReplCopied)}
               disabled={!replaced || !!replaced.error}

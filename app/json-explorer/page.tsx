@@ -30,6 +30,7 @@ import {
   typeOf,
 } from '@/lib/json-path';
 
+import { SendToButton } from '@/components/SendToButton';
 const MAX_INPUT_BYTES = 8 * 1024 * 1024;
 const CHILD_CAP = 200;
 const EXPAND_NODE_CAP = 4000;
@@ -720,6 +721,7 @@ export default function JsonExplorerPage() {
                       {typeOf(selValue)}
                       {selValue && typeof selValue === 'object' ? ` · ${childCount(selValue)} ${Array.isArray(selValue) ? 'phần tử' : 'khóa'}` : ''}
                     </span>
+                    <SendToButton text={fullSelText()} fromToolId="json-explorer" />
                     <button onClick={() => void copy(fullSelText(), 'Đã chép giá trị!')} className={`${btnLight} ml-auto`}>
                       <Copy className="h-3.5 w-3.5" />
                       Chép giá trị

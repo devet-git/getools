@@ -32,6 +32,7 @@ import {
   splitLines,
 } from '@/lib/text-tools';
 
+import { SendToButton } from '@/components/SendToButton';
 type Tab = 'stats' | 'lines' | 'case' | 'replace';
 
 const TABS: { id: Tab; label: string }[] = [
@@ -599,6 +600,7 @@ export default function TextToolsPage() {
                 <ArrowDownToLine className="h-3.5 w-3.5 rotate-180" />
                 Dùng kết quả làm đầu vào
               </button>
+              <SendToButton text={output} fromToolId="text-tools" />
               <button
                 onClick={() => void copyText(output, 'Đã sao chép kết quả!')}
                 disabled={!output}

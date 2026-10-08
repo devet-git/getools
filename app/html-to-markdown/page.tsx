@@ -28,6 +28,7 @@ import {
   SAMPLE_INPUTS,
 } from '@/lib/markdown-converter';
 
+import { SendToButton } from '@/components/SendToButton';
 export default function HtmlToMarkdownPage() {
   const { showToast } = useApp();
   const [inputText, setInputText] = useState(() => {
@@ -321,6 +322,7 @@ export default function HtmlToMarkdownPage() {
               >
                 <Settings2 className="h-3.5 w-3.5" />
               </button>
+              <SendToButton text={markdownOutput} fromToolId="html-to-markdown" />
               <button
                 onClick={handleCopyMarkdown}
                 className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition flex items-center gap-1"

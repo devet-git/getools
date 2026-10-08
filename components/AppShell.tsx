@@ -8,6 +8,10 @@ import { CommandPalette } from '@/components/CommandPalette';
 import { ToolTracker } from '@/components/ToolTracker';
 import { AiToolGate } from '@/components/AiToolGate';
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister';
+import { SmartPasteModal } from '@/components/SmartPasteModal';
+import { SnippetsDrawer } from '@/components/SnippetsDrawer';
+import { HandoffReceiver } from '@/components/HandoffReceiver';
+import { ShareBoot } from '@/components/ShareBoot';
 import { Check } from 'lucide-react';
 
 function GlobalToast() {
@@ -32,6 +36,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <CommandPalette />
       <ToolTracker />
       <ServiceWorkerRegister />
+      <SmartPasteModal />
+      <SnippetsDrawer />
+      <HandoffReceiver />
       <SettingsModal />
       <HistoryBookmarksModal />
 
@@ -42,7 +49,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         }`}
       >
         <div className="flex-1 p-2 sm:p-3.5 lg:p-4 max-w-[1700px] w-full mx-auto">
-          <AiToolGate>{children}</AiToolGate>
+          <ShareBoot>
+            <AiToolGate>{children}</AiToolGate>
+          </ShareBoot>
         </div>
       </main>
     </div>

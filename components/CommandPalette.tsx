@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, CornerDownLeft } from 'lucide-react';
+import { Search, CornerDownLeft, ClipboardPaste, Library, Settings } from 'lucide-react';
 import { TOOL_CATEGORIES, type ToolDef } from '@/lib/tools';
 import { useAiSettings } from '@/lib/use-ai-config';
 
@@ -11,7 +11,18 @@ interface Entry { tool: ToolDef; category: string; haystackName: string; haystac
 const norm = (s: string) =>
   s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
 
-const ENTRIES: Entry[] = TOOL_CATEGORIES.flatMap((c) =>
+/** Hành động toàn cục (không phải trang): phát sự kiện để các thành phần toàn cục tự mở. */
+const ACTIONS: (ToolDef & { event: string })[] = [
+  { id: 'action-smart-paste', name: 'Dán thông minh', href: '#', icon: ClipboardPaste, event: 'getools:open-smart-paste',
+    description: 'Dán bất kỳ nội dung nào, tự nhận diện (JSON, JWT, cURL, cron, SQL...) và mở đúng công cụ', keywords: ['paste', 'dan', 'detect', 'nhan dien', 'smart'] },
+  { id: 'action-snippets', name: 'Snippet & lịch sử', href: '#', icon: Library, event: 'getools:open-snippets',
+    description: 'Xem lại các đoạn đã lưu và lịch sử gần đây của các công cụ', keywords: ['snippet', 'history', 'lich su', 'da luu', 'saved'] },
+  { id: 'action-settings', name: 'Cài đặt: Token Git & Khóa AI', href: '#', icon: Settings, event: 'getools:open-settings',
+    description: 'Nhập token GitHub/GitLab, khóa AI, sao lưu dữ liệu', keywords: ['settings', 'cai dat', 'token', 'key', 'api', 'backup', 'sao luu'] },
+];
+const ACTION_EVENTS = new Map(ACTIONS.map((a) => [a.id, a.event]));
+
+const ENTRIES: Entry[] = [{ title: 'Hành động', items: ACTIONS as ToolDef[] }, ...TOOL_CATEGORIES].flatMap((c) =>
   c.items.map((tool) => ({
     tool,
     category: c.title,
@@ -90,6 +101,12 @@ export function CommandPalette() {
 
   const go = (t: ToolDef) => {
     close();
+    const ev = ACTION_EVENTS.get(t.id);
+    if (ev) {
+      // chờ hộp thoại tìm kiếm đóng xong rồi mới mở thành phần đích
+      setTimeout(() => window.dispatchEvent(new CustomEvent(ev)), 0);
+      return;
+    }
     router.push(t.href);
   };
 

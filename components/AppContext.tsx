@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useMemo, useSyncExternalStore } fr
 import { ApiKeys } from '@/lib/downloader';
 import { subscribeStorageSync, notifyStorageSync } from '@/lib/storage';
 
-export type SettingsTab = 'git' | 'ai';
+export type SettingsTab = 'git' | 'ai' | 'data';
 
 interface AppContextType {
   keys: ApiKeys;

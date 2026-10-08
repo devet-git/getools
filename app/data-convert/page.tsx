@@ -22,6 +22,7 @@ import {
   parseTable,
 } from '@/lib/data-convert';
 
+import { SendToButton } from '@/components/SendToButton';
 const SAMPLE = `Mã,Họ tên,Tuổi,Thành phố,Ghi chú
 1,Nguyễn Văn A,28,Hà Nội,"Thích cà phê, trà"
 2,Trần Thị B,34,TP. Hồ Chí Minh,"Nói: ""xin chào"""
@@ -407,6 +408,7 @@ export default function DataConvertPage() {
               Kết quả <span className="normal-case tracking-normal font-medium text-emerald-600">· {OUT_LABEL[outFmt]}</span>
             </span>
             <div className="flex items-center gap-1.5">
+              <SendToButton text={output} fromToolId="data-convert" />
               <button
                 onClick={handleCopy}
                 disabled={!output}

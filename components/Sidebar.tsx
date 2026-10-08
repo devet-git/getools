@@ -17,6 +17,9 @@ import {
   House,
   Search,
   KeyRound,
+  Sparkles,
+  ClipboardPaste,
+  Library,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/components/AppContext';
@@ -226,6 +229,30 @@ export function Sidebar() {
           )}
         </div>
 
+        {/* Lối tắt: Dán thông minh + Snippet */}
+        <div className={isSidebarCollapsed ? 'px-2.5 pt-2 flex flex-col gap-1' : 'px-3.5 pt-2 grid grid-cols-2 gap-2'}>
+          {[
+            { label: 'Dán thông minh', title: 'Dán bất kỳ nội dung nào, tự nhận diện và mở đúng công cụ', event: 'getools:open-smart-paste', Icon: ClipboardPaste },
+            { label: 'Snippet', title: 'Snippet đã lưu và lịch sử gần đây', event: 'getools:open-snippets', Icon: Library },
+          ].map(({ label, title, event, Icon }) => (
+            <button
+              key={event}
+              type="button"
+              title={title}
+              onClick={() => {
+                setIsMobileOpen(false);
+                window.dispatchEvent(new CustomEvent(event));
+              }}
+              className={`flex items-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-[11px] font-medium transition-colors ${
+                isSidebarCollapsed ? 'justify-center p-2.5' : 'gap-1.5 px-2.5 py-1.5'
+              }`}
+            >
+              <Icon className="h-3.5 w-3.5 shrink-0" />
+              {!isSidebarCollapsed && <span className="truncate">{label}</span>}
+            </button>
+          ))}
+        </div>
+
         {/* Navigation Routes */}
         <div className="flex-1 overflow-y-auto px-2.5 py-4 space-y-5">
           {/* Trang chủ */}
@@ -352,6 +379,11 @@ export function Sidebar() {
                                 {locked && (
                                   <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">
                                     <KeyRound className="h-2.5 w-2.5" /> Cần khóa AI
+                                  </span>
+                                )}
+                                {item.aiEnhanced && (
+                                  <span title="Dùng được miễn phí; thêm khóa AI để mở thêm tính năng nâng cao" className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-violet-100 text-violet-700">
+                                    <Sparkles className="h-2.5 w-2.5" /> +AI
                                   </span>
                                 )}
                                 {!locked && item.badge && (

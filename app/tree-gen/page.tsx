@@ -46,6 +46,7 @@ import {
   type TreeOptions,
 } from '@/lib/tree-gen';
 
+import { SendToButton } from '@/components/SendToButton';
 const SAMPLE = `package.json  # Khai báo dependency và script
 README.md
 src/index.ts  # Điểm vào của ứng dụng
@@ -493,6 +494,7 @@ export default function TreeGenPage() {
               </pre>
             )}
             <div className="flex flex-wrap items-center gap-1.5">
+              <SendToButton text={parsed.format === 'empty' ? '' : output} fromToolId="tree-gen" />
               <button type="button" className={btn} onClick={() => copy(output)} disabled={parsed.format === 'empty'}>
                 <Copy className="h-3.5 w-3.5" /> Sao chép
               </button>

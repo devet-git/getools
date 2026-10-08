@@ -44,6 +44,7 @@ import {
   OptDef,
 } from '@/lib/mock-data';
 
+import { SendToButton } from '@/components/SendToButton';
 const STORAGE_KEY = 'mock-data:v1';
 const PREVIEW_ROWS = 10;
 const PREVIEW_CHARS = 30000;
@@ -612,6 +613,7 @@ export default function MockDataPage() {
           )}
 
           <div className="flex flex-wrap items-center gap-2">
+            <SendToButton text={dataset && dataset.rows.length <= 2000 && errors.length === 0 ? getFull() : ''} fromToolId="mock-data" />
             <button
               onClick={handleCopy}
               disabled={!dataset || errors.length > 0}

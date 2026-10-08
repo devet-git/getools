@@ -15,6 +15,7 @@ import {
   Mode,
 } from '@/lib/json-yaml';
 
+import { SendToButton } from '@/components/SendToButton';
 const INDENTS: { id: Indent; label: string }[] = [
   { id: 2, label: '2 khoảng trắng' },
   { id: 4, label: '4 khoảng trắng' },
@@ -42,7 +43,7 @@ export default function JsonYamlPage() {
     else if (i === '4') setIndent(4);
     else if (i === 'tab') setIndent('tab');
     if (s === '1') setSortKeys(true);
-    if (t !== null) setInput(t.slice(0, 5000));
+    if (t !== null) setInput(t.slice(0, 1_000_000));
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
@@ -225,6 +226,7 @@ export default function JsonYamlPage() {
               {pending && <span className="text-[10px] font-medium normal-case text-slate-400">đang xử lý...</span>}
             </span>
             <div className="flex items-center gap-1.5">
+              <SendToButton text={result.output} fromToolId="json-yaml" />
               <button
                 onClick={handleCopy}
                 disabled={!result.output}

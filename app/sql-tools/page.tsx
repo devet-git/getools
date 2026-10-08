@@ -17,6 +17,7 @@ import {
   type SqlKeywordCase,
 } from '@/lib/sql-format';
 
+import { SendToButton } from '@/components/SendToButton';
 const MAX_CHARS = 500_000;
 
 const DIALECTS = Object.keys(DIALECT_LABEL) as SqlDialect[];
@@ -261,6 +262,7 @@ export default function SqlToolsPage() {
               {opts.minify ? 'SQL đã nén' : 'SQL đã định dạng'}
             </span>
             <div className="flex items-center gap-1.5">
+              <SendToButton text={output} fromToolId="sql-tools" />
               <button
                 onClick={handleCopy}
                 disabled={!output}

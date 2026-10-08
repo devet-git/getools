@@ -2,7 +2,7 @@
 
 import { Link2 } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
-import { buildShareUrl } from '@/lib/share-link';
+import { buildShareUrlAsync } from '@/lib/share-link';
 
 /** Nút "Chia sẻ link": chép URL trang hiện tại kèm trạng thái trong `params`. */
 export function ShareLinkButton({
@@ -17,14 +17,14 @@ export function ShareLinkButton({
   const { showToast } = useApp();
 
   const handleClick = async () => {
-    const url = buildShareUrl(params);
+    const url = await buildShareUrlAsync(params);
     if (!url) {
       showToast('Nội dung quá dài để chia sẻ qua link.');
       return;
     }
     try {
       await navigator.clipboard.writeText(url);
-      showToast('Đã sao chép link chia sẻ!');
+      showToast(url.includes('#z=') ? 'Đã sao chép link chia sẻ (đã nén)' : 'Đã sao chép link chia sẻ!');
     } catch {
       showToast('Lỗi khi sao chép vào bộ nhớ tạm.');
     }

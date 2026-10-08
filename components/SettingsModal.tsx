@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { GitBranch, Settings, ShieldCheck, Sparkles, Trash2 } from 'lucide-react';
+import { Database, GitBranch, Settings, ShieldCheck, Sparkles, Trash2 } from 'lucide-react';
 import { useApp, type SettingsTab } from '@/components/AppContext';
 import { AiSettingsSection } from '@/components/AiSettingsSection';
+import { BackupSection } from '@/components/BackupSection';
 import { GitTokensSection } from '@/components/GitTokensSection';
 import { useAiSettings } from '@/lib/use-ai-config';
 import { AI_PROVIDERS } from '@/lib/ai-providers';
@@ -14,16 +15,29 @@ import { notifyStorageSync } from '@/lib/storage';
 const TABS: { id: SettingsTab; label: string; icon: typeof GitBranch }[] = [
   { id: 'git', label: 'Token Git', icon: GitBranch },
   { id: 'ai', label: 'Khóa AI', icon: Sparkles },
+  { id: 'data', label: 'Dữ liệu', icon: Database },
 ];
 
 export function SettingsModal() {
   const { isSettingsOpen, setIsSettingsOpen, settingsTab, setSettingsTab, keys, showToast } = useApp();
   const ai = useAiSettings();
   const [confirmClear, setConfirmClear] = useState(false);
+  const { openSettings } = useApp();
+
+  // Cho phép mở Cài đặt từ nơi khác (Ctrl+K...) qua sự kiện, tùy chọn kèm tab
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      const tab = (e as CustomEvent<{ tab?: SettingsTab }>).detail?.tab;
+      openSettings(tab);
+    };
+    window.addEventListener('getools:open-settings', onOpen);
+    return () => window.removeEventListener('getools:open-settings', onOpen);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const gitCount = [keys.github, keys.gitlab, keys.bitbucket].filter((k) => k?.trim()).length;
   const aiCount = AI_PROVIDERS.filter((p) => ai.keyFor(p).trim()).length;
-  const counts: Record<SettingsTab, string> = { git: `${gitCount}/3`, ai: `${aiCount}/${AI_PROVIDERS.length}` };
+  const counts: Record<SettingsTab, string> = { git: `${gitCount}/3`, ai: `${aiCount}/${AI_PROVIDERS.length}`, data: '' };
 
   const clearAll = () => {
     if (!confirmClear) {
@@ -80,16 +94,18 @@ export function SettingsModal() {
               >
                 <Icon className="h-3.5 w-3.5" />
                 {t.label}
-                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${active ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500'}`}>
-                  {counts[t.id]}
-                </span>
+                {counts[t.id] && (
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${active ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500'}`}>
+                    {counts[t.id]}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
 
         <div role="tabpanel" className="flex-1 overflow-y-auto px-6 py-4">
-          {settingsTab === 'git' ? <GitTokensSection /> : <AiSettingsSection />}
+          {settingsTab === 'git' ? <GitTokensSection /> : settingsTab === 'ai' ? <AiSettingsSection /> : <BackupSection />}
         </div>
 
         <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 px-6 py-3 border-t border-slate-200 bg-slate-50">

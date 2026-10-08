@@ -49,6 +49,7 @@ import {
   type SectionId,
 } from '@/lib/readme-builder';
 
+import { SendToButton } from '@/components/SendToButton';
 const DRAFT_KEY = 'getools:readme-builder:draft';
 const TREE_KEY = 'getools:readme-builder:tree';
 
@@ -557,6 +558,7 @@ export default function ReadmeBuilderPage() {
                 <button type="button" onClick={() => setView('markdown')} className={`${btn} ${view === 'markdown' ? '!bg-indigo-600 !text-white !border-indigo-600' : ''}`}><FileCode2 className="h-3.5 w-3.5" /> Markdown</button>
               </div>
               <div className="flex gap-1.5">
+                <SendToButton text={readme} fromToolId="readme-builder" />
                 <button type="button" className={btn} onClick={() => copy(readme, 'Đã sao chép README!')}><Copy className="h-3.5 w-3.5" /> Sao chép</button>
                 <button type="button" className={btn} onClick={downloadReadme}><Download className="h-3.5 w-3.5" /> README.md</button>
               </div>

@@ -22,7 +22,7 @@ export const PROVIDER_INFO: Record<AiProvider, ProviderInfo> = {
     label: 'Google Gemini',
     defaultModel: 'gemini-2.5-flash',
     suggestedModels: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.5-flash-lite'],
-    keyPlaceholder: 'AIzaSy...',
+    keyPlaceholder: 'Dán Gemini API key',
     keyUrl: 'https://aistudio.google.com/app/apikey',
     keyUrlLabel: 'Google AI Studio',
     note: 'Khóa Gemini cũng được dùng cho TTS (chuyển văn bản thành giọng nói).',

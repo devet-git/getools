@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
+import { normalizeApiKey } from "@/lib/ai-request-config";
 
 export async function POST(req: NextRequest) {
   try {
@@ -67,19 +68,15 @@ export async function POST(req: NextRequest) {
 
     const textToSynthesize = `${styleDirectives[style] || ''}${text.trim()}`;
 
-    // Helper to validate Google AI Studio API key format
-    const isValidGoogleApiKey = (key?: string | null): boolean => {
-      if (!key) return false;
-      const trimmed = key.trim();
-      return trimmed.startsWith('AIza') && trimmed.length >= 35;
-    };
+    // Không ép tiền tố khóa (định dạng khóa Google thay đổi theo thời gian): chỉ chuẩn hóa và kiểm tra tính hợp lý
+    const isPlausibleApiKey = (key?: string | null): key is string => !!key && /^[\x21-\x7e]{8,512}$/.test(key);
 
-    // 1. Try Gemini 3.8 Flash Lite TTS model only if a valid AIza key is provided
-    const userApiKey = req.headers.get('x-gemini-key') || process.env.GEMINI_API_KEY;
-    
-    if (isValidGoogleApiKey(userApiKey)) {
+    // 1. Thử mô hình TTS của Gemini khi có khóa (do người dùng nhập hoặc cấu hình trên máy chủ)
+    const userApiKey = normalizeApiKey(req.headers.get('x-gemini-key')) || normalizeApiKey(process.env.GEMINI_API_KEY);
+
+    if (isPlausibleApiKey(userApiKey)) {
       try {
-        const ai = new GoogleGenAI({ apiKey: userApiKey!.trim() });
+        const ai = new GoogleGenAI({ apiKey: userApiKey });
         const response = await ai.models.generateContent({
           model: "gemini-3.8-flash-lite-tts",
           contents: [

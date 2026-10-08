@@ -31,6 +31,7 @@ import {
   type ParsedCurl,
 } from '@/lib/curl-converter';
 
+import { SendToButton } from '@/components/SendToButton';
 const DEFAULT_LANG = 'js-fetch';
 
 const METHOD_STYLE: Record<string, string> = {
@@ -300,6 +301,7 @@ function ReverseBuilder({ onUse }: { onUse: (cmd: string) => void }) {
         <div className="px-3.5 py-2 border-b border-slate-100 flex items-center justify-between gap-2">
           <span className="text-sm font-semibold text-slate-800">Lệnh cURL</span>
           <div className="flex gap-1.5">
+            <SendToButton text={result.command} fromToolId="curl-converter" />
             <button onClick={copy} disabled={!result.command} className="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 transition flex items-center gap-1 disabled:opacity-50">
               {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
               Sao chép
@@ -516,6 +518,7 @@ export default function CurlConverterPage() {
                   </label>
                   <div className="flex items-center gap-1.5">
                     <ShareLinkButton params={{ lang: lang === DEFAULT_LANG ? '' : lang, raw: rawBody ? '1' : '' }} />
+                    <SendToButton text={gen?.code ?? ''} fromToolId="curl-converter" />
                     <button
                       onClick={copy}
                       disabled={!gen?.code}

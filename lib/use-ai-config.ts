@@ -30,6 +30,8 @@ export interface UseAiSettings {
   /** Đã đủ thông tin để gọi AI (khóa, và với custom: base URL + model) */
   ready: boolean;
   providerLabel: string;
+  /** Đã có khóa phù hợp để dùng tính năng AI này chưa ('gemini' = bắt buộc Gemini, mặc định: nhà cung cấp đang chọn) */
+  isAiReady: (requires?: 'any' | 'gemini') => boolean;
   /** Tool này có đang bị khóa vì thiếu khóa AI không */
   isToolLocked: (tool?: Pick<ToolDef, 'requiresAi'> | null) => boolean;
 }
@@ -69,6 +71,7 @@ export function useAiSettings(): UseAiSettings {
     config: { provider, key, model, baseUrl: provider === 'custom' ? baseUrl : undefined },
     ready,
     providerLabel: PROVIDER_INFO[provider].label,
+    isAiReady: (requires = 'any') => (requires === 'gemini' ? !!(keys.gemini?.trim() || serverGemini) : ready),
     isToolLocked: (tool) => {
       if (!tool?.requiresAi) return false;
       if (tool.requiresAi === 'gemini') return !(keys.gemini?.trim() || serverGemini);
