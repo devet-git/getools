@@ -419,7 +419,7 @@ export default function JsonExplorerPage() {
   const rootType = root !== undefined ? typeOf(root) : null;
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3.5 lg-fit-screen lg:space-y-0 lg:gap-3">
       <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center shrink-0">
@@ -499,7 +499,7 @@ export default function JsonExplorerPage() {
             onChange={(e) => setText(e.target.value)}
             spellCheck={false}
             placeholder="Dán JSON (hoặc YAML) vào đây, hoặc kéo-thả / chọn file..."
-            className="w-full h-40 p-3 text-xs font-mono bg-slate-50/60 focus:bg-white outline-hidden resize-y leading-relaxed text-slate-800 whitespace-pre"
+            className={`w-full ${parsed.state === 'ok' ? 'h-24' : 'h-40'} p-3 text-xs font-mono bg-slate-50/60 focus:bg-white outline-hidden resize-y leading-relaxed text-slate-800 whitespace-pre`}
           />
         )}
         <div className="px-3 py-1.5 border-t border-slate-100 text-[11px] flex justify-between gap-2">
@@ -520,10 +520,10 @@ export default function JsonExplorerPage() {
       </div>
 
       {parsed.state === 'ok' && (
-        <div className="grid gap-3 lg:grid-cols-2 items-start">
+        <div className="lg-fill grid gap-3 lg:grid-cols-2 lg:grid-rows-1 items-start min-w-0">
           {/* Cây */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 space-y-2">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col min-w-0 lg:h-full lg:min-h-0">
+            <div className="p-2.5 border-b border-slate-100 bg-slate-50/60 space-y-2 shrink-0">
               <div className="flex flex-wrap items-center gap-1.5">
                 <div className="relative flex-1 min-w-[140px]">
                   <Search className="h-3.5 w-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -589,13 +589,13 @@ export default function JsonExplorerPage() {
                 ))}
               </div>
             </div>
-            <div ref={treeRef} className="p-2 max-h-[620px] overflow-auto">
+            <div ref={treeRef} className="p-2 max-h-[60vh] lg:max-h-none flex-1 min-h-0 overflow-auto">
               <Row k={null} value={root} path={[]} ctx={ctx} />
             </div>
           </div>
 
           {/* JSONPath + chi tiết */}
-          <div className="space-y-3">
+          <div className="space-y-3 min-w-0 lg:h-full lg:min-h-0 lg:overflow-auto">
             <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
               <div className="p-2.5 border-b border-slate-100 bg-slate-50/60">
                 <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">Truy vấn JSONPath</div>
@@ -655,7 +655,7 @@ export default function JsonExplorerPage() {
                     {matches.length === 0 ? (
                       <div className="p-5 text-center text-xs text-slate-400">Không có nút nào khớp truy vấn.</div>
                     ) : (
-                      <div className="divide-y divide-slate-100 max-h-[320px] overflow-auto">
+                      <div className="divide-y divide-slate-100 max-h-[320px] lg:max-h-none overflow-auto">
                         {matches.slice(0, resLimit).map((m, i) => (
                           <button
                             key={i}
@@ -727,7 +727,7 @@ export default function JsonExplorerPage() {
                       Chép giá trị
                     </button>
                   </div>
-                  <pre className="bg-slate-900 text-slate-100 rounded-lg p-2.5 text-[11px] font-mono overflow-auto max-h-64 whitespace-pre-wrap break-all">
+                  <pre className="bg-slate-900 text-slate-100 rounded-lg p-2.5 text-[11px] font-mono overflow-auto max-h-64 lg:max-h-none whitespace-pre-wrap break-all">
                     {selText}
                   </pre>
                 </div>

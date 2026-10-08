@@ -34,6 +34,7 @@ import { Select } from '@/components/ui/searchable-select';
 
 const inputCls =
   'w-full px-2 py-1 text-xs rounded-md border border-slate-200 bg-white text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400';
+const autoRows = (t: string, min: number) => Math.max(min, Math.min(200, t.split('\n').reduce((n, l) => n + Math.max(1, Math.ceil(l.length / 60)), 0)));
 const btnCls =
   'px-2 py-1 rounded-md text-xs font-medium border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 transition inline-flex items-center gap-1 disabled:opacity-40';
 const panel = 'bg-white border border-slate-200 rounded-xl shadow-xs';
@@ -445,12 +446,12 @@ export default function MetaTagsPage() {
           <div className={panel + ' p-3 space-y-2'}>
             <label className="text-xs font-semibold text-slate-600">Dán HTML của trang (hoặc chỉ phần &lt;head&gt;)</label>
             <textarea
-              rows={9}
+              rows={Math.max(9, Math.min(3000, headHtml.split('\n').length + 1))}
               spellCheck={false}
               value={headHtml}
               onChange={(e) => setHeadHtml(e.target.value)}
               placeholder={'<head>\n  <title>...</title>\n  <meta name="description" content="...">\n  <meta property="og:image" content="...">\n</head>'}
-              className={inputCls + ' font-mono'}
+              className={inputCls + ' font-mono resize-none overflow-x-auto overflow-y-hidden whitespace-pre'}
             />
             <div className="flex items-center gap-2">
               <button className={btnCls + ' bg-indigo-600! text-white! border-indigo-600!'} onClick={runAnalyze}>Phân tích</button>
@@ -474,7 +475,7 @@ export default function MetaTagsPage() {
               </div>
               <div className={panel + ' p-3 space-y-2'}>
                 <h2 className="text-xs font-bold text-slate-700">Thẻ tìm thấy ({analysis.tags.length})</h2>
-                <div className="overflow-auto max-h-80 border border-slate-200 rounded-md">
+                <div className="overflow-x-auto border border-slate-200 rounded-md">
                   <table className="w-full text-xs">
                     <thead className="bg-slate-50 text-slate-500 text-left"><tr><th className="px-2 py-1">Loại</th><th className="px-2 py-1">Tên / rel</th><th className="px-2 py-1">Giá trị</th></tr></thead>
                     <tbody>
@@ -495,7 +496,7 @@ export default function MetaTagsPage() {
                     {analysis.jsonLd.map((j, i) => (
                       <details key={i} className="text-xs border border-slate-200 rounded-md">
                         <summary className={`cursor-pointer px-2 py-1 ${j.valid ? 'text-emerald-700' : 'text-red-700'}`}>{j.valid ? `@type: ${j.type}` : `JSON lỗi: ${j.error}`}</summary>
-                        <pre className="p-2 bg-slate-900 text-slate-100 overflow-auto max-h-60 whitespace-pre-wrap break-all">{j.raw}</pre>
+                        <pre className="p-2 bg-slate-900 text-slate-100 overflow-x-auto whitespace-pre-wrap break-all">{j.raw}</pre>
                       </details>
                     ))}
                   </div>
@@ -517,7 +518,7 @@ export default function MetaTagsPage() {
                 <Meter value={titlePx} min={450} max={580} hard={700} unit="px (ước tính)" />
               </Field>
               <Field label="Mô tả (meta description)">
-                <textarea className={inputCls} rows={3} value={s.description} onChange={(e) => upd((d) => { d.description = e.target.value; })} placeholder="Tóm tắt 150-160 ký tự về nội dung trang" />
+                <textarea className={inputCls + ' resize-none overflow-hidden'} rows={autoRows(s.description, 3)} value={s.description} onChange={(e) => upd((d) => { d.description = e.target.value; })} placeholder="Tóm tắt 150-160 ký tự về nội dung trang" />
                 <Meter value={[...s.description.trim()].length} min={150} max={160} hard={200} />
               </Field>
               {T('canonical', 'Canonical URL', 'https://example.com/trang')}
@@ -588,7 +589,7 @@ export default function MetaTagsPage() {
                 {OG('title', 'og:title')}
                 {OG('siteName', 'og:site_name')}
               </div>
-              <Field label="og:description"><textarea rows={2} className={inputCls} value={s.og.description} onChange={(e) => upd((d) => { d.og.description = e.target.value; })} /></Field>
+              <Field label="og:description"><textarea rows={autoRows(s.og.description, 2)} className={inputCls + ' resize-none overflow-hidden'} value={s.og.description} onChange={(e) => upd((d) => { d.og.description = e.target.value; })} /></Field>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Field label="og:type">
                   <input list="og-types" className={inputCls} value={s.og.type} onChange={(e) => upd((d) => { d.og.type = e.target.value; })} />
@@ -650,7 +651,7 @@ export default function MetaTagsPage() {
                     {JSONLD_FIELDS[b.type].map((f) => (
                       <Field key={f.key} label={f.label}>
                         {f.multiline ? (
-                          <textarea rows={2} className={inputCls} value={b.f[f.key] || ''} onChange={(e) => upd((d) => { d.jsonld[bi].f[f.key] = e.target.value; })} />
+                          <textarea rows={autoRows(b.f[f.key] || '', 2)} className={inputCls + ' resize-none overflow-hidden'} value={b.f[f.key] || ''} onChange={(e) => upd((d) => { d.jsonld[bi].f[f.key] = e.target.value; })} />
                         ) : (
                           <input className={inputCls} placeholder={f.placeholder} value={b.f[f.key] || ''} onChange={(e) => upd((d) => { d.jsonld[bi].f[f.key] = e.target.value; })} />
                         )}
@@ -664,7 +665,7 @@ export default function MetaTagsPage() {
                           <span className="text-[10px] text-slate-400 pt-1.5 w-4">{ii + 1}</span>
                           <input className={inputCls} placeholder={b.type === 'FAQPage' ? 'Câu hỏi' : 'Tên mục'} value={it.a} onChange={(e) => upd((d) => { d.jsonld[bi].items[ii].a = e.target.value; })} />
                           {b.type === 'FAQPage' ? (
-                            <textarea rows={2} className={inputCls} placeholder="Câu trả lời" value={it.b} onChange={(e) => upd((d) => { d.jsonld[bi].items[ii].b = e.target.value; })} />
+                            <textarea rows={autoRows(it.b, 2)} className={inputCls + ' resize-none overflow-hidden'} placeholder="Câu trả lời" value={it.b} onChange={(e) => upd((d) => { d.jsonld[bi].items[ii].b = e.target.value; })} />
                           ) : (
                             <input className={inputCls} placeholder="URL" value={it.b} onChange={(e) => upd((d) => { d.jsonld[bi].items[ii].b = e.target.value; })} />
                           )}
@@ -676,7 +677,7 @@ export default function MetaTagsPage() {
                   )}
                   <details className="text-xs">
                     <summary className="cursor-pointer text-slate-600">Xem JSON-LD của khối này</summary>
-                    <pre className="mt-1 p-2 rounded-md bg-slate-900 text-slate-100 overflow-auto max-h-48 whitespace-pre-wrap break-all">{(() => { const j = buildJsonLd(b); return j ? safeJsonForScript(j) : '(trống)'; })()}</pre>
+                    <pre className="mt-1 p-2 rounded-md bg-slate-900 text-slate-100 overflow-x-auto whitespace-pre-wrap break-all">{(() => { const j = buildJsonLd(b); return j ? safeJsonForScript(j) : '(trống)'; })()}</pre>
                   </details>
                 </div>
               ))}
@@ -694,7 +695,7 @@ export default function MetaTagsPage() {
                 </div>
                 <CopyBtn text={outputs[outTab]} />
               </div>
-              <pre className="text-xs font-mono p-2.5 rounded-md bg-slate-900 text-slate-100 overflow-auto max-h-96 whitespace-pre">{outputs[outTab] || '(chưa có dữ liệu)'}</pre>
+              <pre className="text-xs font-mono p-2.5 rounded-md bg-slate-900 text-slate-100 overflow-x-auto whitespace-pre">{outputs[outTab] || '(chưa có dữ liệu)'}</pre>
             </div>
 
             <div className={panel + ' p-3 space-y-3'}>

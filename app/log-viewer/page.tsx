@@ -753,7 +753,7 @@ export default function LogViewerPage() {
   const maxLevel = stats ? Math.max(1, ...LEVELS.map((l) => stats.levelCounts[l])) : 1;
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3.5 lg-fit-screen lg:space-y-0 lg:gap-3">
       {/* HEADER */}
       <div className="bg-slate-900 text-white rounded-xl px-4 py-2.5 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
@@ -785,7 +785,7 @@ export default function LogViewerPage() {
           onChange={(ev) => setText(ev.target.value)}
           placeholder="Dán log vào đây, hoặc kéo thả file .log / .txt / .json vào khung này..."
           spellCheck={false}
-          className="w-full h-24 rounded-lg border border-slate-200 bg-slate-50 p-2 font-mono text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-y"
+          className={`w-full ${hasData ? 'h-16' : 'h-24'} rounded-lg border border-slate-200 bg-slate-50 p-2 font-mono text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-y`}
         />
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -834,7 +834,7 @@ export default function LogViewerPage() {
             <p className="text-[11px] text-slate-500">Đang phân tích... {Math.round(progress * 100)}%</p>
           </div>
         )}
-        <p className="text-[11px] text-slate-400">
+        <p className={`text-[11px] text-slate-400 ${hasData ? 'hidden' : ''}`}>
           Mẹo: timestamp không kèm múi giờ được coi là UTC. Truy vấn trường: <code className="font-mono">status&gt;=500 logger=foo level&gt;=warn msg~timeout</code>.
         </p>
       </div>
@@ -947,9 +947,11 @@ export default function LogViewerPage() {
             </div>
           </div>
 
+          {/* KHU LÀM VIỆC: danh sách + thống kê */}
+          <div className="lg-fill flex flex-col lg:flex-row gap-3 min-w-0">
           {/* THỐNG KÊ */}
           {showStats && stats && (
-            <div className="grid gap-3 lg:grid-cols-2">
+            <div className="grid gap-3 grid-cols-1 content-start max-h-[60vh] overflow-auto lg:max-h-none lg:h-full lg:min-h-0 lg:w-[26rem] xl:w-[32rem] lg:shrink-0 lg:order-last">
               <div className="bg-white rounded-xl border border-slate-200 p-3 shadow-xs space-y-2">
                 <h2 className="text-xs font-bold text-slate-700">Theo mức độ</h2>
                 <div className="space-y-1">
@@ -1028,9 +1030,9 @@ export default function LogViewerPage() {
               </div>
 
               {stats.access && (
-                <div className="bg-white rounded-xl border border-slate-200 p-3 shadow-xs lg:col-span-2 space-y-2">
+                <div className="bg-white rounded-xl border border-slate-200 p-3 shadow-xs space-y-2">
                   <h2 className="text-xs font-bold text-slate-700">Access log ({fmtNum(stats.access.total)} request)</h2>
-                  <div className="grid gap-3 md:grid-cols-4 text-[11px]">
+                  <div className="grid gap-3 grid-cols-2 text-[11px]">
                     <div>
                       <div className="font-semibold text-slate-600 mb-1">Phân bố status</div>
                       <div className="flex flex-wrap gap-1 mb-1">
@@ -1088,12 +1090,11 @@ export default function LogViewerPage() {
           )}
 
           {/* DANH SÁCH */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col min-w-0 lg:flex-1 lg:h-full lg:min-h-0">
             <div
               ref={scrollRef}
               onScroll={(ev) => setScrollTop((ev.currentTarget as HTMLDivElement).scrollTop)}
-              className="relative overflow-auto"
-              style={{ height: 'min(70vh, 760px)' }}
+              className="relative overflow-auto h-[60vh] lg:h-auto lg:flex-1 lg:min-h-0"
             >
               {filtered.length === 0 ? (
                 <div className="p-8 text-center text-sm text-slate-500">
@@ -1121,6 +1122,7 @@ export default function LogViewerPage() {
                 </div>
               )}
             </div>
+          </div>
           </div>
         </>
       )}

@@ -857,16 +857,16 @@ export default function FaviconGenPage() {
 
           {tab === 'svg' && (
             <div className="space-y-2">
-              <textarea
+              <textarea ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; } }}
                 value={svgCode}
                 onChange={(e) => {
                   setSvgCode(e.target.value);
                   scheduleSvg(e.target.value);
                 }}
                 spellCheck={false}
-                rows={9}
+                rows={Math.max(14, Math.min(3000, svgCode.split('\n').length + 1))}
                 placeholder="<svg xmlns=...>...</svg>"
-                className={`${inputCls} font-mono text-xs`}
+                className={`${inputCls} font-mono text-xs resize-none overflow-hidden`}
               />
               <p className="text-xs text-slate-500">
                 SVG được vẽ qua thẻ &lt;img&gt; (blob URL) nên script bên trong không chạy và không bao giờ chèn vào DOM.

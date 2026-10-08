@@ -343,7 +343,8 @@ export default function AiCommitPage() {
               onChange={(e) => setDiff(e.target.value)}
               spellCheck={false}
               placeholder={'diff --git a/file.ts b/file.ts\n--- a/file.ts\n+++ b/file.ts\n@@ -1,3 +1,4 @@\n...'}
-              className="w-full h-72 resize-y rounded-lg border border-slate-200 bg-white p-2.5 text-[11px] font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+              rows={Math.max(12, Math.min(3000, diff.split('\n').length + 1))}
+              className="w-full resize-none overflow-x-auto overflow-y-hidden whitespace-pre rounded-lg border border-slate-200 bg-white p-2.5 text-[11px] font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
             />
             <div className="text-[11px] mt-1 text-slate-400 text-right">{diff.length.toLocaleString('vi-VN')} ký tự</div>
           </div>
@@ -378,9 +379,9 @@ export default function AiCommitPage() {
                 value={message}
                 onChange={(e) => setEdit({ base: analysis.commitMessage, text: e.target.value })}
                 spellCheck={false}
-                rows={Math.min(14, Math.max(3, message.split('\n').length + 1))}
+                rows={Math.max(3, message.split('\n').length + 1)}
                 aria-label="Commit message (có thể chỉnh sửa)"
-                className="w-full rounded-lg bg-slate-50 border border-slate-200 p-2.5 font-mono text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                className="w-full resize-none overflow-hidden rounded-lg bg-slate-50 border border-slate-200 p-2.5 font-mono text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
               />
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className={`text-[11px] ${check.subject.length > 72 ? 'text-red-600 font-semibold' : 'text-slate-500'}`}>Tiêu đề: {check.subject.length}/72 ký tự</div>
@@ -435,9 +436,9 @@ export default function AiCommitPage() {
               </div>
               <div className="text-sm font-bold text-slate-900 break-words">{analysis.prTitle}</div>
               {prRaw ? (
-                <pre className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-[11px] font-mono text-slate-800 whitespace-pre-wrap break-words max-h-[28rem] overflow-auto">{analysis.prDescription}</pre>
+                <pre className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-[11px] font-mono text-slate-800 whitespace-pre-wrap break-words">{analysis.prDescription}</pre>
               ) : (
-                <div className={PROSE + ' max-h-[28rem] overflow-auto'}><ReactMarkdown remarkPlugins={[remarkGfm]}>{analysis.prDescription}</ReactMarkdown></div>
+                <div className={PROSE + ''}><ReactMarkdown remarkPlugins={[remarkGfm]}>{analysis.prDescription}</ReactMarkdown></div>
               )}
             </div>
 
@@ -452,7 +453,7 @@ export default function AiCommitPage() {
                 {analysis.findings.length === 0 ? (
                   <div className="text-[11px] text-emerald-700 flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Không thấy secret, lệnh debug hay TODO/FIXME trong dòng được thêm.</div>
                 ) : (
-                  <ul className="space-y-1 max-h-60 overflow-auto">
+                  <ul className="space-y-1">
                     {analysis.findings.slice(0, 60).map((f, i) => (
                       <li key={i} className={`text-[11px] rounded-md border px-2 py-1 ${f.kind === 'secret' ? LEVEL_CLS.high : f.kind === 'debug' ? LEVEL_CLS.medium : LEVEL_CLS.low}`}>
                         <div className="flex items-center gap-1.5 flex-wrap">

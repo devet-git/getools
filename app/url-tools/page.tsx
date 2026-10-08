@@ -127,7 +127,7 @@ function InsightChips({ value, onApply, onOpenUrl }: { value: string; onApply: (
       </div>
       {open !== null && insights[open] && (
         <div className="rounded-md bg-slate-50 border border-slate-200 p-2">
-          <pre className="text-[11px] font-mono whitespace-pre-wrap break-all max-h-48 overflow-auto text-slate-800">{insights[open].decoded}</pre>
+          <pre className="text-[11px] font-mono whitespace-pre-wrap break-all overflow-x-auto text-slate-800">{insights[open].decoded}</pre>
           <div className="flex gap-1 mt-1.5">
             <CopyBtn text={insights[open].decoded} />
             {(insights[open].kind === 'percent' || insights[open].kind === 'base64') && (
@@ -277,13 +277,13 @@ export default function UrlToolsPage() {
             <button className={btnCls} onClick={() => setInput('')} disabled={!input}><Trash2 className="h-3 w-3" />Xóa</button>
           </div>
         </div>
-        <textarea
+        <textarea ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; } }}
           value={input}
           onChange={(e) => setInput(e.target.value.replace(/[\r\n]+/g, ''))}
-          rows={2}
+          rows={Math.max(2, Math.min(12, Math.ceil(input.length / 90)))}
           spellCheck={false}
           placeholder="https://user@host:8080/path?x=1#frag  |  //cdn.com/a.js  |  mailto:a@b.com  |  data:text/plain;base64,...  |  ../x (cần Base URL)"
-          className={inputCls + ' resize-y'}
+          className={inputCls + ' resize-none overflow-hidden'}
         />
         <div className="flex items-center gap-2">
           <label className="text-xs text-slate-500 shrink-0">Base URL (cho URL tương đối)</label>
@@ -516,9 +516,9 @@ export default function UrlToolsPage() {
                   <label className="text-xs font-semibold text-slate-600">Sửa hàng loạt (dạng văn bản a=1&amp;b=2, hoặc mỗi dòng một tham số)</label>
                   <CopyBtn text={raw.query ?? ''} />
                 </div>
-                <textarea
-                  rows={3}
-                  className={inputCls}
+                <textarea ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; } }}
+                  rows={Math.max(3, Math.min(3000, (raw.query ?? '').split('&').length + 1))}
+                  className={inputCls + ' resize-none overflow-hidden'}
                   spellCheck={false}
                   value={raw.query ?? ''}
                   onChange={(e) => {
@@ -542,7 +542,7 @@ export default function UrlToolsPage() {
               <button className={btnCls} onClick={() => setPctText('q=%E6%97%A5%E6%9C%AC&x=100%&dbl=a%2520b&bad=%E0%A4%A&plus=a+b%20c')}>Mẫu</button>
             </div>
           </div>
-          <textarea rows={3} className={inputCls} value={pctText} onChange={(e) => setPctText(e.target.value)} spellCheck={false} placeholder="vd: a%2520b hoặc q=%E2%9C%93" />
+          <textarea ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; } }} rows={Math.max(3, Math.min(3000, pctText.split('\n').length + 1))} className={inputCls + ' resize-none overflow-hidden'} value={pctText} onChange={(e) => setPctText(e.target.value)} spellCheck={false} placeholder="vd: a%2520b hoặc q=%E2%9C%93" />
           {pctText && (
             <>
               <div className="flex flex-wrap gap-2 text-xs">
@@ -570,11 +570,11 @@ export default function UrlToolsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <div className="flex items-center justify-between mb-1"><span className="text-[11px] font-semibold text-slate-500">Giải mã 1 lớp</span><CopyBtn text={pct.decodedOnce} /></div>
-                  <pre className="text-xs font-mono p-2 rounded-md bg-slate-900 text-slate-100 whitespace-pre-wrap break-all max-h-40 overflow-auto">{pct.decodedOnce}</pre>
+                  <pre className="text-xs font-mono p-2 rounded-md bg-slate-900 text-slate-100 whitespace-pre-wrap break-all">{pct.decodedOnce}</pre>
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1"><span className="text-[11px] font-semibold text-slate-500">Giải mã hết ({pct.layers} lớp)</span><CopyBtn text={pct.finalDecoded} /></div>
-                  <pre className="text-xs font-mono p-2 rounded-md bg-slate-900 text-slate-100 whitespace-pre-wrap break-all max-h-40 overflow-auto">{pct.finalDecoded}</pre>
+                  <pre className="text-xs font-mono p-2 rounded-md bg-slate-900 text-slate-100 whitespace-pre-wrap break-all">{pct.finalDecoded}</pre>
                 </div>
               </div>
               <div>
@@ -673,7 +673,7 @@ export default function UrlToolsPage() {
             <label className="text-xs font-semibold text-slate-600">Danh sách URL (mỗi dòng một URL, tối đa 5.000)</label>
             <button className={btnCls} onClick={() => setBatchText(['https://a.com/x?b=1&a=2', 'https://A.com/x/?a=2&b=1&utm_source=z', 'https://b.com:443/p#h', 'khong-hop-le', 'https://xn--bcher-kva.example/'].join('\n'))}>Mẫu</button>
           </div>
-          <textarea rows={6} className={inputCls} value={batchText} onChange={(e) => setBatchText(e.target.value)} spellCheck={false} />
+          <textarea ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; } }} rows={Math.max(6, Math.min(3000, batchText.split('\n').length + 1))} className={inputCls + ' resize-none overflow-hidden'} value={batchText} onChange={(e) => setBatchText(e.target.value)} spellCheck={false} />
           <details className="text-xs">
             <summary className="cursor-pointer text-slate-600 font-medium">Tùy chọn chuẩn hóa (dùng để dedupe)</summary>
             <div className="mt-2">{NormOptions}</div>
@@ -695,7 +695,7 @@ export default function UrlToolsPage() {
           </div>
           {batch.truncated && <div className="text-xs text-amber-600">Chỉ xử lý 5.000 dòng đầu.</div>}
           {batchRows.length > 0 ? (
-            <div className="overflow-auto max-h-96 border border-slate-200 rounded-md">
+            <div className="overflow-x-auto border border-slate-200 rounded-md">
               <table className="w-full text-xs">
                 <thead className="bg-slate-50 text-slate-500 text-left sticky top-0">
                   <tr><th className="px-2 py-1">#</th><th className="px-2 py-1">Host</th><th className="px-2 py-1">Path</th><th className="px-2 py-1">Tham số</th><th className="px-2 py-1">URL chuẩn hóa</th></tr>

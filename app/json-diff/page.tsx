@@ -154,7 +154,7 @@ function Pane({
         const f = e.dataTransfer.files?.[0];
         if (f) void loadFile(f);
       }}
-      className={`bg-white rounded-xl border shadow-xs flex flex-col h-[300px] overflow-hidden transition ${
+      className={`bg-white rounded-xl border shadow-xs flex flex-col overflow-hidden transition ${
         drag ? 'border-indigo-400 ring-2 ring-indigo-200' : 'border-slate-200'
       }`}
     >
@@ -202,7 +202,8 @@ function Pane({
         onChange={(e) => onChange({ ...side, text: e.target.value })}
         spellCheck={false}
         placeholder="Dán JSON (hoặc YAML), hoặc kéo-thả / chọn file vào đây..."
-        className="flex-1 w-full p-3 text-xs font-mono bg-slate-50/60 focus:bg-white outline-hidden resize-none leading-relaxed text-slate-800 whitespace-pre"
+        rows={Math.max(12, Math.min(3000, side.text.split('\n').length + 1))}
+        className="w-full p-3 text-xs font-mono bg-slate-50/60 focus:bg-white outline-hidden resize-none overflow-x-auto overflow-y-hidden leading-relaxed text-slate-800 whitespace-pre"
       />
       <div className="px-3 py-1.5 border-t border-slate-100 text-[11px] flex justify-between gap-2">
         {parsed.state === 'error' ? (
@@ -354,7 +355,7 @@ function ChangeList({ changes, onCopy }: { changes: Change[]; onCopy: (t: string
       {filtered.length === 0 ? (
         <div className="p-8 text-center text-sm text-slate-400">Không có thay đổi nào khớp bộ lọc.</div>
       ) : (
-        <div className="divide-y divide-slate-100 max-h-[560px] overflow-auto">
+        <div className="divide-y divide-slate-100">
           {shown.map((ch, i) => (
             <Fragment key={i}>
               {grouped && (i === 0 || shown[i - 1].kind !== ch.kind) && (
@@ -413,7 +414,7 @@ function RawJson({ v }: { v: unknown }) {
       return '';
     }
   }, [v]);
-  return <pre className="ml-6 my-0.5 p-2 rounded bg-slate-50 border border-slate-100 text-[11px] font-mono text-slate-700 overflow-auto max-h-60">{text}</pre>;
+  return <pre className="ml-6 my-0.5 p-2 rounded bg-slate-50 border border-slate-100 text-[11px] font-mono text-slate-700 overflow-x-auto">{text}</pre>;
 }
 
 function TreeNode({ node, depth, openDepth }: { node: MergedNode; depth: number; openDepth: number }) {
@@ -563,7 +564,7 @@ function SideBySide({ a, b, options }: { a: unknown; b: unknown; options: DiffOp
         </label>
         <span className="text-slate-400">Khóa được sắp xếp A→Z; khóa bị bỏ qua đã được ẩn. Sự khác biệt dưới đây là theo dòng văn bản.</span>
       </div>
-      <div className="max-h-[600px] overflow-auto">
+      <div className="overflow-x-auto">
         <table className="w-full text-xs font-mono border-collapse table-fixed">
           <tbody>
             {view.slice(0, limit).map((row) => (
@@ -891,7 +892,7 @@ export default function JsonDiffPage() {
                   ))}
                   <span className="text-slate-400">Bấm vào dòng để mở/thu gọn; nhánh không đổi được ẩn mặc định.</span>
                 </div>
-                <div className="p-3 max-h-[600px] overflow-auto">
+                <div className="p-3 overflow-x-auto">
                   {result.counts.total === 0 ? (
                     <div className="p-6 text-center text-sm text-emerald-700">✓ Không có thay đổi.</div>
                   ) : (
@@ -936,7 +937,7 @@ export default function JsonDiffPage() {
                     </button>
                   </div>
                 </div>
-                <pre className="bg-slate-900 text-slate-100 text-xs font-mono p-3 overflow-auto max-h-[560px] whitespace-pre">
+                <pre className="bg-slate-900 text-slate-100 text-xs font-mono p-3 overflow-x-auto whitespace-pre">
                   {patchText.length > 200000 ? patchText.slice(0, 200000) + '\n… (đã cắt bớt khi hiển thị; bản chép/tải về vẫn đầy đủ)' : patchText}
                 </pre>
                 <p className="px-3 py-2 text-[11px] text-slate-400">

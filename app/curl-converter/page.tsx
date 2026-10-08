@@ -154,7 +154,7 @@ function Summary({ req }: { req: ParsedCurl }) {
             <div className="font-semibold text-slate-600 mb-1">
               Body {body.kind === 'text' && body.json ? '(JSON)' : body.kind === 'file' ? '(file)' : ''}
             </div>
-            <pre className="rounded-lg bg-slate-50 border border-slate-200 p-2 font-mono text-[11px] text-slate-700 whitespace-pre-wrap break-all max-h-56 overflow-auto">
+            <pre className="rounded-lg bg-slate-50 border border-slate-200 p-2 font-mono text-[11px] text-slate-700 whitespace-pre-wrap break-all">
               {body.kind === 'file'
                 ? `@${body.path}`
                 : body.json
@@ -284,7 +284,7 @@ function ReverseBuilder({ onUse }: { onUse: (cmd: string) => void }) {
             </Select>
           </div>
           {bodyType !== 'none' && (
-            <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={6} spellCheck={false} className={`${input} font-mono resize-y`} />
+            <textarea ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; } }} value={body} onChange={(e) => setBody(e.target.value)} rows={Math.max(6, Math.min(3000, body.split('\n').length + 1))} spellCheck={false} className={`${input} font-mono resize-none overflow-hidden`} />
           )}
         </div>
 
@@ -313,7 +313,7 @@ function ReverseBuilder({ onUse }: { onUse: (cmd: string) => void }) {
             </button>
           </div>
         </div>
-        <pre className="flex-1 bg-slate-900 text-slate-100 p-3.5 font-mono text-xs whitespace-pre-wrap break-all overflow-auto min-h-40">
+        <pre className="flex-1 bg-slate-900 text-slate-100 p-3.5 font-mono text-xs whitespace-pre-wrap break-all overflow-x-auto min-h-40">
           {result.command || 'Nhập URL để tạo lệnh cURL.'}
         </pre>
         {result.warnings.length > 0 && (
@@ -444,13 +444,13 @@ export default function CurlConverterPage() {
                 </button>
               </div>
             </div>
-            <textarea
+            <textarea ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; } }}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               spellCheck={false}
-              rows={9}
+              rows={Math.max(9, Math.min(3000, input.split('\n').length + 1))}
               placeholder={`Dán lệnh cURL vào đây, ví dụ:\ncurl -X POST https://api.example.com/users -H 'Content-Type: application/json' -d '{"name":"An"}'`}
-              className="w-full px-3.5 py-3 font-mono text-xs text-slate-800 bg-slate-50 focus:outline-hidden resize-y"
+              className="w-full px-3.5 py-3 font-mono text-xs text-slate-800 bg-slate-50 focus:outline-hidden resize-none overflow-hidden"
             />
             <p className="px-3.5 py-1.5 text-[11px] text-slate-500 border-t border-slate-100 flex items-start gap-1.5">
               <Info className="h-3.5 w-3.5 shrink-0 mt-px" />
@@ -539,7 +539,7 @@ export default function CurlConverterPage() {
                   </div>
                 </div>
 
-                <pre className="bg-slate-900 text-slate-100 p-3.5 font-mono text-xs overflow-auto max-h-[36rem] whitespace-pre">
+                <pre className="bg-slate-900 text-slate-100 p-3.5 font-mono text-xs overflow-x-auto whitespace-pre">
                   {gen?.code || '// Không sinh được mã.'}
                 </pre>
 

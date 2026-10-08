@@ -275,6 +275,8 @@ export default function RepoViewerPage() {
           if (isAbort(e)) throw e;
           return null;
         });
+        commitsP.catch(() => {});
+        readmeP.catch(() => {});
         const t = await treeP;
         if (ac.signal.aborted) return;
         setTruncated(t.truncated);
@@ -666,7 +668,7 @@ export default function RepoViewerPage() {
                 </div>
               )}
               <div className={`grid ${selected ? 'lg:grid-cols-2' : ''}`}>
-                <div className="max-h-[32rem] overflow-auto text-sm">
+                <div className="min-w-0 overflow-x-auto text-sm">
                   {refLoading && !root && (
                     <div className="p-4 text-xs text-slate-500 flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Đang tải cây thư mục...</div>
                   )}
@@ -737,7 +739,7 @@ export default function RepoViewerPage() {
                 </div>
 
                 {selected && (
-                  <div className="border-t lg:border-t-0 lg:border-l border-slate-200 min-w-0 flex flex-col max-h-[32rem]">
+                  <div className="border-t lg:border-t-0 lg:border-l border-slate-200 min-w-0 flex flex-col">
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border-b border-slate-200 text-xs">
                       <span className="font-mono truncate mr-auto" title={selected}>{selected}</span>
                       <a href={blobUrl(owner, repoName, gitRef, selected)} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline shrink-0">GitHub</a>
@@ -746,7 +748,7 @@ export default function RepoViewerPage() {
                         <X className="h-4 w-4" />
                       </button>
                     </div>
-                    <div className="overflow-auto flex-1">
+                    <div className="overflow-x-auto flex-1">
                       {previewLoading && <div className="p-4 text-xs text-slate-500 flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Đang tải file...</div>}
                       {previewError && <div className="p-4 text-xs text-red-600">{previewError}</div>}
                       {IMAGE_EXT.test(selected) && (

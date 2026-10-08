@@ -277,7 +277,7 @@ export default function ReleasesPage() {
                       {isExpanded && (
                         <div className="p-4 pt-2 border-t bg-slate-50/50 space-y-3">
                           {release.body && (
-                            <div className="text-xs text-slate-600 max-h-36 overflow-y-auto p-2.5 bg-white rounded-lg border whitespace-pre-wrap font-sans">
+                            <div className="text-xs text-slate-600 p-2.5 break-words bg-white rounded-lg border whitespace-pre-wrap font-sans">
                               {release.body}
                             </div>
                           )}

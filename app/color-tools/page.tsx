@@ -13,7 +13,7 @@ import {
 
 const inputCls = 'w-full px-2.5 py-1.5 text-sm rounded-lg border border-slate-200 bg-white text-slate-800 focus:outline-hidden focus:border-indigo-400';
 const btnCls = 'px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 transition flex items-center gap-1.5 disabled:opacity-50';
-const panel = 'bg-white rounded-xl border border-slate-200 p-4 space-y-4';
+const panel = 'bg-white rounded-xl border border-slate-200 p-4 space-y-4 min-w-0';
 
 type Tab = 'pick' | 'contrast' | 'gradient';
 
@@ -238,11 +238,11 @@ function Gradient({ copy }: { copy: (s: string) => void }) {
           {g.stops.map((s, i) => {
             const pc = parseColor(s.color);
             return (
-              <div key={i} className="flex items-center gap-2">
+              <div key={i} className="flex flex-wrap items-center gap-2">
                 <input type="color" aria-label={`Màu ${i + 1}`} value={pc ? toHex(pc) : '#000000'} onChange={(e) => setStop(i, { color: e.target.value })} className="h-8 w-10 rounded border border-slate-200 shrink-0" />
-                <input className={`${inputCls} w-28 shrink-0 ${pc ? '' : 'border-red-300'}`} value={s.color} onChange={(e) => setStop(i, { color: e.target.value })} spellCheck={false} />
-                <input type="range" min={0} max={100} value={s.pos} onChange={(e) => setStop(i, { pos: +e.target.value })} className="flex-1 min-w-16" aria-label={`Vị trí ${i + 1}`} />
-                <input type="number" min={0} max={100} value={s.pos} onChange={(e) => setStop(i, { pos: Math.min(100, Math.max(0, +e.target.value || 0)) })} className={`${inputCls} w-16 shrink-0`} />
+                <input className={`${inputCls} !w-28 shrink-0 ${pc ? '' : 'border-red-300'}`} value={s.color} onChange={(e) => setStop(i, { color: e.target.value })} spellCheck={false} />
+                <input type="range" min={0} max={100} value={s.pos} onChange={(e) => setStop(i, { pos: +e.target.value })} className="flex-1 min-w-24" aria-label={`Vị trí ${i + 1}`} />
+                <input type="number" min={0} max={100} value={s.pos} onChange={(e) => setStop(i, { pos: Math.min(100, Math.max(0, +e.target.value || 0)) })} className={`${inputCls} !w-16 shrink-0`} />
                 <button className={btnCls} onClick={() => removeStop(i)} disabled={g.stops.length <= 2} aria-label="Xoá điểm màu"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             );
