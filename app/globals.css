@@ -1146,6 +1146,7 @@
 .dark .text-indigo-600{color:oklch(67.3% 0.182 276.935)}
 .dark .text-indigo-700{color:oklch(78.5% 0.115 274.713)}
 .dark .text-indigo-700\!{color:oklch(78.5% 0.115 274.713) !important}
+.dark .text-indigo-700\/80{color:color-mix(in oklab, oklch(78.5% 0.115 274.713) 80%, transparent)}
 .dark .text-indigo-800{color:oklch(87% 0.065 274.039)}
 .dark .text-indigo-900{color:oklch(87% 0.065 274.039)}
 .dark .text-indigo-950{color:oklch(87% 0.065 274.039)}

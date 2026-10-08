@@ -6,7 +6,7 @@ import {
   ImageDown, QrCode, Palette, FileArchive,
   FileJson2, Terminal, GitCompareArrows, ListTree, Database, Container, FileCog, Dices, Calculator,
   Globe, Tags, KeyRound, FileLock, FolderTree, NotebookText, ScrollText, AppWindow, LayoutGrid, BookMarked,
-  Receipt, Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
+  Receipt, Wallet, Landmark, ArrowLeftRight, Speech, Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
 } from 'lucide-react';
 
 export interface ToolDef {
@@ -131,10 +131,23 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     ],
   },
   {
-    title: 'Tiện ích văn bản & dữ liệu',
+    title: 'Đời sống & Văn phòng',
     items: [
       { id: 'split-bill', name: 'Chia tiền nhóm', href: '/split-bill', icon: Receipt,
         description: 'Ghi các khoản chi chung, tự tính ai nợ ai và đề xuất chuyển khoản ít lần nhất', keywords: ['chia tien', 'split', 'bill', 'nhom', 'an uong', 'du lich', 'hoa don', 'tra tien'], badge: 'Mới' },
+      { id: 'salary', name: 'Lương Gross ⇄ Net', href: '/salary', icon: Wallet,
+        description: 'Tính lương thực nhận sau bảo hiểm và thuế TNCN, hoặc tính ngược từ lương Net', keywords: ['luong', 'gross', 'net', 'thue', 'tncn', 'bao hiem', 'bhxh', 'giam tru'], badge: 'Mới' },
+      { id: 'loan-savings', name: 'Vay & Tiết kiệm', href: '/loan-savings', icon: Landmark,
+        description: 'Lịch trả nợ vay ngân hàng / trả góp và tính lãi kép khi gửi tiết kiệm', keywords: ['vay', 'lai suat', 'tra gop', 'tiet kiem', 'lai kep', 'ngan hang', 'loan', 'mortgage'], badge: 'Mới' },
+      { id: 'unit-currency', name: 'Đổi đơn vị & tiền tệ', href: '/unit-currency', icon: ArrowLeftRight,
+        description: 'Đổi đơn vị đo (kể cả lượng vàng, sào, mẫu) và quy đổi ngoại tệ', keywords: ['doi don vi', 'tien te', 'ty gia', 'usd', 'vang', 'luong vang', 'sao', 'nhiet do', 'convert'], badge: 'Mới' },
+      { id: 'number-words', name: 'Đọc số thành chữ', href: '/number-words', icon: Speech,
+        description: 'Viết số tiền bằng chữ cho hợp đồng, phiếu chi (tiếng Việt / tiếng Anh)', keywords: ['doc so', 'so thanh chu', 'bang chu', 'viet so tien', 'hop dong', 'number to words'], badge: 'Mới' },
+    ],
+  },
+  {
+    title: 'Tiện ích văn bản & dữ liệu',
+    items: [
       { id: 'compare', name: 'So sánh File', href: '/compare', icon: GitCompare,
         description: 'So sánh hai file hoặc văn bản, làm nổi bật điểm khác nhau', keywords: ['diff', 'compare', 'so sanh'] },
       { id: 'json-yaml', name: 'JSON / YAML', href: '/json-yaml', icon: Braces,
