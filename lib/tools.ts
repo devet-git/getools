@@ -209,7 +209,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
       { id: 'og-image', name: 'Tạo ảnh Open Graph', href: '/og-image', icon: ImagePlus,
         description: 'Tạo ảnh social card 1200×630 từ mẫu, xuất PNG/JPEG cho meta tag', keywords: ['og', 'opengraph', 'social', 'card', 'thumbnail', 'twitter', 'share', 'banner'], badge: 'Mới' },
       { id: 'pdf-edit', name: 'Biên tập PDF', href: '/pdf-edit', icon: FilePen,
-        description: 'Đánh số trang, thêm watermark, xoay / xóa / sắp xếp trang và ghép ảnh thành PDF ngay trên trình duyệt', keywords: ['pdf', 'danh so trang', 'watermark', 'xoay', 'xoa trang', 'sap xep', 'anh sang pdf', 'image to pdf', 'page number'], badge: 'Mới' },
+        description: 'Đánh số trang, thêm watermark, xoay / xóa / sắp xếp trang, ghép ảnh thành PDF và chuyển PDF thành ảnh ngay trên trình duyệt', keywords: ['pdf to image', 'pdf sang anh', 'chuyen pdf thanh anh', 'pdf', 'danh so trang', 'watermark', 'xoay', 'xoa trang', 'sap xep', 'anh sang pdf', 'image to pdf', 'page number'], badge: 'Mới' },
       { id: 'color-tools', name: 'Màu sắc & Gradient', href: '/color-tools', icon: Palette,
         description: 'Chọn màu, đổi HEX/RGB/HSL, kiểm tra tương phản, tạo gradient CSS', keywords: ['color', 'colour', 'hex', 'rgb', 'hsl', 'contrast', 'gradient', 'mau'], badge: 'Mới' },
       { id: 'file-tools', name: 'PDF & ZIP', href: '/file-tools', icon: FileArchive,

@@ -1,8 +1,9 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { FilePen, Upload, ArrowUp, ArrowDown, Trash2, ImagePlus } from 'lucide-react';
+import { FilePen, Upload, ArrowUp, ArrowDown, Trash2, ImagePlus, Download } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
 import { ToolHeader } from '@/components/ToolHeader';
 import { Select } from '@/components/ui/searchable-select';
@@ -11,6 +12,7 @@ import {
   addPageNumbers, addWatermark, formatPageLabel, imagesToPdf, pageCountOf, rebuildPages, toPdfSafeText,
   type ImagePage, type NumberFormat, type PageEdit, type Pos,
 } from '@/lib/pdf-edit';
+import { MAX_PIXELS, pdfRenderError, renderPages, type ImageFormat, type RenderedPage } from '@/lib/pdf-render';
 
 const card = 'bg-white rounded-xl border border-slate-200/90 shadow-xs p-3.5';
 const field = 'w-full px-2.5 py-1.5 text-sm rounded-lg border border-slate-200 bg-white text-slate-800 outline-hidden focus:border-indigo-500';
@@ -22,6 +24,7 @@ const TABS = [
   { id: 'watermark', label: 'Watermark' },
   { id: 'pages', label: 'Xoay / Xóa / Sắp xếp' },
   { id: 'images', label: 'Ảnh → PDF' },
+  { id: 'toimg', label: 'PDF → Ảnh' },
 ] as const;
 type Tab = (typeof TABS)[number]['id'];
 
@@ -44,7 +47,11 @@ function PdfPicker({ loaded, onLoad }: { loaded: Loaded | null; onLoad: (l: Load
     try {
       const bytes = new Uint8Array(await f.arrayBuffer());
       onLoad({ name: f.name, bytes, pages: await pageCountOf(bytes) });
-    } catch (e) { onLoad(null); setError(errMsg(e)); }
+    } catch (e) {
+      onLoad(null);
+      // lỗi nạp file: luôn dùng thông báo thân thiện, không lộ thông điệp kỹ thuật của thư viện
+      setError(/encrypt/i.test(e instanceof Error ? e.message : String(e)) ? errMsg(e) : 'Không đọc được file PDF (có thể bị hỏng hoặc không phải PDF).');
+    }
   };
   return (
     <div className="space-y-1.5">
@@ -241,12 +248,93 @@ function ImagesTab() {
   );
 }
 
+const MAX_RENDER_PAGES = 60;
+
+function ToImageTab({ file }: { file: Loaded | null }) {
+  const [pages, setPages] = useState('');
+  const [dpi, setDpi] = useState('150');
+  const [format, setFormat] = useState<ImageFormat>('png');
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState('');
+  const [error, setError] = useState('');
+  const [results, setResults] = useState<{ r: RenderedPage; url: string }[]>([]);
+  const cancel = useRef({ cancelled: false });
+  const total = file?.pages ?? 0;
+
+  const range = file ? (pages.trim() ? parsePageRanges(pages, total) : ({ ok: true, pages: Array.from({ length: Math.min(total, MAX_RENDER_PAGES) }, (_, i) => i + 1) } as const)) : null;
+  const rangeError = range && !range.ok ? range.error : range && range.ok && range.pages.length > MAX_RENDER_PAGES ? `Mỗi lần tối đa ${MAX_RENDER_PAGES} trang, hãy nhập khoảng trang nhỏ hơn.` : '';
+  const dpiNum = Number(dpi);
+  const dpiOk = Number.isFinite(dpiNum) && dpiNum >= 36 && dpiNum <= 600;
+
+  // thu hồi object URL khi kết quả đổi hoặc rời trang
+  useEffect(() => () => { results.forEach((x) => URL.revokeObjectURL(x.url)); }, [results]);
+  useEffect(() => () => { cancel.current.cancelled = true; }, []);
+
+  const run = async () => {
+    if (!file || !range || !range.ok) return;
+    cancel.current = { cancelled: false };
+    setBusy(true); setError(''); setResults([]);
+    try {
+      const rendered = await renderPages(file.bytes, { pages: range.pages, dpi: dpiNum, format, quality: 0.92 }, (d, t) => setProgress(`Đang chuyển ${d}/${t} trang…`), cancel.current);
+      setResults(rendered.map((r) => ({ r, url: URL.createObjectURL(r.blob) })));
+    } catch (e) { setError(pdfRenderError(e)); } finally { setBusy(false); setProgress(''); }
+  };
+
+  const ext = format === 'png' ? 'png' : 'jpg';
+  const base = file ? sanitizeFileName(stripExt(baseName(file.name)), 'file') : 'file';
+  const nameOf = (page: number) => `${base}_trang${String(page).padStart(String(total).length, '0')}.${ext}`;
+  const zipAll = async () => {
+    const zip = new JSZip();
+    results.forEach(({ r }) => zip.file(nameOf(r.page), r.blob));
+    saveAs(await zip.generateAsync({ type: 'blob' }), `${base}_anh.zip`);
+  };
+
+  return (
+    <div className="space-y-3">
+      <label className={lbl}>Trang cần chuyển (để trống = tất cả{total > MAX_RENDER_PAGES ? `, tối đa ${MAX_RENDER_PAGES} trang đầu` : ''})
+        <input value={pages} onChange={(e) => setPages(e.target.value)} placeholder={file ? `vd. 1-3, 5 (PDF có ${total} trang)` : 'vd. 1-3, 5'} className={field} />
+      </label>
+      <div className="grid grid-cols-2 gap-2">
+        <label className={lbl}>Độ phân giải (dpi)<input inputMode="numeric" value={dpi} onChange={(e) => setDpi(e.target.value)} className={field} /></label>
+        <label className={lbl}>Định dạng<Select value={format} onChange={(e) => setFormat(e.target.value as ImageFormat)}><option value="png">PNG (nét, dung lượng lớn)</option><option value="jpeg">JPG (nhẹ hơn)</option></Select></label>
+      </div>
+      <p className="text-xs text-slate-500">150 dpi hợp để xem trên màn hình, 300 dpi để in. Ảnh quá lớn (&gt; {(MAX_PIXELS / 1e6).toFixed(0)} triệu điểm ảnh) sẽ tự giảm độ phân giải.</p>
+      {!dpiOk && <p className="text-sm text-red-600">Độ phân giải từ 36 đến 600 dpi.</p>}
+      {(rangeError || error) && <p className="text-sm text-red-600">{rangeError || error}</p>}
+      <div className="flex items-center gap-3">
+        <button className={btn} disabled={!file || busy || !dpiOk || !!rangeError} onClick={run}>{busy ? 'Đang xử lý…' : 'Chuyển thành ảnh'}</button>
+        {progress && <span className="text-xs text-slate-500" role="status">{progress}</span>}
+      </div>
+      {results.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-slate-700">{results.length} ảnh</p>
+            {results.length > 1 && <button onClick={zipAll} className="px-3 py-1.5 rounded-lg text-sm font-medium border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5"><Download className="h-4 w-4" /> Tải tất cả (ZIP)</button>}
+          </div>
+          <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {results.map(({ r, url }) => (
+              <li key={r.page} className="rounded-lg border border-slate-200 p-1.5 space-y-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt={`Trang ${r.page}`} className="w-full h-36 object-contain bg-slate-50 rounded" />
+                <div className="flex items-center justify-between text-xs text-slate-600">
+                  <span>Trang {r.page} · {r.width}×{r.height}</span>
+                  <button onClick={() => saveAs(r.blob, nameOf(r.page))} aria-label={`Tải trang ${r.page}`} className="p-1 text-indigo-600 hover:bg-indigo-50 rounded"><Download className="h-3.5 w-3.5" /></button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PdfEditPage() {
   const [tab, setTab] = useState<Tab>('number');
   const [file, setFile] = useState<Loaded | null>(null);
   return (
     <div className="space-y-3.5">
-      <ToolHeader icon={FilePen} title="Biên tập PDF" desc="Đánh số trang, thêm watermark, xoay / xóa / sắp xếp trang và ghép ảnh thành PDF. File không rời khỏi trình duyệt." />
+      <ToolHeader icon={FilePen} title="Biên tập PDF" desc="Đánh số trang, thêm watermark, xoay / xóa / sắp xếp trang, ghép ảnh thành PDF và chuyển PDF thành ảnh. File không rời khỏi trình duyệt." />
       <div className="flex flex-wrap gap-1.5">
         {TABS.map((t) => <button key={t.id} onClick={() => setTab(t.id)} className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${tab === t.id ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>{t.label}</button>)}
       </div>
@@ -256,6 +344,7 @@ export default function PdfEditPage() {
         {tab === 'watermark' && <WatermarkTab file={file} />}
         {tab === 'pages' && <PagesTab key={file?.name} file={file} />}
         {tab === 'images' && <ImagesTab />}
+        {tab === 'toimg' && <ToImageTab key={file?.name} file={file} />}
         <p className="text-xs text-slate-500">Mọi xử lý diễn ra trên trình duyệt của bạn. PDF có mật khẩu không chỉnh sửa được. Chữ chèn vào dùng font chuẩn nên tiếng Việt sẽ được bỏ dấu. Muốn gộp hoặc tách file, dùng tool &quot;PDF &amp; ZIP&quot;.</p>
       </section>
     </div>
