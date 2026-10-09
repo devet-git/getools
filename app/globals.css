@@ -187,33 +187,35 @@
 @keyframes app-tooltip-in { from { opacity: 0; transform: translateY(2px); } }
 @media (prefers-reduced-motion: reduce) { .app-tooltip { animation: none; } }
 
-/* ===== Hiệu ứng tải trang =====
-   Thanh tiến trình (components/RouteProgress.tsx) + màn hình chờ đồ thị Git (components/AppLoader.tsx).
-   Màu đặt bằng biến để chế độ tối chỉ cần đổi biến. */
+/* ===== Hiệu ứng tải trang "Quỹ đạo công cụ" =====
+   Thanh sao chổi (components/RouteProgress.tsx) + màn hình chờ: logo G tự vẽ, icon công cụ bay quanh trên hai
+   vòng quỹ đạo 3D, tên trang đích hiện kiểu giải mã (components/AppLoader.tsx). Màu đặt bằng biến cho chế độ tối. */
 :root {
-  --gl-main: #6366f1;
-  --gl-branch: #a855f7;
-  --gl-merge: #f59e0b;
-  --gl-dot-ring: #ffffff;
-  --gl-track: #e0e7ff;
-  --gl-title: #475569;
-  --gl-term-bg: #0f172a;
-  --gl-term-border: #1e293b;
-  --gl-overlay-bg: #f8fafc;
+  --ol-accent: #6366f1;
+  --ol-accent-2: #a855f7;
+  --ol-amber: #f59e0b;
+  --ol-ring: rgb(99 102 241 / 0.28);
+  --ol-item-bg: #ffffff;
+  --ol-item-border: #e0e7ff;
+  --ol-item-fg: #4f46e5;
+  --ol-title: #0f172a;
+  --ol-hint: #64748b;
+  --ol-overlay-bg: #f8fafc;
 }
 .dark {
-  --gl-main: #818cf8;
-  --gl-branch: #c084fc;
-  --gl-merge: #fbbf24;
-  --gl-dot-ring: #0a1020;
-  --gl-track: #1f2b40;
-  --gl-title: #b4c0d1;
-  --gl-term-bg: #020617;
-  --gl-term-border: #26334a;
-  --gl-overlay-bg: #0a1020;
+  --ol-accent: #818cf8;
+  --ol-accent-2: #c084fc;
+  --ol-amber: #fbbf24;
+  --ol-ring: rgb(129 140 248 / 0.3);
+  --ol-item-bg: #162033;
+  --ol-item-border: #26334a;
+  --ol-item-fg: #a5b4fc;
+  --ol-title: #f1f5f9;
+  --ol-hint: #a0aec2;
+  --ol-overlay-bg: #0a1020;
 }
 
-/* --- Thanh tiến trình chuyển trang --- */
+/* --- Thanh tiến trình: sao chổi có đuôi và tia lấp lánh --- */
 .route-progress {
   position: fixed;
   inset: 0 0 auto 0;
@@ -224,131 +226,182 @@
   transition: opacity 0.3s ease;
 }
 .route-progress[data-visible] { opacity: 1; transition-duration: 0.1s; }
+/* Vệt đã đi qua: mờ dần về phía sau */
 .route-progress__bar {
   height: 100%;
   transform-origin: left center;
   transform: scaleX(var(--rp, 0));
   transition: transform 0.25s ease-out;
-  background: linear-gradient(90deg, var(--gl-main), var(--gl-branch));
-  box-shadow: 0 0 10px color-mix(in oklab, var(--gl-branch) 60%, transparent);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--ol-accent) 45%, transparent) 55%, var(--ol-accent-2));
 }
+/* Đầu sao chổi: đuôi sáng + nhân phát quang */
 .route-progress__head {
   position: absolute;
   top: 50%;
   left: calc(var(--rp, 0) * 100%);
-  width: 9px;
-  height: 9px;
-  margin: -4.5px 0 0 -4.5px;
+  width: 96px;
+  height: 3px;
+  margin: -1.5px 0 0 -96px;
   border-radius: 9999px;
-  background: var(--gl-merge);
-  box-shadow: 0 0 0 2px var(--gl-main), 0 0 12px 3px color-mix(in oklab, var(--gl-merge) 70%, transparent);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, #fff 85%, var(--ol-accent-2)) 85%, #fff);
+  filter: drop-shadow(0 0 5px var(--ol-accent-2));
   transition: left 0.25s ease-out;
-  animation: gl-head-pulse 0.9s ease-in-out infinite alternate;
 }
-@keyframes gl-head-pulse { to { transform: scale(1.35); } }
+.route-progress__head::after {
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 0 8px 3px var(--ol-amber), 0 0 18px 6px color-mix(in oklab, var(--ol-accent-2) 55%, transparent);
+  animation: ol-comet-pulse 0.7s ease-in-out infinite alternate;
+}
+/* Tia lấp lánh rơi lại phía sau đầu sao chổi */
+.route-progress__head::before {
+  content: '';
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  margin-top: -1.5px;
+  border-radius: 9999px;
+  background: var(--ol-amber);
+  box-shadow: -12px 4px 0 0 var(--ol-accent-2), -24px -4px 0 -0.5px #fff, -36px 3px 0 0 var(--ol-amber), -50px -3px 0 -0.5px var(--ol-accent-2);
+  animation: ol-sparkle 0.55s linear infinite;
+}
+@keyframes ol-comet-pulse { to { transform: scale(1.35); } }
+@keyframes ol-sparkle {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-18px); opacity: 0; }
+}
 
-/* --- Màn hình chờ: đồ thị Git tự vẽ + terminal mini --- */
-.gl-loader {
+/* --- Màn hình chờ --- */
+.orbit-loader {
   min-height: 60vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.5rem;
   padding: 2rem 1rem;
-  animation: gl-fade-in 0.3s ease 0.1s both; /* trang mở nhanh thì không kịp nháy */
+  animation: ol-fade-in 0.3s ease 0.1s both; /* trang mở nhanh thì không kịp nháy */
 }
-@keyframes gl-fade-in { from { opacity: 0; transform: translateY(6px); } }
+@keyframes ol-fade-in { from { opacity: 0; transform: translateY(6px); } }
 
-/* Lớp phủ khi chuyển trang chậm: phủ vùng nội dung, dưới header mobile, chừa sidebar (left đặt bằng lg:left-*) */
-.gl-overlay {
-  position: fixed;
-  top: var(--app-header);
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 30;
+.orbit-scene {
+  position: relative;
+  width: min(300px, 90vw);
+  height: 200px;
+  perspective: 700px;
+}
+/* Mặt phẳng quỹ đạo nghiêng 62°: mọi thứ bên trong cùng một không gian 3D nên icon bay sau logo bị che */
+.orbit-plane {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(62deg);
+}
+.orbit-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-style: preserve-3d;
+  animation: ol-spin var(--d) linear infinite;
+}
+.orbit-ring--reverse, .orbit-ring--reverse .orbit-ring__item { animation-direction: reverse; }
+.orbit-ring__path {
+  position: absolute;
+  left: calc(-1 * var(--r));
+  top: calc(-1 * var(--r));
+  width: calc(2 * var(--r));
+  height: calc(2 * var(--r));
+  border-radius: 9999px;
+  border: 1.5px dashed var(--ol-ring);
+}
+.orbit-ring__slot {
+  position: absolute;
+  transform-style: preserve-3d;
+  transform: rotateZ(var(--a)) translateX(var(--r)) rotateZ(calc(-1 * var(--a)));
+}
+/* Icon xoay ngược đúng bằng vòng quỹ đạo + dựng đứng lại 62° để luôn nhìn thẳng ra người xem */
+.orbit-ring__item {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in oklab, var(--gl-overlay-bg) 78%, transparent);
-  backdrop-filter: blur(3px);
+  border-radius: 10px;
+  border: 1px solid var(--ol-item-border);
+  background: var(--ol-item-bg);
+  color: var(--ol-item-fg);
+  box-shadow: 0 6px 14px -6px rgb(79 70 229 / 0.45);
+  animation: ol-upright var(--d) linear infinite;
 }
+@keyframes ol-spin { to { transform: rotateZ(360deg); } }
+@keyframes ol-upright {
+  from { transform: rotateZ(0deg) rotateX(-62deg); }
+  to { transform: rotateZ(-360deg) rotateX(-62deg); }
+}
+.orbit-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotateX(-62deg);
+}
+.orbit-logo {
+  display: block;
+  width: 72px;
+  height: 72px;
+  filter: drop-shadow(0 12px 22px rgb(79 70 229 / 0.4));
+  animation: ol-float 3s ease-in-out infinite;
+}
+@keyframes ol-float { 50% { transform: translateY(-6px); } }
+.orbit-logo__ghost, .orbit-logo__stroke { fill: none; stroke-width: 5.5; stroke-linecap: round; stroke-linejoin: round; }
+.orbit-logo__ghost { stroke: rgb(255 255 255 / 0.22); }
+.orbit-logo__stroke { stroke: #fff; stroke-dasharray: 100; }
+.orbit-logo__dot { fill: #fbbf24; stroke: #4f46e5; stroke-width: 2; }
 
-.gl-graph { width: min(320px, 85vw); height: auto; overflow: visible; }
-.gl-line {
-  fill: none;
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-dasharray: 100;
-  animation: gl-draw 3.6s ease-in-out infinite both;
-}
-.gl-line--main { stroke: var(--gl-main); }
-.gl-line--branch { stroke: var(--gl-branch); animation-delay: 0.5s; }
-@keyframes gl-draw {
-  0% { stroke-dashoffset: 100; }
-  22%, 62% { stroke-dashoffset: 0; }
-  80%, 100% { stroke-dashoffset: -100; }
-}
-
-.gl-commit, .gl-ring {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: gl-pop 3.6s ease-out infinite both;
-}
-.gl-commit { fill: var(--gl-main); stroke: var(--gl-dot-ring); stroke-width: 3; }
-.gl-commit--branch { fill: var(--gl-branch); }
-.gl-commit--merge { fill: var(--gl-merge); }
-@keyframes gl-pop {
-  0% { transform: scale(0); opacity: 0; }
-  6% { transform: scale(1.4); opacity: 1; }
-  11%, 62% { transform: scale(1); opacity: 1; }
-  72%, 100% { transform: scale(0); opacity: 0; }
-}
-.gl-ring { fill: none; stroke: var(--gl-merge); stroke-width: 2; animation-name: gl-ring; }
-@keyframes gl-ring {
-  0% { transform: scale(1); opacity: 0; }
-  2% { opacity: 0.9; }
-  30%, 100% { transform: scale(2.6); opacity: 0; }
-}
-
-.gl-title {
+.orbit-caption {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.375rem;
-  font-size: 0.875rem;
-  color: var(--gl-title);
+  gap: 0.2rem;
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; /* chữ đều nhau: hiệu ứng giải mã không làm giật bề rộng */
 }
-.gl-title strong { color: var(--gl-main); font-weight: 600; }
-.gl-title__icon { width: 1rem; height: 1rem; color: var(--gl-main); }
+.orbit-caption__hint { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ol-hint); }
+.orbit-caption__title { display: flex; align-items: center; gap: 0.4rem; font-size: 1.05rem; font-weight: 700; color: var(--ol-title); }
+.orbit-caption__title svg { color: var(--ol-accent); }
+.orbit-phrase { min-height: 1.2em; font-size: 0.75rem; color: var(--ol-hint); }
 
-.gl-terminal {
-  width: min(360px, 90vw);
-  min-height: 2.5rem;
-  padding: 0.625rem 0.875rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--gl-term-border);
-  background: var(--gl-term-bg);
-  color: #e2e8f0;
-  font: 0.75rem/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  box-shadow: 0 10px 30px -12px rgb(15 23 42 / 0.45);
+/* Lớp phủ khi chuyển trang chậm: phủ vùng nội dung, dưới header mobile, chừa sidebar.
+   Đặt trong @layer components để class lg:left-20 / lg:left-72 (utilities) ghi đè được `left: 0`. */
+@layer components {
+  .orbit-overlay {
+    position: fixed;
+    top: var(--app-header);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in oklab, var(--ol-overlay-bg) 82%, transparent);
+    backdrop-filter: blur(4px);
+  }
 }
-.gl-terminal__prompt { color: #34d399; }
-.gl-terminal__caret {
-  display: inline-block;
-  width: 0.5em;
-  height: 1.05em;
-  margin-left: 1px;
-  vertical-align: text-bottom;
-  background: #a5b4fc;
-  animation: gl-blink 1s steps(1) infinite;
-}
-@keyframes gl-blink { 50% { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .gl-line, .gl-commit, .route-progress__head, .gl-terminal__caret { animation: none; }
-  .gl-line { stroke-dashoffset: 0; }
-  .gl-ring { display: none; }
+  .orbit-ring, .orbit-logo, .route-progress__head::before, .route-progress__head::after { animation: none; }
+  .orbit-ring__item { animation: none; transform: rotateX(-62deg); }
 }
 
 /* ===== Dark mode (TỰ SINH bởi scripts/gen-dark-theme.js — đừng sửa tay; chạy: npm run gen:dark) =====

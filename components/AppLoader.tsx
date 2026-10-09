@@ -1,60 +1,120 @@
 'use client';
 
-import { useEffect, useState, useSyncExternalStore } from 'react';
-import { findCategoryByPath, findToolByPath } from '@/lib/tools';
+import { useEffect, useMemo, useState, useSyncExternalStore, type ComponentType } from 'react';
+import { TOOL_CATEGORIES, findCategoryByPath, findToolByPath, getCategory } from '@/lib/tools';
 import { subscribeNavigation, getPendingPath, getServerPendingPath } from '@/lib/route-progress';
 
-/** Câu chạy trong terminal mini: vài câu đùa cho vui, xen mẹo dùng app */
-const LINES = [
-  'git checkout -b công-cụ-xịn',
-  'Đang pha cà phê cho CPU ☕',
-  'npm install --save niềm-vui',
+type Icon = ComponentType<{ className?: string }>;
+
+/** Câu vui xen mẹo dùng app, chạy bên dưới tên công cụ */
+const PHRASES = [
+  'Đang lắp ráp bánh răng…',
+  'Đang mài sắc dao kéo…',
+  'Pha cà phê cho CPU ☕',
   'Mẹo: Ctrl+K để tìm nhanh mọi công cụ',
-  'Đang rebase lên nhánh hạnh-phúc',
-  'Đang đếm lại từng bit cho chắc ăn…',
+  'Đang xếp pixel cho thẳng hàng…',
+  'Gọi các hành tinh về quỹ đạo…',
   'Mẹo: Dán thông minh tự đoán công cụ cần mở',
-  'Đang xếp pixel cho thẳng hàng',
-  'Đang tính tiền điện cho server ⚡',
-  'git commit -m "sắp xong rồi"',
-].map((l) => Array.from(l));
+  'Đang lên dây cót…',
+];
 
-const TYPE_MS = 38;
-/** Số nhịp dừng lại sau khi gõ xong một câu */
-const HOLD_TICKS = 28;
+/** Ký tự "nhiễu" khi giải mã chữ */
+const NOISE = '▖▘▝▗▚▞░▒▓<>/\\{}[]#*+=~01';
+const FRAME_MS = 32;
 
-/** Gõ từng chữ, xong một câu thì dừng một nhịp rồi sang câu ngẫu nhiên khác. */
-function useTypewriter(): string {
-  const [{ line, typed }, setState] = useState({ line: 0, typed: 0 });
+/**
+ * Chữ hiện ra kiểu "giải mã": ký tự ngẫu nhiên nhấp nháy rồi lần lượt chốt thành chữ thật từ trái sang phải.
+ * Lần vẽ đầu (cả trên máy chủ) là chữ thật, hiệu ứng chỉ chạy sau khi gắn vào trang.
+ */
+function ScrambleText({ text, className }: { text: string; className?: string }) {
+  const chars = useMemo(() => Array.from(text), [text]);
+  const [shown, setShown] = useState(text);
   useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    let frame = 0;
+    const total = chars.length + 6; // vài khung đầu toàn nhiễu
     const id = setInterval(() => {
-      setState((s) => {
-        if (s.typed < LINES[s.line].length + HOLD_TICKS) return { ...s, typed: s.typed + 1 };
-        let next = Math.floor(Math.random() * (LINES.length - 1));
-        if (next >= s.line) next++; // không lặp lại câu vừa gõ
-        return { line: next, typed: 0 };
-      });
-    }, TYPE_MS);
+      frame++;
+      const settled = Math.max(0, frame - 6);
+      setShown(chars.map((c, i) => (i < settled || c === ' ' ? c : NOISE[(Math.random() * NOISE.length) | 0])).join(''));
+      if (frame >= total) clearInterval(id);
+    }, FRAME_MS);
     return () => clearInterval(id);
-  }, []);
-  return LINES[line].slice(0, typed).join('');
+  }, [chars]);
+  return <span className={className} aria-label={text}>{shown}</span>;
 }
 
-/** Đồ thị Git tự vẽ: nhánh chính → tách nhánh → commit → merge (chấm hổ phách như logo), lặp vô hạn. */
-function GitGraph() {
+/** Câu vui đổi lần lượt, mỗi câu hiện bằng hiệu ứng giải mã */
+function RotatingPhrase() {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setI((x) => (x + 1 + ((Math.random() * (PHRASES.length - 1)) | 0)) % PHRASES.length), 2600);
+    return () => clearInterval(id);
+  }, []);
+  return <ScrambleText key={i} text={PHRASES[i]} className="orbit-phrase" />;
+}
+
+const G_PATH = 'M45.86 24A16 16 0 1 0 48 32H35';
+/** Nhịp vẽ nét: vẽ (0 → 55%), giữ (→ 75%), xóa dần từ đầu nét (→ 100%) */
+const DRAW = { dur: '2.4s', keyTimes: '0;0.55;0.75;1' };
+
+const subscribeMotion = (cb: () => void) => {
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  mq.addEventListener('change', cb);
+  return () => mq.removeEventListener('change', cb);
+};
+const getReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** Logo "G" tự vẽ nét, chấm hổ phách (như logo) chạy theo đúng đầu nét đang vẽ */
+function DrawingLogo() {
+  // SMIL thay vì CSS để chấm và nét dùng chung một nhịp, khớp nhau tuyệt đối
+  const reduced = useSyncExternalStore(subscribeMotion, getReducedMotion, () => false);
   return (
-    <svg viewBox="0 0 260 96" className="gl-graph" aria-hidden="true">
-      <path className="gl-line gl-line--main" d="M16 70H244" pathLength={100} />
-      <path className="gl-line gl-line--branch" d="M64 70C64 44 82 34 104 34H156C178 34 196 44 196 70" pathLength={100} />
-      <circle className="gl-commit" cx={16} cy={70} r={6} style={{ animationDelay: '0.05s' }} />
-      <circle className="gl-commit" cx={64} cy={70} r={6} style={{ animationDelay: '0.35s' }} />
-      <circle className="gl-commit gl-commit--branch" cx={112} cy={34} r={6} style={{ animationDelay: '0.9s' }} />
-      <circle className="gl-commit" cx={130} cy={70} r={6} style={{ animationDelay: '1.05s' }} />
-      <circle className="gl-commit gl-commit--branch" cx={148} cy={34} r={6} style={{ animationDelay: '1.2s' }} />
-      <circle className="gl-ring" cx={196} cy={70} r={7} style={{ animationDelay: '1.65s' }} />
-      <circle className="gl-commit gl-commit--merge" cx={196} cy={70} r={7} style={{ animationDelay: '1.55s' }} />
-      <circle className="gl-commit" cx={244} cy={70} r={6} style={{ animationDelay: '1.85s' }} />
+    <svg viewBox="0 0 64 64" className="orbit-logo" aria-hidden="true">
+      <defs>
+        <linearGradient id="orbit-logo-bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#4f46e5" />
+          <stop offset="1" stopColor="#7c3aed" />
+        </linearGradient>
+      </defs>
+      <rect width="64" height="64" rx="15" fill="url(#orbit-logo-bg)" />
+      <path className="orbit-logo__ghost" d={G_PATH} />
+      <path className="orbit-logo__stroke" d={G_PATH} pathLength={100} strokeDashoffset={reduced ? 0 : 100}>
+        {!reduced && <animate attributeName="stroke-dashoffset" values="100;0;0;-100" keyTimes={DRAW.keyTimes} dur={DRAW.dur} repeatCount="indefinite" />}
+      </path>
+      <circle className="orbit-logo__dot" r="4.5" cx={reduced ? 45.86 : 0} cy={reduced ? 24 : 0}>
+        {!reduced && (
+          <>
+            <animateMotion path={G_PATH} keyPoints="0;1;1;1" keyTimes={DRAW.keyTimes} calcMode="linear" dur={DRAW.dur} repeatCount="indefinite" />
+            <animate attributeName="opacity" values="1;1;1;0" keyTimes={DRAW.keyTimes} dur={DRAW.dur} repeatCount="indefinite" />
+          </>
+        )}
+      </circle>
     </svg>
   );
+}
+
+function Ring({ icons, radius, duration, reverse }: { icons: Icon[]; radius: number; duration: number; reverse?: boolean }) {
+  return (
+    <div className={`orbit-ring${reverse ? ' orbit-ring--reverse' : ''}`} style={{ ['--r' as string]: `${radius}px`, ['--d' as string]: `${duration}s` }}>
+      <div className="orbit-ring__path" />
+      {icons.map((Ic, i) => (
+        <div key={i} className="orbit-ring__slot" style={{ ['--a' as string]: `${(360 / icons.length) * i}deg` }}>
+          <div className="orbit-ring__item">
+            <Ic className="h-4 w-4" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Icon cho hai vòng quỹ đạo: ưu tiên các tool cùng nhóm với trang đích, thiếu thì lấy đại diện các nhóm khác */
+function orbitIcons(categoryId?: string): [Icon[], Icon[]] {
+  const own = categoryId ? getCategory(categoryId)?.items.map((t) => t.icon) ?? [] : [];
+  const others = TOOL_CATEGORIES.flatMap((c) => c.items.slice(0, 2).map((t) => t.icon));
+  const pool = [...own, ...others.filter((x) => !own.includes(x))];
+  return [pool.slice(0, 4), pool.slice(4, 10)];
 }
 
 /** Màn hình chờ khi đang mở một trang (app/loading.tsx và lớp phủ khi chuyển trang chậm). */
@@ -62,28 +122,31 @@ export function AppLoader() {
   const pending = useSyncExternalStore(subscribeNavigation, getPendingPath, getServerPendingPath);
   // Biết trang đích (click link / router.push) thì hiện tên công cụ hoặc nhóm sắp mở
   const tool = pending ? findToolByPath(pending) : undefined;
-  const category = !tool && pending ? findCategoryByPath(pending) : undefined;
+  const category = pending ? findCategoryByPath(pending) : undefined;
   const label = tool?.name ?? category?.title;
   const Icon = tool?.icon ?? category?.icon;
-  const text = useTypewriter();
+  const [inner, outer] = useMemo(() => orbitIcons(category?.id), [category?.id]);
 
   return (
-    <div role="status" aria-live="polite" className="gl-loader">
-      <GitGraph />
+    <div role="status" aria-live="polite" className="orbit-loader">
+      <div className="orbit-scene" aria-hidden="true">
+        <div className="orbit-plane">
+          <Ring icons={inner} radius={78} duration={9} />
+          <Ring icons={outer} radius={124} duration={16} reverse />
+          {/* Logo nằm trong cùng không gian 3D để icon bay phía sau bị che, phía trước thì đè lên */}
+          <div className="orbit-core">
+            <DrawingLogo />
+          </div>
+        </div>
+      </div>
 
-      <p className="gl-title">
-        {label && Icon ? (
-          <>
-            Đang mở <Icon className="gl-title__icon" /> <strong>{label}</strong>
-          </>
-        ) : (
-          'Đang tải công cụ…'
-        )}
-      </p>
-
-      <div className="gl-terminal" aria-hidden="true">
-        <span className="gl-terminal__prompt">~/getools $</span> {text}
-        <span className="gl-terminal__caret" />
+      <div className="orbit-caption">
+        <span className="orbit-caption__hint">{label ? 'Đang mở' : 'Đang tải'}</span>
+        <span className="orbit-caption__title">
+          {Icon && <Icon className="h-4 w-4 shrink-0" />}
+          <ScrambleText key={label ?? 'GeTools'} text={label ?? 'GeTools'} />
+        </span>
+        <RotatingPhrase />
       </div>
     </div>
   );
@@ -111,7 +174,7 @@ export function NavigationOverlay({ sidebarCollapsed }: { sidebarCollapsed: bool
 
   if (!show || !pending) return null;
   return (
-    <div className={`gl-overlay ${sidebarCollapsed ? 'lg:left-20' : 'lg:left-72'}`}>
+    <div className={`orbit-overlay ${sidebarCollapsed ? 'lg:left-20' : 'lg:left-72'}`}>
       <AppLoader />
     </div>
   );
