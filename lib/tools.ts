@@ -6,7 +6,7 @@ import {
   ImageDown, QrCode, Palette, FileArchive,
   FileJson2, Terminal, GitCompareArrows, ListTree, Database, Container, FileCog, Dices, Calculator,
   Globe, Tags, KeyRound, FileLock, FolderTree, NotebookText, ScrollText, AppWindow, LayoutGrid, BookMarked,
-  CalendarDays, Percent, LockKeyhole, HeartPulse, Shuffle, Zap, QrCode as QrCodeIcon, ShieldCheck, FileText, FilePen, Receipt, Wallet, Landmark, ArrowLeftRight, Speech, Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
+  CalendarDays, Percent, LockKeyhole, HeartPulse, Shuffle, Zap, QrCode as QrCodeIcon, ShieldCheck, FileText, FilePen, CalendarPlus, ListChecks, Timer as TimerIcon, Receipt, Wallet, Landmark, ArrowLeftRight, Speech, Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
 } from 'lucide-react';
 
 export interface ToolDef {
@@ -137,6 +137,12 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     title: 'Đời sống & Văn phòng',
     general: true,
     items: [
+      { id: 'pomodoro', name: 'Pomodoro & bấm giờ', href: '/pomodoro', icon: TimerIcon,
+        description: 'Làm việc tập trung theo chu kỳ 25/5 phút, có chuông báo, thông báo và đếm số phiên trong ngày', keywords: ['pomodoro', 'tap trung', 'bam gio', 'hen gio', 'timer', 'focus', 'nghi ngoi', 'hoc tap'], badge: 'Mới' },
+      { id: 'checklist', name: 'Checklist', href: '/checklist', icon: ListChecks,
+        description: 'Danh sách việc cần làm lưu trên trình duyệt, có mẫu dựng sẵn cho du lịch, chuyển nhà, họp, đi chợ Tết', keywords: ['checklist', 'viec can lam', 'todo', 'to do', 'danh sach', 'du lich', 'chuyen nha', 'ghi chu'], badge: 'Mới' },
+      { id: 'calendar-event', name: 'Tạo lịch hẹn (.ics)', href: '/calendar-event', icon: CalendarPlus,
+        description: 'Tạo file lịch để thêm sự kiện vào Google, Apple hoặc Outlook Calendar, có lặp lại và nhắc trước', keywords: ['lich hen', 'ics', 'calendar', 'su kien', 'google calendar', 'outlook', 'nhac lich', 'event'], badge: 'Mới' },
       { id: 'date-calc', name: 'Tuổi, đếm ngược & ngày làm việc', href: '/date-calc', icon: CalendarDays,
         description: 'Tính tuổi, đếm ngược sự kiện, ngày làm việc trừ lễ Việt Nam và đổi âm ↔ dương lịch', keywords: ['tuoi', 'sinh nhat', 'dem nguoc', 'ngay lam viec', 'ngay le', 'am lich', 'duong lich', 'tet', 'age', 'countdown', 'lunar', 'holiday'], badge: 'Mới' },
       { id: 'percent-calc', name: 'Phần trăm, giảm giá & VAT', href: '/percent-calc', icon: Percent,
