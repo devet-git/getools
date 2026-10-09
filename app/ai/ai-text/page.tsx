@@ -37,6 +37,8 @@ import {
 } from '@/lib/text-local';
 
 import { SendToButton } from '@/components/SendToButton';
+import { toolHref } from '@/lib/tools';
+
 type Mode = 'summarize' | 'translate' | 'explain-code';
 const MODES: { id: Mode; label: string }[] = [
   { id: 'summarize', label: 'Tóm tắt' },
@@ -551,7 +553,7 @@ export default function AiTextPage() {
             <div className="flex items-center justify-between mb-1 gap-2 flex-wrap">
               <span className={labelCls + ' mb-0'}>Nội dung đầu vào</span>
               <div className="flex gap-1.5 flex-wrap">
-                <Link href="/stt" className="inline-flex items-center gap-1 text-[11px] text-indigo-600 hover:underline">
+                <Link href={toolHref('stt')} className="inline-flex items-center gap-1 text-[11px] text-indigo-600 hover:underline">
                   <Mic className="h-3 w-3" /> Dùng STT để đọc bằng giọng nói
                 </Link>
                 <button onClick={() => fileRef.current?.click()} className={smallBtn}>

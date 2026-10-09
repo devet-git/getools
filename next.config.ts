@@ -1,4 +1,5 @@
 import type {NextConfig} from 'next';
+import { legacyToolRedirects } from './lib/tools';
 
 const nextConfig: NextConfig = {
   // Cho phép chạy nhiều server dev/build song song (mỗi tiến trình một thư mục build riêng)
@@ -22,6 +23,10 @@ const nextConfig: NextConfig = {
     ],
   },
   output: 'standalone',
+  // Tool đã chuyển từ /<id> sang /<nhóm>/<id>: giữ link, bookmark và lịch sử cũ hoạt động (308, giữ nguyên query)
+  async redirects() {
+    return legacyToolRedirects().map((r) => ({ ...r, permanent: true }));
+  },
   transpilePackages: ['motion'],
   webpack: (config, {dev}) => {
     // HMR is disabled in AI Studio via DISABLE_HMR env var.

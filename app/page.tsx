@@ -2,113 +2,38 @@
 
 import { useMemo, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { Search, Star, Keyboard, Clock, KeyRound, Sparkles, ClipboardPaste } from 'lucide-react';
-import { useAiSettings } from '@/lib/use-ai-config';
+import { Search, Star, Keyboard, Clock, ClipboardPaste, ChevronRight } from 'lucide-react';
 import { Logo } from '@/components/Logo';
-import { cn } from '@/lib/utils';
-import { ALL_TOOLS, TOOL_CATEGORIES, type ToolDef } from '@/lib/tools';
+import { ToolGrid, useFavoriteToolIds } from '@/components/ToolGrid';
+import { cn, foldVietnamese } from '@/lib/utils';
+import { getTool, TOOL_CATEGORIES, type ToolDef } from '@/lib/tools';
 import {
-  subscribeToolPrefs, getRecentSnapshot, getFavoriteSnapshot, getServerToolPrefsSnapshot,
-  parseIds, toggleFavoriteTool, getGeneralModeSnapshot, getServerGeneralModeSnapshot, setGeneralMode,
+  subscribeToolPrefs, getRecentSnapshot, getServerToolPrefsSnapshot,
+  parseIds, getGeneralModeSnapshot, getServerGeneralModeSnapshot, setGeneralMode,
 } from '@/lib/recent-tools';
 
-function normalize(s: string): string {
-  return s
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'D')
-    .toLowerCase();
+/** id → tool, bỏ qua id không còn tồn tại (tool đã bị xóa) */
+function toTools(ids: string[]): ToolDef[] {
+  return ids.map(getTool).filter((t): t is ToolDef => !!t);
 }
 
 function matches(tool: ToolDef, q: string): boolean {
   if (!q) return true;
-  const hay = normalize([tool.name, tool.description, ...(tool.keywords ?? [])].join(' '));
+  const hay = foldVietnamese([tool.name, tool.description, ...(tool.keywords ?? [])].join(' '));
   return q.split(/\s+/).every((w) => hay.includes(w));
-}
-
-function ToolCard({ tool, favorite }: { tool: ToolDef; favorite: boolean }) {
-  const Icon = tool.icon;
-  const { isToolLocked } = useAiSettings();
-  const locked = isToolLocked(tool);
-  return (
-    <div className={cn('group relative rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-300 hover:shadow-md focus-within:ring-2 focus-within:ring-indigo-500', locked && 'opacity-60')}>
-      <Link
-        href={tool.href}
-        className="flex h-full items-start gap-3 rounded-xl p-4 pr-11 outline-none"
-      >
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-          <Icon className="h-5 w-5" />
-        </span>
-        <span className="min-w-0">
-          <span className="flex flex-wrap items-center gap-1.5">
-            <span className="text-sm font-semibold text-slate-800">{tool.name}</span>
-            {locked && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
-                <KeyRound className="h-2.5 w-2.5" /> Cần khóa AI
-              </span>
-            )}
-            {tool.aiEnhanced && (
-              <span
-                title="Dùng được miễn phí; thêm khóa AI để mở thêm tính năng nâng cao"
-                className="inline-flex items-center gap-0.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold text-violet-700"
-              >
-                <Sparkles className="h-2.5 w-2.5" /> +AI
-              </span>
-            )}
-            {!locked && tool.badge && (
-              <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
-                {tool.badge}
-              </span>
-            )}
-          </span>
-          <span className="mt-1 block text-xs leading-relaxed text-slate-500">{tool.description}</span>
-        </span>
-      </Link>
-      <button
-        type="button"
-        onClick={() => toggleFavoriteTool(tool.id)}
-        aria-pressed={favorite}
-        aria-label={favorite ? `Bỏ yêu thích ${tool.name}` : `Thêm ${tool.name} vào yêu thích`}
-        title={favorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
-        className="absolute right-2 top-2 rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-amber-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-      >
-        <Star className={cn('h-4 w-4', favorite && 'fill-amber-400 text-amber-500')} />
-      </button>
-    </div>
-  );
-}
-
-function Grid({ tools, favorites }: { tools: ToolDef[]; favorites: Set<string> }) {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      {tools.map((t) => (
-        <ToolCard key={t.id} tool={t} favorite={favorites.has(t.id)} />
-      ))}
-    </div>
-  );
 }
 
 export default function HomePage() {
   const [query, setQuery] = useState('');
   const recentRaw = useSyncExternalStore(subscribeToolPrefs, getRecentSnapshot, getServerToolPrefsSnapshot);
-  const favoriteRaw = useSyncExternalStore(subscribeToolPrefs, getFavoriteSnapshot, getServerToolPrefsSnapshot);
 
   const generalMode = useSyncExternalStore(subscribeToolPrefs, getGeneralModeSnapshot, getServerGeneralModeSnapshot) === '1';
 
-  const favoriteIds = useMemo(() => parseIds(favoriteRaw), [favoriteRaw]);
-  const favorites = useMemo(() => new Set(favoriteIds), [favoriteIds]);
-  const byId = useMemo(() => new Map(ALL_TOOLS.map((t) => [t.id, t])), []);
-  const favoriteTools = useMemo(
-    () => favoriteIds.map((id) => byId.get(id)).filter((t): t is ToolDef => !!t),
-    [favoriteIds, byId],
-  );
-  const recentTools = useMemo(
-    () => parseIds(recentRaw).map((id) => byId.get(id)).filter((t): t is ToolDef => !!t),
-    [recentRaw, byId],
-  );
+  const favoriteIds = useFavoriteToolIds();
+  const favoriteTools = useMemo(() => toTools(favoriteIds), [favoriteIds]);
+  const recentTools = useMemo(() => toTools(parseIds(recentRaw)), [recentRaw]);
 
-  const q = normalize(query.trim());
+  const q = foldVietnamese(query.trim());
   const searching = q.length > 0;
   const filteredCategories = useMemo(
     () => TOOL_CATEGORIES
@@ -168,7 +93,7 @@ export default function HomePage() {
               <Star className="h-4 w-4 text-amber-500" /> Yêu thích
             </h2>
             {favoriteTools.length > 0 ? (
-              <Grid tools={favoriteTools} favorites={favorites} />
+              <ToolGrid tools={favoriteTools} />
             ) : (
               <p className="rounded-xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
                 Chưa có công cụ yêu thích. Bấm biểu tượng ngôi sao trên một công cụ để ghim lên đây.
@@ -181,7 +106,7 @@ export default function HomePage() {
               <Clock className="h-4 w-4 text-indigo-500" /> Dùng gần đây
             </h2>
             {recentTools.length > 0 ? (
-              <Grid tools={recentTools} favorites={favorites} />
+              <ToolGrid tools={recentTools} />
             ) : (
               <p className="rounded-xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
                 Bạn chưa mở công cụ nào. Các công cụ vừa dùng sẽ xuất hiện ở đây.
@@ -212,9 +137,13 @@ export default function HomePage() {
 
       {filteredCategories.length > 0 ? (
         filteredCategories.map((cat) => (
-          <section key={cat.title} aria-label={cat.title}>
-            <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-600">{cat.title}</h2>
-            <Grid tools={cat.items} favorites={favorites} />
+          <section key={cat.id} aria-label={cat.title}>
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-600">
+              <Link href={cat.href} className="inline-flex items-center gap-1 hover:text-indigo-600">
+                {cat.title} <ChevronRight className="h-4 w-4" />
+              </Link>
+            </h2>
+            <ToolGrid tools={cat.items} />
           </section>
         ))
       ) : (

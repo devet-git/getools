@@ -25,6 +25,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { fetchGroupOrOrgRepos, GitRepoItem } from '@/lib/downloader';
 import { useApp } from '@/components/AppContext';
 import { useRouter } from 'next/navigation';
+import { toolHref } from '@/lib/tools';
 
 export default function GroupReposPage() {
   const router = useRouter();
@@ -124,7 +125,7 @@ export default function GroupReposPage() {
   };
 
   const handleSendToDownloader = (webUrl: string) => {
-    router.push(`/download?url=${encodeURIComponent(webUrl)}`);
+    router.push(toolHref('download', { url: webUrl }));
     showToast('Đã chuyển liên kết sang trang Tải file/folder!');
   };
 

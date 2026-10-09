@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Send, Bookmark, Copy, ChevronDown, ArrowRight, Check } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
-import { ALL_TOOLS, type ToolDef } from '@/lib/tools';
+import { getTool, type ToolDef } from '@/lib/tools';
 import { setHandoff, MAX_HANDOFF_CHARS } from '@/lib/handoff';
 import { addHistory, addSnippet, defaultTitle } from '@/lib/snippets';
 import { suggestTools } from '@/lib/smart-detect';
@@ -34,7 +34,7 @@ export function SendToButton({ text, fromToolId, className = '' }: SendToButtonP
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuId = useId();
   const empty = !text || !text.trim();
-  const sourceTool = ALL_TOOLS.find((t) => t.id === fromToolId);
+  const sourceTool = getTool(fromToolId);
 
   const targets = useMemo<Target[]>(() => {
     if (!open || empty) return [];
@@ -43,7 +43,7 @@ export function SendToButton({ text, fromToolId, className = '' }: SendToButtonP
     try {
       for (const s of suggestTools(text, 6)) {
         if (seen.has(s.toolId)) continue;
-        const tool = ALL_TOOLS.find((t) => t.id === s.toolId);
+        const tool = getTool(s.toolId);
         if (!tool) continue;
         seen.add(s.toolId);
         out.push({ tool, why: s.why });
@@ -53,7 +53,7 @@ export function SendToButton({ text, fromToolId, className = '' }: SendToButtonP
       for (const g of GENERIC_TARGETS) {
         if (out.length >= 4) break;
         if (seen.has(g.toolId)) continue;
-        const tool = ALL_TOOLS.find((t) => t.id === g.toolId);
+        const tool = getTool(g.toolId);
         if (!tool) continue;
         seen.add(g.toolId);
         out.push({ tool, why: g.why });

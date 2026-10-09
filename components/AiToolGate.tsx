@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { KeyRound, Lock } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
 import { useAiSettings } from '@/lib/use-ai-config';
-import { findToolByHref } from '@/lib/tools';
+import { findToolByPath } from '@/lib/tools';
 
 /**
  * Bao quanh nội dung trang: nếu tool bắt buộc có AI mà chưa có khóa thì làm mờ, vô hiệu hóa
@@ -16,7 +16,7 @@ export function AiToolGate({ children }: { children: React.ReactNode }) {
   const { openSettings } = useApp();
   const ai = useAiSettings();
 
-  const tool = findToolByHref(pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname);
+  const tool = findToolByPath(pathname);
   const locked = ai.isToolLocked(tool);
   const active = locked && !!tool;
 

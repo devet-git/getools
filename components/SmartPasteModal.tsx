@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ClipboardPaste, CornerDownLeft, ChevronRight, ShieldCheck, Wand2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { useApp } from '@/components/AppContext';
-import { ALL_TOOLS } from '@/lib/tools';
+import { getTool } from '@/lib/tools';
 import { detect } from '@/lib/smart-detect';
 import { setHandoff } from '@/lib/handoff';
 
@@ -23,8 +23,6 @@ const SAMPLES: { label: string; text: string }[] = [
   { label: 'Dockerfile', text: 'FROM node:20-alpine\nWORKDIR /app\nCOPY . .\nRUN npm ci\nEXPOSE 3000\nCMD ["node", "server.js"]' },
   { label: 'Log', text: '2024-05-01 10:00:00 INFO Server started\n2024-05-01 10:00:03 WARN Slow query\n2024-05-01 10:00:07 ERROR Connection refused' },
 ];
-
-const TOOL_BY_ID = new Map(ALL_TOOLS.map((t) => [t.id, t]));
 
 function byteLen(s: string): number {
   try { return new TextEncoder().encode(s).length; } catch { return s.length; }
@@ -71,7 +69,7 @@ export function SmartPasteModal() {
   const openTarget = useCallback((d: number, t: number) => {
     const det = detections[d];
     const target = det?.targets[Math.max(0, t)];
-    const tool = target && TOOL_BY_ID.get(target.toolId);
+    const tool = target && getTool(target.toolId);
     if (!tool) return;
     if (!setHandoff({ toolId: tool.id, text, source: 'Smart Paste' })) {
       showToast('Dữ liệu quá lớn để chuyển sang tool khác (tối đa khoảng 2 triệu ký tự).');
@@ -226,7 +224,7 @@ export function SmartPasteModal() {
                     {expanded && (
                       <div className="px-3 pb-3 grid gap-1.5 sm:grid-cols-2">
                         {d.targets.map((tg, j) => {
-                          const tool = TOOL_BY_ID.get(tg.toolId);
+                          const tool = getTool(tg.toolId);
                           if (!tool) return null;
                           const Icon = tool.icon;
                           const active = ti === j;

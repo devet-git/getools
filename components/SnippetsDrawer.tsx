@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { useRouter } from 'next/navigation';
 import { X, Search, Pin, PinOff, Pencil, Trash2, Copy, ExternalLink, Bookmark, History, Check, ArrowUpFromLine } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
-import { ALL_TOOLS } from '@/lib/tools';
+import { getTool } from '@/lib/tools';
 import { setHandoff, MAX_HANDOFF_CHARS } from '@/lib/handoff';
 import { formatTimeAgo } from '@/lib/storage';
 import {
@@ -96,7 +96,7 @@ export function SnippetsDrawer() {
   };
 
   const openInTool = (s: Snippet) => {
-    const tool = ALL_TOOLS.find((t) => t.id === s.toolId);
+    const tool = getTool(s.toolId);
     if (!tool) { showToast('Công cụ này không còn tồn tại.'); return; }
     if (s.text.length > MAX_HANDOFF_CHARS || !setHandoff({ toolId: tool.id, text: s.text, source: 'Snippet' })) {
       showToast('Nội dung quá lớn để mở trong công cụ.');
@@ -179,7 +179,7 @@ export function SnippetsDrawer() {
             </div>
           )}
           {groups.map(([toolId, list]) => {
-            const tool = ALL_TOOLS.find((t) => t.id === toolId);
+            const tool = getTool(toolId);
             const Icon = tool?.icon;
             return (
               <section key={toolId} aria-label={tool?.name || toolId}>

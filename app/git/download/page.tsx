@@ -42,6 +42,7 @@ import {
 } from '@/lib/storage';
 import { useApp } from '@/components/AppContext';
 import Link from 'next/link';
+import { toolHref } from '@/lib/tools';
 
 const DEFAULT_ZIP_OPTIONS: ZipOptions = {
   namingRule: 'smart',
@@ -360,7 +361,7 @@ function DownloaderContent() {
                 Phát hiện URL GitHub Releases! Bạn có muốn mở trang tải Assets/Releases chuyên dụng không?
               </span>
               <Link 
-                href="/releases"
+                href={toolHref('releases')}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs bg-white text-blue-700 font-medium hover:bg-blue-100 border border-blue-200 shrink-0 ml-2 shadow-2xs"
               >
                 Mở trang Releases

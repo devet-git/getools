@@ -60,6 +60,7 @@ import {
   type CommandMode,
   type SttSegment,
 } from '@/lib/stt-local';
+import { toolHref } from '@/lib/tools';
 
 interface STTHistoryItem {
   id: string;
@@ -678,7 +679,7 @@ export default function SpeechToTextPage() {
     }
     sessionStorage.setItem('stt_to_tts_text', fullText);
     sessionStorage.setItem('stt_to_tts_lang', selectedLangId);
-    router.push('/tts');
+    router.push(toolHref('tts'));
   };
 
   // Send to Markdown Converter
@@ -688,7 +689,7 @@ export default function SpeechToTextPage() {
       return;
     }
     sessionStorage.setItem('stt_to_md_text', fullText);
-    router.push('/html-to-markdown');
+    router.push(toolHref('html-to-markdown'));
   };
 
   const deleteHistoryItem = (id: string) => {

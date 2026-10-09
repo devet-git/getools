@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore, type ComponentType } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -26,21 +26,54 @@ import { useApp } from '@/components/AppContext';
 import { Logo } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAiSettings } from '@/lib/use-ai-config';
-import { TOOL_CATEGORIES, GIT_CATEGORY_TITLE } from '@/lib/tools';
+import { TOOL_CATEGORIES, findCategoryByPath, getCategory, type ToolDef } from '@/lib/tools';
 import { subscribeToolPrefs, getGeneralModeSnapshot, getServerGeneralModeSnapshot } from '@/lib/recent-tools';
 
-/** Lựa chọn mở/đóng mục do người dùng tự đặt: { [tiêu đề mục]: true = mở, false = đóng }. Mặc định mọi mục đóng, trừ mục chứa trang đang xem. */
+/** Lựa chọn mở/đóng mục do người dùng tự đặt: { [id nhóm]: true = mở, false = đóng }. Mặc định mọi mục đóng, trừ mục chứa trang đang xem. */
 const CATEGORY_STATE_KEY = 'getools_sidebar_category_state';
+
+function readCategoryState(): Record<string, boolean> {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(CATEGORY_STATE_KEY) || '{}');
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    // Chỉ giữ id nhóm còn tồn tại (bỏ khóa cũ theo tiêu đề nhóm / nhóm đã gộp)
+    return Object.fromEntries(
+      Object.entries(parsed).filter(([k, v]) => typeof v === 'boolean' && getCategory(k)),
+    ) as Record<string, boolean>;
+  } catch {
+    return {}; // không đọc được localStorage
+  }
+}
+
+/** Nút phụ gắn với một nhóm (vd. Bookmarks / Lịch sử / Token của nhóm Git) */
+interface SidebarAction {
+  label: string;
+  title: string;
+  icon: ComponentType<{ className?: string }>;
+  iconClassName: string;
+  onClick: () => void;
+  /** Nhãn bên phải khi sidebar mở rộng */
+  pill?: { text: string; className: string };
+  /** Chấm/nhãn nhỏ ở góc khi sidebar thu gọn */
+  dot?: { text?: string; className: string };
+}
+
+interface CategoryExtras {
+  /** Nút nhỏ cạnh tiêu đề nhóm */
+  headerAction?: SidebarAction;
+  /** Các nút hiện dưới danh sách tool của nhóm */
+  footer: SidebarAction[];
+}
 
 export function Sidebar() {
   const pathname = usePathname();
   const { isToolLocked } = useAiSettings();
-  const { 
-    bookmarksCount, 
-    historyCount, 
-    setIsHistoryModalOpen, 
-    setHistoryModalTab, 
-    openSettings, 
+  const {
+    bookmarksCount,
+    historyCount,
+    setIsHistoryModalOpen,
+    setHistoryModalTab,
+    openSettings,
     keys,
     isSidebarCollapsed,
     toggleSidebarCollapse
@@ -50,34 +83,27 @@ export function Sidebar() {
   const [catOverrides, setCatOverrides] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(CATEGORY_STATE_KEY);
-      const parsed = raw ? JSON.parse(raw) : {};
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        const clean: Record<string, boolean> = {};
-        for (const [k, v] of Object.entries(parsed)) if (typeof v === 'boolean') clean[k] = v;
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setCatOverrides(clean);
-      }
-    } catch {
-      /* bỏ qua: không đọc được localStorage */
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCatOverrides(readCategoryState());
   }, []);
+
+  const closeMobile = () => setIsMobileOpen(false);
 
   // Chế độ Phổ thông: ẩn nhóm dành cho dev, nhưng vẫn giữ nhóm của trang đang xem
   const generalMode = useSyncExternalStore(subscribeToolPrefs, getGeneralModeSnapshot, getServerGeneralModeSnapshot) === '1';
 
   // Mục chứa trang đang xem luôn mở (trừ khi người dùng tự đóng) để thấy mình đang ở đâu
-  const activeCategory = TOOL_CATEGORIES.find((c) => c.items.some((i) => i.href === pathname))?.title;
-  const isCategoryExpanded = (title: string) => catOverrides[title] ?? title === activeCategory;
+  const activeCategory = findCategoryByPath(pathname)?.id;
+  const isCategoryExpanded = (id: string) => catOverrides[id] ?? id === activeCategory;
+  const visibleCategories = TOOL_CATEGORIES.filter((cat) => !generalMode || cat.general || cat.id === activeCategory);
 
   const openPalette = () => {
     setIsMobileOpen(false);
     window.dispatchEvent(new CustomEvent('getools:open-palette'));
   };
 
-  const toggleCategory = (title: string) => {
-    const next = { ...catOverrides, [title]: !isCategoryExpanded(title) };
+  const toggleCategory = (id: string) => {
+    const next = { ...catOverrides, [id]: !isCategoryExpanded(id) };
     setCatOverrides(next);
     try {
       localStorage.setItem(CATEGORY_STATE_KEY, JSON.stringify(next));
@@ -87,6 +113,58 @@ export function Sidebar() {
   };
 
   const hasConfiguredKeys = !!(keys.github || keys.gitlab || keys.bitbucket);
+
+  const openHistory = (tab: 'bookmarks' | 'history') => {
+    setHistoryModalTab(tab);
+    setIsHistoryModalOpen(true);
+    closeMobile();
+  };
+  const openGitSettings = () => {
+    openSettings('git');
+    closeMobile();
+  };
+
+  const gitExtras: CategoryExtras = {
+    headerAction: {
+      label: 'Cài đặt Công cụ Git',
+      title: `Cài đặt API Tokens Git (GitHub / GitLab / Bitbucket)${hasConfiguredKeys ? ' • Đã thiết lập' : ''}`,
+      icon: Settings,
+      iconClassName: 'group-hover:rotate-45 transition-transform duration-200',
+      onClick: openGitSettings,
+      dot: hasConfiguredKeys ? { className: 'bg-emerald-500' } : undefined,
+    },
+    footer: [
+      {
+        label: 'Bookmarks đã ghim',
+        title: `Bookmarks đã ghim (${bookmarksCount})`,
+        icon: Star,
+        iconClassName: 'text-amber-500 fill-amber-500/20',
+        onClick: () => openHistory('bookmarks'),
+        pill: { text: String(bookmarksCount), className: 'text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/50' },
+        dot: bookmarksCount > 0 ? { text: String(bookmarksCount), className: 'bg-amber-500 text-white' } : undefined,
+      },
+      {
+        label: 'Lịch sử tải',
+        title: `Lịch sử tải (${historyCount})`,
+        icon: Clock,
+        iconClassName: 'text-slate-500',
+        onClick: () => openHistory('history'),
+        pill: { text: String(historyCount), className: 'text-[11px] font-semibold bg-slate-100 text-slate-600' },
+        dot: historyCount > 0 ? { text: String(historyCount), className: 'bg-slate-700 text-white' } : undefined,
+      },
+      {
+        label: 'API Tokens',
+        title: `API Tokens (${hasConfiguredKeys ? 'Đã cài' : 'Chưa cài'})`,
+        icon: Key,
+        iconClassName: 'text-slate-500',
+        onClick: openGitSettings,
+        pill: hasConfiguredKeys
+          ? { text: 'Đã cài', className: 'text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/50' }
+          : { text: 'Chưa có', className: 'text-[10px] font-medium bg-slate-100 text-slate-500' },
+        dot: hasConfiguredKeys ? { className: 'bg-emerald-500' } : undefined,
+      },
+    ],
+  };
 
   return (
     <>
@@ -154,7 +232,7 @@ export function Sidebar() {
       {isMobileOpen && (
         <div 
           className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-xs animate-in fade-in"
-          onClick={() => setIsMobileOpen(false)}
+          onClick={closeMobile}
         />
       )}
 
@@ -168,7 +246,7 @@ export function Sidebar() {
         <div className={`p-4 border-b border-border flex items-center ${isSidebarCollapsed ? 'justify-center flex-col gap-2' : 'justify-between'}`}>
           <Link 
             href="/" 
-            onClick={() => setIsMobileOpen(false)} 
+            onClick={closeMobile} 
             className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'}`}
             title="GeTools"
           >
@@ -200,7 +278,7 @@ export function Sidebar() {
             {/* Mobile close button */}
             <button
               type="button"
-              onClick={() => setIsMobileOpen(false)}
+              onClick={closeMobile}
               className="lg:hidden p-1 text-muted-foreground hover:text-foreground"
             >
               <X className="h-5 w-5" />
@@ -262,7 +340,7 @@ export function Sidebar() {
           {/* Trang chủ */}
           <Link
             href="/"
-            onClick={() => setIsMobileOpen(false)}
+            onClick={closeMobile}
             title="Trang chủ - tổng quan các công cụ"
             className={`flex items-center rounded-lg text-[13px] font-semibold transition-all ${
               isSidebarCollapsed ? 'justify-center p-2.5 rounded-xl' : 'gap-3 px-3 py-2.5'
@@ -272,259 +350,210 @@ export function Sidebar() {
             {!isSidebarCollapsed && <span>Trang chủ</span>}
           </Link>
 
-          {TOOL_CATEGORIES.filter((cat) => !generalMode || cat.general || cat.title === activeCategory).map((cat, idx) => {
-            const isGitCat = cat.title === GIT_CATEGORY_TITLE;
-            const isCatCollapsed = !isSidebarCollapsed && !isCategoryExpanded(cat.title);
+          {visibleCategories.map((cat) => {
+            const expanded = isSidebarCollapsed || isCategoryExpanded(cat.id);
+            const extras = cat.id === 'git' ? gitExtras : null;
             return (
-            <div key={idx}>
-              {!isSidebarCollapsed ? (
-                <div className="flex items-center justify-between pb-1">
-                  <button
-                    type="button"
-                    onClick={() => toggleCategory(cat.title)}
-                    aria-expanded={!isCatCollapsed}
-                    title={isCatCollapsed ? 'Mở rộng mục' : 'Thu gọn mục'}
-                    className="flex-1 min-w-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold text-slate-400 hover:text-slate-700 hover:bg-slate-50 uppercase tracking-wider transition-colors cursor-pointer"
-                  >
-                    <ChevronDown
-                      className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${isCatCollapsed ? '-rotate-90' : ''}`}
-                    />
-                    <span className="truncate">{cat.title}</span>
-                    {isCatCollapsed && (
-                      <span className="ml-auto text-[10px] font-medium normal-case tracking-normal px-1.5 rounded-full bg-slate-100 text-slate-500">
-                        {cat.items.length}
-                      </span>
-                    )}
-                  </button>
-                  {isGitCat && (
-                    <button
-                      type="button"
-                      onClick={() => openSettings('git')}
-                      title={`Cài đặt API Tokens Git (GitHub / GitLab / Bitbucket)${hasConfiguredKeys ? ' • Đã thiết lập' : ''}`}
-                      className="flex items-center justify-center p-1 mr-1 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors relative group cursor-pointer"
-                      aria-label="Cài đặt Công cụ Git"
-                    >
-                      <Settings className="h-3.5 w-3.5 group-hover:rotate-45 transition-transform duration-200" />
-                      {hasConfiguredKeys && (
-                        <span className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-emerald-500 ring-1 ring-white" />
-                      )}
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <div>
-                  <div className="w-full h-px bg-slate-100 my-2" />
-                  {isGitCat && (
-                    <button
-                      type="button"
-                      onClick={() => openSettings('git')}
-                      title={`Cài đặt API Tokens Git${hasConfiguredKeys ? ' • Đã thiết lập' : ''}`}
-                      className="w-full flex items-center justify-center p-2 mb-1 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors relative group cursor-pointer"
-                      aria-label="Cài đặt Công cụ Git"
-                    >
-                      <Settings className="h-4 w-4 group-hover:rotate-45 transition-transform duration-200" />
-                      {hasConfiguredKeys && (
-                        <span className="absolute top-1.5 right-2 h-1.5 w-1.5 rounded-full bg-emerald-500 ring-1 ring-white" />
-                      )}
-                    </button>
-                  )}
-                </div>
-              )}
-              {!isCatCollapsed && (
-                <>
-                  <nav className="space-y-1">
-                    {cat.items.map((item) => {
-                      const isActive = pathname === item.href;
-                      const Icon = item.icon;
-                      const locked = isToolLocked(item);
-
-                      if (isSidebarCollapsed) {
-                        return (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={() => setIsMobileOpen(false)}
-                            title={`${item.name} - ${item.description}${locked ? ' (cần khóa AI)' : ''}`}
-                            className={`flex items-center justify-center p-2.5 rounded-xl transition-all relative group ${locked ? 'opacity-50' : ''} ${
-                              isActive
-                                ? 'bg-slate-900 text-white shadow-xs'
-                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                            }`}
-                          >
-                            <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-600 group-hover:text-slate-900'}`} />
-                            {locked ? (
-                              <KeyRound className="absolute top-1 right-1 h-3 w-3 text-amber-600" />
-                            ) : (
-                              item.badge && (
-                                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-indigo-500 ring-2 ring-white" />
-                              )
-                            )}
-                          </Link>
-                        );
-                      }
-
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => setIsMobileOpen(false)}
-                          title={locked ? 'Cần khóa AI để sử dụng' : undefined}
-                          className={`flex items-start gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all group ${locked ? 'opacity-55' : ''} ${
-                            isActive
-                              ? 'bg-slate-900 text-white shadow-xs'
-                              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                          }`}
-                        >
-                          <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-900'}`} />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <span className="font-semibold text-[13px] flex items-center gap-1.5">
-                                {item.name}
-                                {locked && (
-                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">
-                                    <KeyRound className="h-2.5 w-2.5" /> Cần khóa AI
-                                  </span>
-                                )}
-                                {item.aiEnhanced && (
-                                  <span title="Dùng được miễn phí; thêm khóa AI để mở thêm tính năng nâng cao" className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-violet-100 text-violet-700">
-                                    <Sparkles className="h-2.5 w-2.5" /> +AI
-                                  </span>
-                                )}
-                                {!locked && item.badge && (
-                                  <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider ${
-                                    isActive ? 'bg-indigo-500 text-white' : 'bg-indigo-100 text-indigo-700'
-                                  }`}>
-                                    {item.badge}
-                                  </span>
-                                )}
-                              </span>
-                              {isActive && <ChevronRight className="h-3.5 w-3.5 opacity-70" />}
-                            </div>
-                            <p className={`text-[11px] truncate mt-0.5 ${isActive ? 'text-slate-300' : 'text-muted-foreground'}`}>
-                              {item.description}
-                            </p>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </nav>
-                  {isGitCat && (
-              <div className="space-y-1 mt-1">
+              <div key={cat.id}>
                 {isSidebarCollapsed ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setHistoryModalTab('bookmarks');
-                        setIsHistoryModalOpen(true);
-                      }}
-                      title={`Bookmarks đã ghim (${bookmarksCount})`}
-                      className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
-                    >
-                      <Star className="h-5 w-5 text-amber-500 fill-amber-500/20" />
-                      {bookmarksCount > 0 && (
-                        <span className="absolute top-1 right-1 text-[9px] font-bold px-1 rounded-full bg-amber-500 text-white">
-                          {bookmarksCount}
-                        </span>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setHistoryModalTab('history');
-                        setIsHistoryModalOpen(true);
-                      }}
-                      title={`Lịch sử tải (${historyCount})`}
-                      className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
-                    >
-                      <Clock className="h-5 w-5 text-slate-500" />
-                      {historyCount > 0 && (
-                        <span className="absolute top-1 right-1 text-[9px] font-bold px-1 rounded-full bg-slate-700 text-white">
-                          {historyCount}
-                        </span>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => openSettings('git')}
-                      title={`API Tokens (${hasConfiguredKeys ? 'Đã cài' : 'Chưa cài'})`}
-                      className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
-                    >
-                      <Key className="h-5 w-5 text-slate-500" />
-                      {hasConfiguredKeys && (
-                        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-500" />
-                      )}
-                    </button>
-                  </>
+                  <div>
+                    <div className="w-full h-px bg-slate-100 my-2" />
+                    {extras?.headerAction && <CategoryHeaderAction action={extras.headerAction} collapsed />}
+                  </div>
                 ) : (
+                  <div className="flex items-center justify-between pb-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleCategory(cat.id)}
+                      aria-expanded={expanded}
+                      title={expanded ? 'Thu gọn mục' : 'Mở rộng mục'}
+                      className="flex-1 min-w-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold text-slate-400 hover:text-slate-700 hover:bg-slate-50 uppercase tracking-wider transition-colors cursor-pointer"
+                    >
+                      <ChevronDown
+                        className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${expanded ? '' : '-rotate-90'}`}
+                      />
+                      <span className="truncate">{cat.title}</span>
+                      {!expanded && (
+                        <span className="ml-auto text-[10px] font-medium normal-case tracking-normal px-1.5 rounded-full bg-slate-100 text-slate-500">
+                          {cat.items.length}
+                        </span>
+                      )}
+                    </button>
+                    {extras?.headerAction && <CategoryHeaderAction action={extras.headerAction} />}
+                  </div>
+                )}
+                {expanded && (
                   <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setHistoryModalTab('bookmarks');
-                        setIsHistoryModalOpen(true);
-                        setIsMobileOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Star className="h-4 w-4 text-amber-500 fill-amber-500/20" />
-                        <span>Bookmarks đã ghim</span>
+                    <nav className="space-y-1">
+                      {cat.items.map((item) => (
+                        <SidebarToolLink
+                          key={item.id}
+                          tool={item}
+                          active={pathname === item.href}
+                          locked={isToolLocked(item)}
+                          collapsed={isSidebarCollapsed}
+                          onNavigate={closeMobile}
+                        />
+                      ))}
+                    </nav>
+                    {extras && extras.footer.length > 0 && (
+                      <div className="space-y-1 mt-1">
+                        {extras.footer.map((a) => (
+                          <SidebarActionButton key={a.label} action={a} collapsed={isSidebarCollapsed} />
+                        ))}
                       </div>
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/50">
-                        {bookmarksCount}
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setHistoryModalTab('history');
-                        setIsHistoryModalOpen(true);
-                        setIsMobileOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Clock className="h-4 w-4 text-slate-500" />
-                        <span>Lịch sử tải</span>
-                      </div>
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                        {historyCount}
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        openSettings('git');
-                        setIsMobileOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Key className="h-4 w-4 text-slate-500" />
-                        <span>API Tokens</span>
-                      </div>
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${hasConfiguredKeys ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' : 'bg-slate-100 text-slate-500'}`}>
-                        {hasConfiguredKeys ? 'Đã cài' : 'Chưa có'}
-                      </span>
-                    </button>
+                    )}
                   </>
                 )}
               </div>
-                  )}
-                </>
-              )}
-            </div>
             );
           })}
-
         </div>
 
       </aside>
     </>
+  );
+}
+
+function SidebarToolLink({ tool, active, locked, collapsed, onNavigate }: {
+  tool: ToolDef;
+  active: boolean;
+  locked: boolean;
+  collapsed: boolean;
+  onNavigate: () => void;
+}) {
+  const Icon = tool.icon;
+
+  if (collapsed) {
+    return (
+      <Link
+        href={tool.href}
+        onClick={onNavigate}
+        title={`${tool.name} - ${tool.description}${locked ? ' (cần khóa AI)' : ''}`}
+        className={`flex items-center justify-center p-2.5 rounded-xl transition-all relative group ${locked ? 'opacity-50' : ''} ${
+          active
+            ? 'bg-slate-900 text-white shadow-xs'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+        }`}
+      >
+        <Icon className={`h-5 w-5 ${active ? 'text-white' : 'text-slate-600 group-hover:text-slate-900'}`} />
+        {locked ? (
+          <KeyRound className="absolute top-1 right-1 h-3 w-3 text-amber-600" />
+        ) : (
+          tool.badge && (
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-indigo-500 ring-2 ring-white" />
+          )
+        )}
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      href={tool.href}
+      onClick={onNavigate}
+      title={locked ? 'Cần khóa AI để sử dụng' : undefined}
+      className={`flex items-start gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all group ${locked ? 'opacity-55' : ''} ${
+        active
+          ? 'bg-slate-900 text-white shadow-xs'
+          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+      }`}
+    >
+      <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${active ? 'text-white' : 'text-slate-500 group-hover:text-slate-900'}`} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-[13px] flex items-center gap-1.5">
+            {tool.name}
+            {locked && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">
+                <KeyRound className="h-2.5 w-2.5" /> Cần khóa AI
+              </span>
+            )}
+            {tool.aiEnhanced && (
+              <span title="Dùng được miễn phí; thêm khóa AI để mở thêm tính năng nâng cao" className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-violet-100 text-violet-700">
+                <Sparkles className="h-2.5 w-2.5" /> +AI
+              </span>
+            )}
+            {!locked && tool.badge && (
+              <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider ${
+                active ? 'bg-indigo-500 text-white' : 'bg-indigo-100 text-indigo-700'
+              }`}>
+                {tool.badge}
+              </span>
+            )}
+          </span>
+          {active && <ChevronRight className="h-3.5 w-3.5 opacity-70" />}
+        </div>
+        <p className={`text-[11px] truncate mt-0.5 ${active ? 'text-slate-300' : 'text-muted-foreground'}`}>
+          {tool.description}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+/** Nút nhỏ cạnh tiêu đề nhóm (vd. cài đặt token của nhóm Git) */
+function CategoryHeaderAction({ action, collapsed = false }: { action: SidebarAction; collapsed?: boolean }) {
+  const Icon = action.icon;
+  return (
+    <button
+      type="button"
+      onClick={action.onClick}
+      title={action.title}
+      aria-label={action.label}
+      className={`flex items-center justify-center text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors relative group cursor-pointer ${
+        collapsed ? 'w-full p-2 mb-1 rounded-xl' : 'p-1 mr-1 rounded-md'
+      }`}
+    >
+      <Icon className={`${collapsed ? 'h-4 w-4' : 'h-3.5 w-3.5'} ${action.iconClassName}`} />
+      {action.dot && (
+        <span className={`absolute h-1.5 w-1.5 rounded-full ring-1 ring-white ${collapsed ? 'top-1.5 right-2' : 'top-0.5 right-0.5'} ${action.dot.className}`} />
+      )}
+    </button>
+  );
+}
+
+/** Nút phụ dưới danh sách tool của nhóm: dạng icon khi sidebar thu gọn, dạng dòng có nhãn khi mở rộng */
+function SidebarActionButton({ action, collapsed }: { action: SidebarAction; collapsed: boolean }) {
+  const Icon = action.icon;
+
+  if (collapsed) {
+    return (
+      <button
+        type="button"
+        onClick={action.onClick}
+        title={action.title}
+        className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
+      >
+        <Icon className={`h-5 w-5 ${action.iconClassName}`} />
+        {action.dot && (
+          action.dot.text ? (
+            <span className={`absolute top-1 right-1 text-[9px] font-bold px-1 rounded-full ${action.dot.className}`}>
+              {action.dot.text}
+            </span>
+          ) : (
+            <span className={`absolute top-1.5 right-1.5 h-2 w-2 rounded-full ${action.dot.className}`} />
+          )
+        )}
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={action.onClick}
+      className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+    >
+      <div className="flex items-center gap-2.5">
+        <Icon className={`h-4 w-4 ${action.iconClassName}`} />
+        <span>{action.label}</span>
+      </div>
+      {action.pill && (
+        <span className={`px-2 py-0.5 rounded-full ${action.pill.className}`}>
+          {action.pill.text}
+        </span>
+      )}
+    </button>
   );
 }

@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useApp } from '@/components/AppContext';
-import { findToolByHref } from '@/lib/tools';
+import { findToolByPath } from '@/lib/tools';
 import { setReactInputValue, takeHandoff, type Handoff } from '@/lib/handoff';
 
 // Giữ dữ liệu đã lấy cho tới khi điền xong (effect có thể chạy lặp trong React StrictMode / dev)
@@ -18,7 +18,7 @@ export function HandoffReceiver() {
   const { showToast } = useApp();
 
   useEffect(() => {
-    const tool = findToolByHref(pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname);
+    const tool = findToolByPath(pathname);
     if (!tool) return;
     const h = pending && pending.toolId === tool.id ? pending : takeHandoff(tool.id);
     if (!h) return;

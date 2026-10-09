@@ -5,14 +5,17 @@ import { useRouter } from 'next/navigation';
 import { Search, CornerDownLeft, ClipboardPaste, Library, Settings } from 'lucide-react';
 import { TOOL_CATEGORIES, type ToolDef } from '@/lib/tools';
 import { useAiSettings } from '@/lib/use-ai-config';
+import { foldVietnamese } from '@/lib/utils';
 
-interface Entry { tool: ToolDef; category: string; haystackName: string; haystackDesc: string; haystackKw: string }
+/** Mục hiển thị trong bảng lệnh: một tool hoặc một hành động toàn cục */
+type PaletteItem = Pick<ToolDef, 'id' | 'name' | 'href' | 'icon' | 'description' | 'keywords' | 'requiresAi'>;
 
-const norm = (s: string) =>
-  s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+interface Entry { tool: PaletteItem; category: string; haystackName: string; haystackDesc: string; haystackKw: string }
+
+const norm = foldVietnamese;
 
 /** Hành động toàn cục (không phải trang): phát sự kiện để các thành phần toàn cục tự mở. */
-const ACTIONS: (ToolDef & { event: string })[] = [
+const ACTIONS: (PaletteItem & { event: string })[] = [
   { id: 'action-smart-paste', name: 'Dán thông minh', href: '#', icon: ClipboardPaste, event: 'getools:open-smart-paste',
     description: 'Dán bất kỳ nội dung nào, tự nhận diện (JSON, JWT, cURL, cron, SQL...) và mở đúng công cụ', keywords: ['paste', 'dan', 'detect', 'nhan dien', 'smart'] },
   { id: 'action-snippets', name: 'Snippet & lịch sử', href: '#', icon: Library, event: 'getools:open-snippets',
@@ -22,7 +25,7 @@ const ACTIONS: (ToolDef & { event: string })[] = [
 ];
 const ACTION_EVENTS = new Map(ACTIONS.map((a) => [a.id, a.event]));
 
-const ENTRIES: Entry[] = [{ title: 'Hành động', items: ACTIONS as ToolDef[] }, ...TOOL_CATEGORIES].flatMap((c) =>
+const ENTRIES: Entry[] = [{ title: 'Hành động', items: ACTIONS as PaletteItem[] }, ...TOOL_CATEGORIES].flatMap((c) =>
   c.items.map((tool) => ({
     tool,
     category: c.title,
@@ -99,7 +102,7 @@ export function CommandPalette() {
     listRef.current?.querySelector<HTMLElement>('[data-active="true"]')?.scrollIntoView({ block: 'nearest' });
   }, [active, results]);
 
-  const go = (t: ToolDef) => {
+  const go = (t: PaletteItem) => {
     close();
     const ev = ACTION_EVENTS.get(t.id);
     if (ev) {

@@ -24,6 +24,7 @@ import {
 } from '@/lib/storage';
 import { useApp } from '@/components/AppContext';
 import { useRouter } from 'next/navigation';
+import { toolHref } from '@/lib/tools';
 
 const emptyArrayString = () => '[]';
 
@@ -106,7 +107,7 @@ export function HistoryBookmarksModal() {
 
   const handleNavigateToUrl = (url: string) => {
     setIsHistoryModalOpen(false);
-    router.push(`/download?url=${encodeURIComponent(url)}`);
+    router.push(toolHref('download', { url }));
     showToast('Đã chuyển liên kết vào trang Tải File/Folder');
   };
 

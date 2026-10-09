@@ -21,6 +21,7 @@ import {
   CATEGORY_ORDER, analyzeDiff, buildAiHint, categoryLabel,
   type Analysis, type CommitStyle, type FileCategory, type FileDiff, type Lang, type Risk,
 } from '@/lib/diff-analyze';
+import { toolHref } from '@/lib/tools';
 
 const MAX_FILE = 5 * 1024 * 1024;
 const PROSE =
@@ -280,7 +281,7 @@ export default function AiCommitPage() {
         <div className="flex-1 min-w-0">
           <h1 className="text-sm sm:text-base font-bold tracking-tight">Commit message & mô tả PR</h1>
           <p className="text-[11px] text-slate-400 leading-tight hidden sm:block">
-            Dán <code>git diff</code> hoặc mở file .diff/.patch. Công cụ <Link href="/compare" className="underline">So sánh File</Link> có thể xuất unified diff.
+            Dán <code>git diff</code> hoặc mở file .diff/.patch. Công cụ <Link href={toolHref('compare')} className="underline">So sánh File</Link> có thể xuất unified diff.
           </p>
         </div>
         <ShareLinkButton params={{ style, lang: language, scope, issue: issue.slice(0, 120) }} />
