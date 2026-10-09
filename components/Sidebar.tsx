@@ -157,7 +157,7 @@ export function Sidebar() {
           <Logo className="h-8 w-8" />
           <div>
             <span className="font-semibold text-sm tracking-tight block">GeTools</span>
-            <span className="text-[10px] text-muted-foreground block -mt-1">Bộ công cụ đa năng</span>
+            <span className="text-[10px] text-muted-foreground block -mt-1">All tools for life</span>
           </div>
         </Link>
 
@@ -238,7 +238,12 @@ export function Sidebar() {
             data-tooltip="GeTools — Trang chủ"
           >
             <Logo className="h-10 w-10" />
-            {!isSidebarCollapsed && <span className="font-bold text-base tracking-tight text-slate-900 truncate">GeTools</span>}
+            {!isSidebarCollapsed && (
+              <span className="min-w-0">
+                <span className="block font-bold text-base leading-tight tracking-tight text-slate-900 truncate">GeTools</span>
+                <span className="block text-[11px] leading-tight text-muted-foreground truncate">All tools for life</span>
+              </span>
+            )}
           </Link>
 
           {isSidebarCollapsed ? (
