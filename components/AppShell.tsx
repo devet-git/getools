@@ -16,6 +16,7 @@ import { HandoffReceiver } from '@/components/HandoffReceiver';
 import { ShareBoot } from '@/components/ShareBoot';
 import { RouteProgress } from '@/components/RouteProgress';
 import { NavigationOverlay } from '@/components/AppLoader';
+import { startDriveAutoSync } from '@/lib/drive-sync-client';
 import { Check } from 'lucide-react';
 
 function GlobalToast() {
@@ -28,6 +29,12 @@ function GlobalToast() {
       <span className="font-medium">{copiedNotice}</span>
     </div>
   );
+}
+
+/** Không có giao diện: tự đồng bộ Google Drive trong nền khi người dùng đã kết nối */
+function DriveAutoSync() {
+  useEffect(() => startDriveAutoSync(), []);
+  return null;
 }
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
@@ -48,6 +55,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <GlobalToast />
       <CommandPalette />
       <ToolTracker />
+      <DriveAutoSync />
       <ServiceWorkerRegister />
       <SmartPasteModal />
       <SnippetsDrawer />

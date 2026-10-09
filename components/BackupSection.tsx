@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, Download, FileUp, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/components/AppContext';
+import { DriveSyncSection } from '@/components/DriveSyncSection';
 import { notifyStorageSync, subscribeStorageSync } from '@/lib/storage';
 import {
   GROUP_LABELS,
@@ -181,6 +182,8 @@ export function BackupSection() {
 
   return (
     <div className="space-y-5 text-sm">
+      <DriveSyncSection />
+
       {/* XUẤT */}
       <section className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
         <div className="flex items-center gap-2 font-semibold text-slate-800">

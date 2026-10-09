@@ -111,7 +111,7 @@ export function SettingsModal() {
         <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 px-6 py-3 border-t border-slate-200 bg-slate-50">
           <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-            Lưu cục bộ, không đồng bộ lên máy chủ
+            Lưu cục bộ, không gửi lên máy chủ GeTools
           </div>
           <div className="flex items-center gap-2">
             <Button

@@ -4,7 +4,7 @@
  */
 
 export type BackupGroup = 'settings' | 'data' | 'secrets';
-type Kind = 'array' | 'object' | 'json' | 'text' | 'theme' | 'bool';
+type Kind = 'array' | 'object' | 'json' | 'text' | 'theme' | 'bool' | 'flag';
 
 export interface KeySpec {
   key: string;
@@ -25,6 +25,9 @@ export const BACKUP_KEYS: readonly KeySpec[] = [
   { key: 'getools_ai_settings', group: 'settings', label: 'Cấu hình AI (không gồm khóa)', kind: 'object', maxChars: 256 * 1024 },
   { key: 'getools_recent_tools', group: 'settings', label: 'Công cụ dùng gần đây', kind: 'array', maxChars: 64 * 1024 },
   { key: 'getools_favorite_tools', group: 'settings', label: 'Công cụ yêu thích', kind: 'array', maxChars: 64 * 1024 },
+  { key: 'getools_general_mode', group: 'settings', label: 'Chế độ Phổ thông', kind: 'flag', maxChars: 1 },
+  { key: 'getools_tts_prefs_v1', group: 'settings', label: 'Tùy chọn giọng đọc (TTS)', kind: 'object', maxChars: 64 * 1024 },
+  { key: 'getools_llm_pricing_overrides', group: 'settings', label: 'Bảng giá LLM tùy chỉnh', kind: 'object', maxChars: 256 * 1024 },
   { key: 'getools_snippets', group: 'data', label: 'Đoạn mã (snippets)', kind: 'json', maxChars: 4 * MB },
   { key: 'git_downloader_bookmarks', group: 'data', label: 'Dấu trang', kind: 'array', maxChars: 2 * MB },
   { key: 'git_downloader_history', group: 'data', label: 'Lịch sử tải', kind: 'array', maxChars: 2 * MB },
@@ -34,6 +37,9 @@ export const BACKUP_KEYS: readonly KeySpec[] = [
   { key: 'getools:readme-builder:draft', group: 'data', label: 'Bản nháp README', kind: 'object', maxChars: 2 * MB },
   { key: 'getools:readme-builder:tree', group: 'data', label: 'Cây thư mục cho README', kind: 'text', maxChars: 2 * MB },
   { key: 'mock-data:v1', group: 'data', label: 'Lược đồ dữ liệu giả', kind: 'json', maxChars: 2 * MB },
+  { key: 'getools_checklists', group: 'data', label: 'Checklist', kind: 'array', maxChars: 2 * MB },
+  { key: 'getools_split_bill', group: 'data', label: 'Chia tiền nhóm', kind: 'object', maxChars: 2 * MB },
+  { key: 'getools_split_bill_banks', group: 'data', label: 'Tài khoản ngân hàng (Chia tiền nhóm)', kind: 'object', maxChars: 256 * 1024 },
   { key: 'git_downloader_keys', group: 'secrets', label: 'Token Git / khóa Gemini', kind: 'object', maxChars: 64 * 1024 },
 ];
 
@@ -117,6 +123,12 @@ export function stripAiSecrets(raw: string): string {
   const c = cleanObject(o);
   c.keys = {};
   return JSON.stringify(c);
+}
+
+/** Phần khóa API (`keys`) trong chuỗi JSON getools_ai_settings; {} nếu không có */
+export function aiKeysOf(raw: string | null | undefined): Record<string, unknown> {
+  const o = safeParse(raw);
+  return isPlainObject(o) && isPlainObject(o.keys) ? cleanObject(o.keys) : {};
 }
 
 function hasAiSecrets(raw: string | null): boolean {
@@ -236,6 +248,8 @@ function validateValue(spec: KeySpec, v: string): string | null {
       return v === 'light' || v === 'dark' || v === 'system' ? null : `Giá trị "${spec.key}" không hợp lệ.`;
     case 'bool':
       return v === 'true' || v === 'false' ? null : `Giá trị "${spec.key}" không hợp lệ.`;
+    case 'flag':
+      return v === '0' || v === '1' ? null : `Giá trị "${spec.key}" không hợp lệ.`;
     case 'array':
       return Array.isArray(safeParse(v)) ? null : `"${spec.key}" phải là một mảng JSON.`;
     case 'object':
@@ -359,6 +373,9 @@ export function mergeValue(spec: KeySpec, existing: string | null, incoming: str
     case 'git_downloader_stt_history_v1':
       if (Array.isArray(e) && Array.isArray(i)) return JSON.stringify(mergeById(e, i, 50, true));
       return incoming;
+    case 'getools_checklists':
+      if (Array.isArray(e) && Array.isArray(i)) return JSON.stringify(mergeById(e, i, 500, false));
+      return incoming;
     case 'getools_snippets':
       if (Array.isArray(e) && Array.isArray(i)) return JSON.stringify(mergeById(e, i, 5000, false));
       if (isPlainObject(e) && isPlainObject(i)) return JSON.stringify(mergeObjects(e, i));
@@ -449,7 +466,8 @@ export function planImport(storage: StorageLike, backup: BackupFile, opts: Impor
   return { items, counts };
 }
 
-function fixAiKeys(next: string, keys: Record<string, unknown>): string {
+/** Thay phần khóa API trong chuỗi JSON getools_ai_settings */
+export function fixAiKeys(next: string, keys: Record<string, unknown>): string {
   const o = safeParse(next);
   if (!isPlainObject(o)) return next;
   const c = cleanObject(o);
