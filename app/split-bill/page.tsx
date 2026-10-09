@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Receipt, Plus, Trash2, Copy, Download, Users, ArrowRight, RotateCcw, AlertTriangle } from 'lucide-react';
+import { Receipt, Plus, Trash2, Copy, Download, Users, ArrowRight, QrCode, RotateCcw, AlertTriangle } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
 import { ShareLinkButton } from '@/components/ShareLinkButton';
 import { Select } from '@/components/ui/searchable-select';
+import { TransferQr } from '@/components/TransferQr';
 import { readShareParams } from '@/lib/share-link';
 import { Expense, Person, fmtMoney, parseMoney, shareOf, summarize, summaryText } from '@/lib/split-bill';
 
@@ -35,6 +36,7 @@ export default function SplitBillPage() {
   const [newName, setNewName] = useState('');
   const [draft, setDraft] = useState({ title: '', amount: '', payer: '' });
   const [draftParts, setDraftParts] = useState<string[] | null>(null);
+  const [qrOpen, setQrOpen] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   /* khôi phục: link chia sẻ > dữ liệu đã lưu > mẫu */
@@ -263,11 +265,22 @@ export default function SplitBillPage() {
             ) : (
               <ul className="space-y-1.5">
                 {summary.transfers.map((t, i) => (
-                  <li key={i} className="flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm">
-                    <span className="font-semibold text-slate-800">{nameOf(t.from)}</span>
-                    <ArrowRight className="h-4 w-4 text-indigo-500 shrink-0" />
-                    <span className="font-semibold text-slate-800">{nameOf(t.to)}</span>
-                    <span className="ml-auto font-bold text-indigo-700">{fmtMoney(t.amount)}</span>
+                  <li key={i} className="rounded-lg bg-indigo-50 px-3 py-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-slate-800">{nameOf(t.from)}</span>
+                      <ArrowRight className="h-4 w-4 text-indigo-500 shrink-0" />
+                      <span className="font-semibold text-slate-800">{nameOf(t.to)}</span>
+                      <span className="ml-auto font-bold text-indigo-700">{fmtMoney(t.amount)}</span>
+                      <button
+                        onClick={() => setQrOpen(qrOpen === `${t.from}>${t.to}` ? null : `${t.from}>${t.to}`)}
+                        title="Mã QR chuyển khoản VietQR" aria-label={`Mã QR ${nameOf(t.from)} chuyển cho ${nameOf(t.to)}`}
+                        aria-expanded={qrOpen === `${t.from}>${t.to}`}
+                        className="p-1 rounded-md text-indigo-600 hover:bg-indigo-100"
+                      ><QrCode className="h-4 w-4" /></button>
+                    </div>
+                    {qrOpen === `${t.from}>${t.to}` && (
+                      <TransferQr key={`${t.to}:${Math.round(t.amount)}`} payeeId={t.to} payeeName={nameOf(t.to)} payerName={nameOf(t.from)} amount={t.amount} title={state.title || 'Chia tien'} />
+                    )}
                   </li>
                 ))}
               </ul>

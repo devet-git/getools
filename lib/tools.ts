@@ -6,7 +6,7 @@ import {
   ImageDown, QrCode, Palette, FileArchive,
   FileJson2, Terminal, GitCompareArrows, ListTree, Database, Container, FileCog, Dices, Calculator,
   Globe, Tags, KeyRound, FileLock, FolderTree, NotebookText, ScrollText, AppWindow, LayoutGrid, BookMarked,
-  CalendarDays, Percent, LockKeyhole, HeartPulse, Shuffle, Zap, QrCode as QrCodeIcon, ShieldCheck, FileText, Receipt, Wallet, Landmark, ArrowLeftRight, Speech, Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
+  CalendarDays, Percent, LockKeyhole, HeartPulse, Shuffle, Zap, QrCode as QrCodeIcon, ShieldCheck, FileText, FilePen, Receipt, Wallet, Landmark, ArrowLeftRight, Speech, Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
 } from 'lucide-react';
 
 export interface ToolDef {
@@ -202,6 +202,8 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         description: 'Tạo mã QR (văn bản, URL, Wi-Fi) và đọc mã QR từ ảnh', keywords: ['qr', 'barcode', 'wifi'], badge: 'Mới' },
       { id: 'og-image', name: 'Tạo ảnh Open Graph', href: '/og-image', icon: ImagePlus,
         description: 'Tạo ảnh social card 1200×630 từ mẫu, xuất PNG/JPEG cho meta tag', keywords: ['og', 'opengraph', 'social', 'card', 'thumbnail', 'twitter', 'share', 'banner'], badge: 'Mới' },
+      { id: 'pdf-edit', name: 'Biên tập PDF', href: '/pdf-edit', icon: FilePen,
+        description: 'Đánh số trang, thêm watermark, xoay / xóa / sắp xếp trang và ghép ảnh thành PDF ngay trên trình duyệt', keywords: ['pdf', 'danh so trang', 'watermark', 'xoay', 'xoa trang', 'sap xep', 'anh sang pdf', 'image to pdf', 'page number'], badge: 'Mới' },
       { id: 'color-tools', name: 'Màu sắc & Gradient', href: '/color-tools', icon: Palette,
         description: 'Chọn màu, đổi HEX/RGB/HSL, kiểm tra tương phản, tạo gradient CSS', keywords: ['color', 'colour', 'hex', 'rgb', 'hsl', 'contrast', 'gradient', 'mau'], badge: 'Mới' },
       { id: 'file-tools', name: 'PDF & ZIP', href: '/file-tools', icon: FileArchive,
