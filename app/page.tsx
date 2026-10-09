@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { ALL_TOOLS, TOOL_CATEGORIES, type ToolDef } from '@/lib/tools';
 import {
   subscribeToolPrefs, getRecentSnapshot, getFavoriteSnapshot, getServerToolPrefsSnapshot,
-  parseIds, toggleFavoriteTool,
+  parseIds, toggleFavoriteTool, getGeneralModeSnapshot, getServerGeneralModeSnapshot, setGeneralMode,
 } from '@/lib/recent-tools';
 
 function normalize(s: string): string {
@@ -94,6 +94,8 @@ export default function HomePage() {
   const recentRaw = useSyncExternalStore(subscribeToolPrefs, getRecentSnapshot, getServerToolPrefsSnapshot);
   const favoriteRaw = useSyncExternalStore(subscribeToolPrefs, getFavoriteSnapshot, getServerToolPrefsSnapshot);
 
+  const generalMode = useSyncExternalStore(subscribeToolPrefs, getGeneralModeSnapshot, getServerGeneralModeSnapshot) === '1';
+
   const favoriteIds = useMemo(() => parseIds(favoriteRaw), [favoriteRaw]);
   const favorites = useMemo(() => new Set(favoriteIds), [favoriteIds]);
   const byId = useMemo(() => new Map(ALL_TOOLS.map((t) => [t.id, t])), []);
@@ -109,8 +111,11 @@ export default function HomePage() {
   const q = normalize(query.trim());
   const searching = q.length > 0;
   const filteredCategories = useMemo(
-    () => TOOL_CATEGORIES.map((c) => ({ ...c, items: c.items.filter((t) => matches(t, q)) })).filter((c) => c.items.length > 0),
-    [q],
+    () => TOOL_CATEGORIES
+      .filter((c) => !generalMode || c.general)
+      .map((c) => ({ ...c, items: c.items.filter((t) => matches(t, q)) }))
+      .filter((c) => c.items.length > 0),
+    [q, generalMode],
   );
 
   const openPalette = () => window.dispatchEvent(new CustomEvent('getools:open-palette'));
@@ -185,6 +190,25 @@ export default function HomePage() {
           </section>
         </>
       )}
+
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5">
+        <p className="text-xs text-slate-500">
+          {generalMode ? 'Đang hiện các công cụ phổ thông (đời sống, văn phòng, file, ảnh, AI).' : 'Đang hiện tất cả công cụ, gồm cả nhóm dành cho lập trình viên.'}
+        </p>
+        <div role="group" aria-label="Chế độ hiển thị" className="inline-flex rounded-lg border border-slate-200 p-0.5 text-xs font-semibold">
+          {([[false, 'Tất cả'], [true, 'Phổ thông']] as const).map(([v, label]) => (
+            <button
+              key={label}
+              type="button"
+              aria-pressed={generalMode === v}
+              onClick={() => setGeneralMode(v)}
+              className={cn('rounded-md px-3 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500', generalMode === v ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50')}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {filteredCategories.length > 0 ? (
         filteredCategories.map((cat) => (

@@ -63,3 +63,16 @@ export function toggleFavoriteTool(id: string): boolean {
   write(FAVORITE_KEY, has ? current.filter((x) => x !== id) : [id, ...current]);
   return !has;
 }
+
+// ─── Chế độ "Phổ thông": ẩn các nhóm công cụ dành cho dev ở trang chủ ────────
+
+const GENERAL_KEY = 'getools_general_mode';
+export const getGeneralModeSnapshot = () => {
+  if (typeof window === 'undefined') return '0';
+  try { return localStorage.getItem(GENERAL_KEY) === '1' ? '1' : '0'; } catch { return '0'; }
+};
+export const getServerGeneralModeSnapshot = () => '0';
+export function setGeneralMode(on: boolean) {
+  try { localStorage.setItem(GENERAL_KEY, on ? '1' : '0'); } catch { /* bỏ qua: bị chặn hoặc đầy bộ nhớ */ }
+  notifyStorageSync();
+}

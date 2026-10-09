@@ -6,7 +6,7 @@ import {
   ImageDown, QrCode, Palette, FileArchive,
   FileJson2, Terminal, GitCompareArrows, ListTree, Database, Container, FileCog, Dices, Calculator,
   Globe, Tags, KeyRound, FileLock, FolderTree, NotebookText, ScrollText, AppWindow, LayoutGrid, BookMarked,
-  Receipt, Wallet, Landmark, ArrowLeftRight, Speech, Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
+  CalendarDays, Percent, LockKeyhole, HeartPulse, Shuffle, Receipt, Wallet, Landmark, ArrowLeftRight, Speech, Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
 } from 'lucide-react';
 
 export interface ToolDef {
@@ -27,6 +27,8 @@ export interface ToolDef {
 
 export interface ToolCategory {
   title: string;
+  /** Nhóm dành cho mọi người dùng (không cần kiến thức lập trình) — hiện khi bật chế độ "Phổ thông" ở trang chủ */
+  general?: boolean;
   items: ToolDef[];
 }
 
@@ -117,6 +119,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
   },
   {
     title: 'AI & Đa phương tiện',
+    general: true,
     items: [
       { id: 'tts', name: 'Chuyển văn bản thành giọng nói (TTS)', href: '/tts', icon: Volume2,
         description: 'Đọc văn bản bằng giọng của trình duyệt (miễn phí, có chuẩn hóa số/ngày tiếng Việt); thêm khóa Gemini để dùng giọng AI', keywords: ['tts', 'speech', 'giong noi'], badge: 'TTS', aiEnhanced: true },
@@ -132,7 +135,18 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
   },
   {
     title: 'Đời sống & Văn phòng',
+    general: true,
     items: [
+      { id: 'date-calc', name: 'Tuổi, đếm ngược & ngày làm việc', href: '/date-calc', icon: CalendarDays,
+        description: 'Tính tuổi, đếm ngược sự kiện, ngày làm việc trừ lễ Việt Nam và đổi âm ↔ dương lịch', keywords: ['tuoi', 'sinh nhat', 'dem nguoc', 'ngay lam viec', 'ngay le', 'am lich', 'duong lich', 'tet', 'age', 'countdown', 'lunar', 'holiday'], badge: 'Mới' },
+      { id: 'percent-calc', name: 'Phần trăm, giảm giá & VAT', href: '/percent-calc', icon: Percent,
+        description: 'Tính phần trăm, giảm giá nhiều lớp, thêm/tách VAT và biên lợi nhuận', keywords: ['phan tram', 'percent', 'giam gia', 'discount', 'vat', 'thue gtgt', 'loi nhuan', 'margin', 'markup', 'sale'], badge: 'Mới' },
+      { id: 'health-calc', name: 'BMI & nhu cầu calo', href: '/health-calc', icon: HeartPulse,
+        description: 'Tính BMI theo chuẩn người châu Á, BMR và lượng calo mỗi ngày (TDEE) — chỉ để tham khảo', keywords: ['bmi', 'calo', 'calorie', 'tdee', 'bmr', 'can nang', 'chieu cao', 'suc khoe', 'giam can', 'beo phi'], badge: 'Mới' },
+      { id: 'random-picker', name: 'Bốc thăm & chia nhóm', href: '/random-picker', icon: Shuffle,
+        description: 'Bốc thăm ngẫu nhiên, chia nhóm, xáo thứ tự hoặc quay số công bằng', keywords: ['boc tham', 'chia nhom', 'ngau nhien', 'random', 'quay so', 'xao tron', 'shuffle', 'team', 'lucky draw'], badge: 'Mới' },
+      { id: 'password-gen', name: 'Tạo mật khẩu & cụm từ bảo mật', href: '/password-gen', icon: LockKeyhole,
+        description: 'Sinh mật khẩu ngẫu nhiên hoặc cụm từ dễ nhớ và kiểm tra độ mạnh, chạy ngay trên trình duyệt', keywords: ['mat khau', 'password', 'passphrase', 'random', 'bao mat', 'do manh', 'generator'], badge: 'Mới' },
       { id: 'split-bill', name: 'Chia tiền nhóm', href: '/split-bill', icon: Receipt,
         description: 'Ghi các khoản chi chung, tự tính ai nợ ai và đề xuất chuyển khoản ít lần nhất', keywords: ['chia tien', 'split', 'bill', 'nhom', 'an uong', 'du lich', 'hoa don', 'tra tien'], badge: 'Mới' },
       { id: 'salary', name: 'Lương Gross ⇄ Net', href: '/salary', icon: Wallet,
@@ -172,6 +186,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
   },
   {
     title: 'File & Hình ảnh',
+    general: true,
     items: [
       { id: 'image-tools', name: 'Nén / Đổi cỡ / Đổi định dạng ảnh', href: '/image-tools', icon: ImageDown,
         description: 'PNG, JPG, WebP: nén, đổi kích thước và chuyển định dạng', keywords: ['image', 'compress', 'resize', 'webp', 'png', 'jpg', 'anh'], badge: 'Mới' },

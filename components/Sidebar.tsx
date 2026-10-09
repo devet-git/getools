@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -27,6 +27,7 @@ import { Logo } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAiSettings } from '@/lib/use-ai-config';
 import { TOOL_CATEGORIES, GIT_CATEGORY_TITLE } from '@/lib/tools';
+import { subscribeToolPrefs, getGeneralModeSnapshot, getServerGeneralModeSnapshot } from '@/lib/recent-tools';
 
 /** Lựa chọn mở/đóng mục do người dùng tự đặt: { [tiêu đề mục]: true = mở, false = đóng }. Mặc định mọi mục đóng, trừ mục chứa trang đang xem. */
 const CATEGORY_STATE_KEY = 'getools_sidebar_category_state';
@@ -62,6 +63,9 @@ export function Sidebar() {
       /* bỏ qua: không đọc được localStorage */
     }
   }, []);
+
+  // Chế độ Phổ thông: ẩn nhóm dành cho dev, nhưng vẫn giữ nhóm của trang đang xem
+  const generalMode = useSyncExternalStore(subscribeToolPrefs, getGeneralModeSnapshot, getServerGeneralModeSnapshot) === '1';
 
   // Mục chứa trang đang xem luôn mở (trừ khi người dùng tự đóng) để thấy mình đang ở đâu
   const activeCategory = TOOL_CATEGORIES.find((c) => c.items.some((i) => i.href === pathname))?.title;
@@ -268,7 +272,7 @@ export function Sidebar() {
             {!isSidebarCollapsed && <span>Trang chủ</span>}
           </Link>
 
-          {TOOL_CATEGORIES.map((cat, idx) => {
+          {TOOL_CATEGORIES.filter((cat) => !generalMode || cat.general || cat.title === activeCategory).map((cat, idx) => {
             const isGitCat = cat.title === GIT_CATEGORY_TITLE;
             const isCatCollapsed = !isSidebarCollapsed && !isCategoryExpanded(cat.title);
             return (
