@@ -166,6 +166,170 @@
     }
 }
 
+/* ===== Hiệu ứng tải trang =====
+   Thanh tiến trình (components/RouteProgress.tsx) + màn hình chờ đồ thị Git (components/AppLoader.tsx).
+   Màu đặt bằng biến để chế độ tối chỉ cần đổi biến. */
+:root {
+  --gl-main: #6366f1;
+  --gl-branch: #a855f7;
+  --gl-merge: #f59e0b;
+  --gl-dot-ring: #ffffff;
+  --gl-track: #e0e7ff;
+  --gl-title: #475569;
+  --gl-term-bg: #0f172a;
+  --gl-term-border: #1e293b;
+  --gl-overlay-bg: #f8fafc;
+}
+.dark {
+  --gl-main: #818cf8;
+  --gl-branch: #c084fc;
+  --gl-merge: #fbbf24;
+  --gl-dot-ring: #0a1020;
+  --gl-track: #1f2b40;
+  --gl-title: #b4c0d1;
+  --gl-term-bg: #020617;
+  --gl-term-border: #26334a;
+  --gl-overlay-bg: #0a1020;
+}
+
+/* --- Thanh tiến trình chuyển trang --- */
+.route-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.route-progress[data-visible] { opacity: 1; transition-duration: 0.1s; }
+.route-progress__bar {
+  height: 100%;
+  transform-origin: left center;
+  transform: scaleX(var(--rp, 0));
+  transition: transform 0.25s ease-out;
+  background: linear-gradient(90deg, var(--gl-main), var(--gl-branch));
+  box-shadow: 0 0 10px color-mix(in oklab, var(--gl-branch) 60%, transparent);
+}
+.route-progress__head {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--rp, 0) * 100%);
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 9999px;
+  background: var(--gl-merge);
+  box-shadow: 0 0 0 2px var(--gl-main), 0 0 12px 3px color-mix(in oklab, var(--gl-merge) 70%, transparent);
+  transition: left 0.25s ease-out;
+  animation: gl-head-pulse 0.9s ease-in-out infinite alternate;
+}
+@keyframes gl-head-pulse { to { transform: scale(1.35); } }
+
+/* --- Màn hình chờ: đồ thị Git tự vẽ + terminal mini --- */
+.gl-loader {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1rem;
+  animation: gl-fade-in 0.3s ease 0.1s both; /* trang mở nhanh thì không kịp nháy */
+}
+@keyframes gl-fade-in { from { opacity: 0; transform: translateY(6px); } }
+
+/* Lớp phủ khi chuyển trang chậm: phủ vùng nội dung, dưới header mobile, chừa sidebar (left đặt bằng lg:left-*) */
+.gl-overlay {
+  position: fixed;
+  top: var(--app-header);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--gl-overlay-bg) 78%, transparent);
+  backdrop-filter: blur(3px);
+}
+
+.gl-graph { width: min(320px, 85vw); height: auto; overflow: visible; }
+.gl-line {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  animation: gl-draw 3.6s ease-in-out infinite both;
+}
+.gl-line--main { stroke: var(--gl-main); }
+.gl-line--branch { stroke: var(--gl-branch); animation-delay: 0.5s; }
+@keyframes gl-draw {
+  0% { stroke-dashoffset: 100; }
+  22%, 62% { stroke-dashoffset: 0; }
+  80%, 100% { stroke-dashoffset: -100; }
+}
+
+.gl-commit, .gl-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gl-pop 3.6s ease-out infinite both;
+}
+.gl-commit { fill: var(--gl-main); stroke: var(--gl-dot-ring); stroke-width: 3; }
+.gl-commit--branch { fill: var(--gl-branch); }
+.gl-commit--merge { fill: var(--gl-merge); }
+@keyframes gl-pop {
+  0% { transform: scale(0); opacity: 0; }
+  6% { transform: scale(1.4); opacity: 1; }
+  11%, 62% { transform: scale(1); opacity: 1; }
+  72%, 100% { transform: scale(0); opacity: 0; }
+}
+.gl-ring { fill: none; stroke: var(--gl-merge); stroke-width: 2; animation-name: gl-ring; }
+@keyframes gl-ring {
+  0% { transform: scale(1); opacity: 0; }
+  2% { opacity: 0.9; }
+  30%, 100% { transform: scale(2.6); opacity: 0; }
+}
+
+.gl-title {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--gl-title);
+}
+.gl-title strong { color: var(--gl-main); font-weight: 600; }
+.gl-title__icon { width: 1rem; height: 1rem; color: var(--gl-main); }
+
+.gl-terminal {
+  width: min(360px, 90vw);
+  min-height: 2.5rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--gl-term-border);
+  background: var(--gl-term-bg);
+  color: #e2e8f0;
+  font: 0.75rem/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  box-shadow: 0 10px 30px -12px rgb(15 23 42 / 0.45);
+}
+.gl-terminal__prompt { color: #34d399; }
+.gl-terminal__caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1.05em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: #a5b4fc;
+  animation: gl-blink 1s steps(1) infinite;
+}
+@keyframes gl-blink { 50% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gl-line, .gl-commit, .route-progress__head, .gl-terminal__caret { animation: none; }
+  .gl-line { stroke-dashoffset: 0; }
+  .gl-ring { display: none; }
+}
+
 /* ===== Dark mode (TỰ SINH bởi scripts/gen-dark-theme.js — đừng sửa tay; chạy: npm run gen:dark) =====
    Quét mọi lớp màu Tailwind đang dùng trong mã nguồn và ghi đè khi có class .dark trên <html>.
    Không đảo biến màu để giữ nguyên text-white / header tối. */

@@ -14,6 +14,8 @@ import { SmartPasteModal } from '@/components/SmartPasteModal';
 import { SnippetsDrawer } from '@/components/SnippetsDrawer';
 import { HandoffReceiver } from '@/components/HandoffReceiver';
 import { ShareBoot } from '@/components/ShareBoot';
+import { RouteProgress } from '@/components/RouteProgress';
+import { NavigationOverlay } from '@/components/AppLoader';
 import { Check } from 'lucide-react';
 
 function GlobalToast() {
@@ -41,6 +43,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <div className="h-dvh overflow-hidden bg-slate-50 flex flex-col lg:flex-row">
       <Sidebar />
+      <RouteProgress />
+      <NavigationOverlay sidebarCollapsed={isSidebarCollapsed} />
       <GlobalToast />
       <CommandPalette />
       <ToolTracker />

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo, useSyncExternalStore } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAppRouter } from '@/hooks/use-app-router';
 import {
   Mic,
   Square,
@@ -167,7 +167,7 @@ const AI_TASK_LABEL: Record<AiTaskKey, string> = {
 };
 
 export default function SpeechToTextPage() {
-  const router = useRouter();
+  const router = useAppRouter();
   const { showToast } = useApp();
   const ai = useAiSettings();
 

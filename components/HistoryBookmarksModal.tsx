@@ -23,7 +23,7 @@ import {
   subscribeStorageSync,
 } from '@/lib/storage';
 import { useApp } from '@/components/AppContext';
-import { useRouter } from 'next/navigation';
+import { useAppRouter } from '@/hooks/use-app-router';
 import { toolHref } from '@/lib/tools';
 
 const emptyArrayString = () => '[]';
@@ -55,7 +55,7 @@ export function HistoryBookmarksModal() {
     showToast 
   } = useApp();
   
-  const router = useRouter();
+  const router = useAppRouter();
 
   const rawBookmarks = useSyncExternalStore(subscribeStorageSync, getBookmarksSnapshot, emptyArrayString);
   const bookmarks: HistoryItem[] = useMemo(() => {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAppRouter } from '@/hooks/use-app-router';
 import { X, Search, Pin, PinOff, Pencil, Trash2, Copy, ExternalLink, Bookmark, History, Check, ArrowUpFromLine } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
 import { getTool } from '@/lib/tools';
@@ -19,7 +19,7 @@ function fold(s: string): string {
 }
 
 export function SnippetsDrawer() {
-  const router = useRouter();
+  const router = useAppRouter();
   const { showToast } = useApp();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<'saved' | 'history'>('saved');

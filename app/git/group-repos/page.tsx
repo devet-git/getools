@@ -24,11 +24,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { fetchGroupOrOrgRepos, GitRepoItem } from '@/lib/downloader';
 import { useApp } from '@/components/AppContext';
-import { useRouter } from 'next/navigation';
+import { useAppRouter } from '@/hooks/use-app-router';
 import { toolHref } from '@/lib/tools';
 
 export default function GroupReposPage() {
-  const router = useRouter();
+  const router = useAppRouter();
   const { keys, showToast } = useApp();
 
   const [groupUrl, setGroupUrl] = useState('');

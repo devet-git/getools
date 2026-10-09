@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAppRouter } from '@/hooks/use-app-router';
 import { Search, CornerDownLeft, ClipboardPaste, Library, Settings } from 'lucide-react';
 import { TOOL_CATEGORIES, type ToolDef } from '@/lib/tools';
 import { useAiSettings } from '@/lib/use-ai-config';
@@ -53,7 +53,7 @@ function score(e: Entry, terms: string[]): number {
 
 export function CommandPalette() {
   const { isToolLocked } = useAiSettings();
-  const router = useRouter();
+  const router = useAppRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);

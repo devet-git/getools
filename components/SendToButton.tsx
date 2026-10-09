@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAppRouter } from '@/hooks/use-app-router';
 import { Send, Bookmark, Copy, ChevronDown, ArrowRight, Check } from 'lucide-react';
 import { useApp } from '@/components/AppContext';
 import { getTool, type ToolDef } from '@/lib/tools';
@@ -24,7 +24,7 @@ interface SendToButtonProps {
 }
 
 export function SendToButton({ text, fromToolId, className = '' }: SendToButtonProps) {
-  const router = useRouter();
+  const router = useAppRouter();
   const { showToast } = useApp();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);

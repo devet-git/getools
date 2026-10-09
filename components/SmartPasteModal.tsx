@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAppRouter } from '@/hooks/use-app-router';
 import { ClipboardPaste, CornerDownLeft, ChevronRight, ShieldCheck, Wand2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { useApp } from '@/components/AppContext';
@@ -39,7 +39,7 @@ function countLines(s: string): number {
 }
 
 export function SmartPasteModal() {
-  const router = useRouter();
+  const router = useAppRouter();
   const { showToast } = useApp();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
