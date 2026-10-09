@@ -69,6 +69,15 @@ npm run build
 GOOGLE_CLIENT_ID="1234567890-abc....apps.googleusercontent.com" npm start
 ```
 
+**Vercel**:
+
+1. **Project → Settings → Environment Variables** → thêm `GOOGLE_CLIENT_ID` (dán giá trị **không** kèm dấu ngoặc kép),
+   tích đúng môi trường cần dùng: **Production** (domain chính) và/hoặc **Preview** (các URL `*.vercel.app` của từng nhánh).
+2. **Deployments → bản mới nhất → ⋯ → Redeploy**. Vercel chỉ gắn biến môi trường vào deployment tạo **sau** khi thêm biến —
+   deployment cũ không bao giờ thấy biến mới.
+3. Thêm domain Vercel vào **Authorized JavaScript origins** của Client ID (vd. `https://getools.vercel.app`). URL preview
+   mỗi nhánh có domain riêng, cần thêm riêng nếu muốn dùng ở đó.
+
 **Cloud Run**:
 
 ```bash
@@ -104,7 +113,8 @@ Kiểm tra nhanh: mở `https://<địa-chỉ-app>/api/drive/config` phải th�
 
 | Hiện tượng | Nguyên nhân / cách sửa |
 |---|---|
-| Thẻ báo "Máy chủ chưa bật tính năng này" | Chưa đặt `GOOGLE_CLIENT_ID`, hoặc chưa khởi động lại sau khi đặt. Kiểm tra `/api/drive/config`. |
+| Thẻ báo "Máy chủ chưa bật tính năng này" | `/api/drive/config` trả `{"clientId":null}`: chưa đặt `GOOGLE_CLIENT_ID`, chưa khởi động lại / **Redeploy** (Vercel) sau khi đặt, hoặc biến không bật cho môi trường đang mở (Production ≠ Preview). |
+| Thẻ báo "Không đọc được cấu hình Google Drive…" | Bản đang chạy chưa có route `/api/drive/config` (deploy cũ) hoặc route lỗi — deploy lại bản mới nhất, xem log của server/Vercel Functions. |
 | Popup Google báo `Error 400: origin_mismatch` / `redirect_uri_mismatch` | Địa chỉ đang mở app chưa có trong **Authorized JavaScript origins** (chú ý `http` ≠ `https`, `localhost` ≠ `127.0.0.1`, cổng). Thêm rồi đợi vài phút. |
 | `Error 403: access_denied` — app chưa được Google xác minh | App đang ở chế độ **Testing**: thêm email vào **Test users**, hoặc **Publish app**. |
 | "Trình duyệt chặn cửa sổ đăng nhập" | Cho phép popup với trang này rồi bấm lại. |

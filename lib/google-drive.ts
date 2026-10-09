@@ -56,14 +56,24 @@ export class DriveAuthError extends Error {
 
 let clientIdPromise: Promise<string | null> | null = null;
 
-/** Client ID OAuth của ứng dụng (biến môi trường GOOGLE_CLIENT_ID trên máy chủ); null nếu chưa cấu hình. */
+/**
+ * Client ID OAuth của ứng dụng (biến môi trường GOOGLE_CLIENT_ID trên máy chủ).
+ * null = máy chủ trả lời được nhưng chưa đặt biến; lỗi = không đọc được cấu hình (route lỗi / mất mạng),
+ * tách riêng để không báo nhầm "chưa cấu hình".
+ */
 export function getClientId(): Promise<string | null> {
-  clientIdPromise ??= fetch('/api/drive/config')
-    .then((r) => (r.ok ? r.json() : null))
-    .then((j: { clientId?: string | null } | null) => j?.clientId || null)
+  clientIdPromise ??= fetch('/api/drive/config', { cache: 'no-store' })
     .catch(() => {
-      clientIdPromise = null; // lỗi mạng: lần sau thử lại
-      return null;
+      throw new Error('Không kết nối được máy chủ để đọc cấu hình Google Drive (mất mạng?).');
+    })
+    .then(async (r) => {
+      if (!r.ok) throw new Error(`Không đọc được cấu hình Google Drive: /api/drive/config trả về lỗi ${r.status}.`);
+      const j = (await r.json()) as { clientId?: string | null };
+      return j.clientId || null;
+    })
+    .catch((e: Error) => {
+      clientIdPromise = null; // lần sau thử lại
+      throw e;
     });
   return clientIdPromise;
 }

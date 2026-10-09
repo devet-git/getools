@@ -107,8 +107,9 @@ export function DriveSyncSection() {
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600 space-y-1">
           <div className="font-medium text-slate-700">Máy chủ chưa bật tính năng này</div>
           <div>
-            Người quản trị cần tạo OAuth Client ID trên Google Cloud và đặt biến môi trường <code>GOOGLE_CLIENT_ID</code>, rồi khởi động lại
-            ứng dụng. Xem hướng dẫn trong <code>docs/google-drive-sync.md</code>.
+            Máy chủ chưa nhận được biến môi trường <code>GOOGLE_CLIENT_ID</code>. Đặt biến rồi khởi động lại ứng dụng — trên Vercel
+            phải <strong>Redeploy</strong> sau khi thêm biến, và biến cần bật cho đúng môi trường (Production / Preview). Xem
+            <code>docs/google-drive-sync.md</code>.
           </div>
         </div>
       )}
