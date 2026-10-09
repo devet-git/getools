@@ -512,6 +512,7 @@
 .dark .bg-violet-300{background-color:oklch(60.6% 0.25 292.717 / 0.35)}
 .dark .bg-violet-50{background-color:oklch(60.6% 0.25 292.717 / 0.1)}
 .dark .bg-white{background-color:var(--surface)}
+.dark .bg-white\/10{background-color:color-mix(in oklab, var(--surface) 10%, transparent)}
 .dark .bg-yellow-100{background-color:oklch(79.5% 0.184 86.047 / 0.16)}
 .dark .bg-yellow-200{background-color:oklch(79.5% 0.184 86.047 / 0.26)}
 .dark .bg-yellow-300{background-color:oklch(79.5% 0.184 86.047 / 0.35)}
@@ -1050,6 +1051,7 @@
 .dark .hover\:bg-violet-50:hover{background-color:oklch(60.6% 0.25 292.717 / 0.1)}
 .dark .hover\:bg-white:hover{background-color:var(--surface)}
 .dark .hover\:bg-white\/10:hover{background-color:color-mix(in oklab, var(--surface) 10%, transparent)}
+.dark .hover\:bg-white\/20:hover{background-color:color-mix(in oklab, var(--surface) 20%, transparent)}
 .dark .hover\:bg-yellow-100:hover{background-color:oklch(79.5% 0.184 86.047 / 0.16)}
 .dark .hover\:bg-yellow-200:hover{background-color:oklch(79.5% 0.184 86.047 / 0.26)}
 .dark .hover\:bg-yellow-300:hover{background-color:oklch(79.5% 0.184 86.047 / 0.35)}

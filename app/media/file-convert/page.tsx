@@ -10,6 +10,7 @@ import { formatBytes } from '@/lib/file-tools';
 import { ACCEPT, convertersFor, kindLabel, runConverter, supportSummary, unsupportedReason } from '@/lib/file-convert/registry';
 import { DEFAULT_OPTIONS, type ConvertOutput, type Converter } from '@/lib/file-convert/types';
 import { dedupeNames, MAX_FILE_BYTES, safeBase } from '@/lib/file-convert/util';
+import { useLeaveGuard } from '@/hooks/use-leave-guard';
 
 const card = 'bg-white rounded-xl border border-slate-200/90 shadow-xs p-3.5';
 const MAX_FILES = 100;
@@ -55,6 +56,7 @@ export default function FileConvertPage() {
   const [running, setRunning] = useState(false);
   const [zipping, setZipping] = useState(false);
   const [notice, setNotice] = useState('');
+  useLeaveGuard(running || zipping, 'Đang chuyển đổi file, rời trang sẽ dừng và mất kết quả chưa tải về.');
   const inputRef = useRef<HTMLInputElement>(null);
   const nextId = useRef(1);
   // Bản mới nhất của danh sách để vòng chuyển tuần tự đọc đúng lựa chọn hiện tại

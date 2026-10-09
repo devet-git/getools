@@ -360,7 +360,8 @@ export async function downloadReleaseAsset(
   asset: GitHubReleaseAsset,
   owner: string,
   repo: string,
-  keys?: ApiKeys
+  keys?: ApiKeys,
+  onProgress?: (percent: number | null) => void,
 ) {
   if (keys?.github) {
     try {
@@ -372,8 +373,7 @@ export async function downloadReleaseAsset(
       };
       const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/assets/${asset.id}`, { headers });
       if (res.ok) {
-        const blob = await res.blob();
-        saveAs(blob, asset.name);
+        saveAs(await readWithProgress(res, asset.size, onProgress), asset.name);
         return;
       }
     } catch (e) {
@@ -390,6 +390,23 @@ export async function downloadReleaseAsset(
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+}
+
+/** Đọc thân response theo luồng để báo % (dựa trên Content-Length hoặc kích thước đã biết) */
+async function readWithProgress(res: Response, knownSize: number, onProgress?: (percent: number | null) => void): Promise<Blob> {
+  const total = Number(res.headers.get('content-length')) || knownSize || 0;
+  if (!res.body || !onProgress) return res.blob();
+  const reader = res.body.getReader();
+  const parts: Uint8Array[] = [];
+  let received = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    parts.push(value);
+    received += value.length;
+    onProgress(total > 0 ? Math.min(99, (received / total) * 100) : null);
+  }
+  return new Blob(parts as BlobPart[], { type: res.headers.get('content-type') || 'application/octet-stream' });
 }
 
 export interface ApiKeys {

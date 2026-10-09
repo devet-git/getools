@@ -43,6 +43,7 @@ import {
 import { useApp } from '@/components/AppContext';
 import Link from 'next/link';
 import { toolHref } from '@/lib/tools';
+import { getJobsSnapshot, getServerJobsSnapshot, runJob, subscribeJobs } from '@/lib/background-jobs';
 
 const DEFAULT_ZIP_OPTIONS: ZipOptions = {
   namingRule: 'smart',
@@ -139,11 +140,14 @@ function DownloaderContent() {
     }
   }, [rawHistory]);
 
-  const [progress, setProgress] = useState<DownloadProgress>({
-    status: 'idle',
-    message: '',
-    progress: 0,
-  });
+  // Tiến trình lấy từ tác vụ nền gần nhất của tool này: rời trang rồi quay lại vẫn thấy việc đang tải
+  const jobs = useSyncExternalStore(subscribeJobs, getJobsSnapshot, getServerJobsSnapshot);
+  const job = jobs.findLast((j) => j.toolId === 'download');
+  const progress: DownloadProgress = !job
+    ? { status: 'idle', message: '', progress: 0 }
+    : job.status === 'running'
+      ? { status: 'downloading', message: job.message, progress: job.percent ?? 0 }
+      : { status: job.status, message: job.message, progress: job.status === 'done' ? 100 : 0 };
 
   const parsed = useMemo(() => parseUrl(url), [url]);
   const isValid = parsed !== null;
@@ -182,37 +186,34 @@ function DownloaderContent() {
 
   const handleDownload = async () => {
     if (!url) return;
+    // Chốt thông tin trước khi chạy: người dùng có thể sửa ô URL hoặc rời trang trong lúc tải
+    const target = url.trim();
+    const info = parsed;
+    // File lẻ được tải nguyên bản (không nén) nên dùng tên file; thư mục / repo dùng tên ZIP
+    const targetName = info?.type === 'file' && info.path
+      ? info.path.split('/').pop() || info.path
+      : previewZipName || (info?.path ? info.path.split('/').pop() || info.repo : (info?.repo || 'download.zip'));
 
     try {
-      setProgress({
-        status: 'fetching_metadata',
-        message: 'Đang chuẩn bị và phân tích đường dẫn...',
-        progress: 0,
-      });
-
-      await downloadFromUrl(url, setProgress, keys, zipOptions);
-
-      const targetName = previewZipName || (parsed?.path ? parsed.path.split('/').pop() || parsed.repo : (parsed?.repo || 'download.zip'));
-
-      addHistoryItem({
-        url: url.trim(),
-        provider: parsed?.provider || 'github',
-        type: parsed?.type === 'file' ? 'file' : 'folder',
-        name: targetName,
-        repoName: parsed ? `${parsed.owner}/${parsed.repo}` : undefined,
-        branch: parsed?.branch,
+      await runJob('download', `Tải ${targetName}`, async ({ report }) => {
+        report({ percent: 0, message: 'Đang chuẩn bị và phân tích đường dẫn...' });
+        await downloadFromUrl(target, (pr) => report({ percent: pr.progress, message: pr.message }), keys, zipOptions);
+        addHistoryItem({
+          url: target,
+          provider: info?.provider || 'github',
+          type: info?.type === 'file' ? 'file' : 'folder',
+          name: targetName,
+          repoName: info ? `${info.owner}/${info.repo}` : undefined,
+          branch: info?.branch,
+        });
+        return `Đã tải xuống ${targetName}`;
       });
       showToast(`Đã tải xuống thành công file ${targetName}!`);
     } catch (error: unknown) {
-      console.error(error);
-      const errorMessage = error instanceof Error ? error.message : 'Có lỗi không xác định xảy ra khi tải';
-      setProgress({
-        status: 'error',
-        message: errorMessage,
-        progress: 0,
-      });
+      console.error(error); // lỗi đã hiện ở khung tiến trình / khu tác vụ nền
     }
   };
+
 
   return (
     <div className="space-y-3.5">

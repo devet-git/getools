@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { 
   Package, 
   Search, 
@@ -27,6 +27,7 @@ import {
 import { addHistoryItem } from '@/lib/storage';
 import { useApp } from '@/components/AppContext';
 import { showAlert } from '@/lib/dialog';
+import { getJobsSnapshot, getServerJobsSnapshot, runJob, subscribeJobs } from '@/lib/background-jobs';
 
 export default function ReleasesPage() {
   const { keys, showToast, refreshStats } = useApp();
@@ -36,7 +37,9 @@ export default function ReleasesPage() {
   const [releasesData, setReleasesData] = useState<{ owner: string; repo: string; releases: GitHubRelease[] } | null>(null);
   const [releasesError, setReleasesError] = useState('');
   const [expandedReleaseIds, setExpandedReleaseIds] = useState<number[]>([]);
-  const [downloadingAssetId, setDownloadingAssetId] = useState<number | null>(null);
+  // Asset đang tải (từ tác vụ nền): quay lại trang vẫn thấy nút đang tải
+  const jobs = useSyncExternalStore(subscribeJobs, getJobsSnapshot, getServerJobsSnapshot);
+  const downloadingIds = new Set(jobs.filter((j) => j.toolId === 'releases' && j.status === 'running').map((j) => j.key));
 
   const handleFetchReleases = async (customRepo?: string) => {
     const target = customRepo || releaseInput;
@@ -73,7 +76,6 @@ export default function ReleasesPage() {
 
   const handleDownloadReleaseAsset = async (asset: GitHubReleaseAsset, owner: string, repo: string) => {
     try {
-      setDownloadingAssetId(asset.id);
       showToast(`Đang tải file ${asset.name}...`);
 
       addHistoryItem({
@@ -86,13 +88,17 @@ export default function ReleasesPage() {
       });
       refreshStats();
 
-      await downloadReleaseAsset(asset, owner, repo, keys);
+      // Chạy như tác vụ nền: rời trang vẫn tải tiếp, tiến trình hiện ở góc màn hình
+      await runJob('releases', `Tải ${asset.name}`, async ({ report }) => {
+        report({ percent: null, message: formatBytes(asset.size) });
+        await downloadReleaseAsset(asset, owner, repo, keys, (percent) =>
+          report({ percent, message: percent == null ? 'Đang tải…' : `${Math.round(percent)}% · ${formatBytes(asset.size)}` }));
+        return `Đã tải xuống ${asset.name}`;
+      }, String(asset.id));
       showToast(`Đã tải xuống thành công ${asset.name}!`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Lỗi khi tải asset';
       void showAlert(`Không thể tải asset: ${msg}`, { title: 'Tải asset thất bại' });
-    } finally {
-      setDownloadingAssetId(null);
     }
   };
 
@@ -296,7 +302,7 @@ export default function ReleasesPage() {
                             ) : (
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                 {release.assets.map((asset) => {
-                                  const isDownloading = downloadingAssetId === asset.id;
+                                  const isDownloading = downloadingIds.has(String(asset.id));
 
                                   return (
                                     <div 

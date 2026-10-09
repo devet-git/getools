@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { beginNavigation, endNavigation, subscribeNavigation, getPendingPath, getServerPendingPath } from '@/lib/route-progress';
+import { confirmLeave, pendingLeaveMessage } from '@/lib/leave-guard';
 
 /** Thời gian tối thiểu thanh hiện trên màn hình, kể cả khi trang đã prefetch và mở tức thì */
 const MIN_VISIBLE_MS = 380;
@@ -15,6 +16,7 @@ const GIVE_UP_AFTER = 12_000;
  */
 export function RouteProgress() {
   const pathname = usePathname();
+  const router = useRouter();
   const pending = useSyncExternalStore(subscribeNavigation, getPendingPath, getServerPendingPath);
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
@@ -27,11 +29,23 @@ export function RouteProgress() {
       const a = (e.target as Element | null)?.closest?.('a[href]');
       if (!(a instanceof HTMLAnchorElement) || a.hasAttribute('download')) return;
       if (a.target && a.target !== '_self') return;
+      const url = new URL(a.href, window.location.href);
+      const leaving = url.origin === window.location.origin && url.pathname !== window.location.pathname;
+      // Trang đang có việc dở: chặn link (Next bỏ qua click đã preventDefault), hỏi rồi mới chuyển
+      if (leaving && pendingLeaveMessage()) {
+        e.preventDefault();
+        void confirmLeave().then((ok) => {
+          if (!ok) return;
+          beginNavigation(a.href);
+          router.push(url.pathname + url.search + url.hash);
+        });
+        return;
+      }
       beginNavigation(a.href);
     };
     document.addEventListener('click', onClick, true);
     return () => document.removeEventListener('click', onClick, true);
-  }, []);
+  }, [router]);
 
   // Trang mới đã hiển thị
   useEffect(() => {

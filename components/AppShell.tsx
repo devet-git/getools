@@ -18,6 +18,7 @@ import { RouteProgress } from '@/components/RouteProgress';
 import { NavigationOverlay } from '@/components/AppLoader';
 import { DialogHost } from '@/components/DialogHost';
 import { TooltipHost } from '@/components/TooltipHost';
+import { BackgroundDock } from '@/components/BackgroundDock';
 import { startDriveAutoSync } from '@/lib/drive-sync-client';
 import { Check } from 'lucide-react';
 
@@ -66,6 +67,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <HistoryBookmarksModal />
       <DialogHost />
       <TooltipHost />
+      <BackgroundDock />
 
       {/* Main Content Area */}
       <main

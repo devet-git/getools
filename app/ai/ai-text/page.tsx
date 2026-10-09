@@ -38,6 +38,7 @@ import {
 
 import { SendToButton } from '@/components/SendToButton';
 import { toolHref } from '@/lib/tools';
+import { useLeaveGuard } from '@/hooks/use-leave-guard';
 
 type Mode = 'summarize' | 'translate' | 'explain-code';
 const MODES: { id: Mode; label: string }[] = [
@@ -245,6 +246,7 @@ export default function AiTextPage() {
   const [resultSource, setResultSource] = useState<Source>('ai');
   const [view, setView] = useState<'rendered' | 'raw'>('rendered');
   const [loading, setLoading] = useState(false);
+  useLeaveGuard(loading, 'Đang xử lý văn bản, rời trang sẽ hủy kết quả.');
   const [loadingMsg, setLoadingMsg] = useState('');
   const [dl, setDl] = useState<number | null>(null);
   const [error, setError] = useState('');

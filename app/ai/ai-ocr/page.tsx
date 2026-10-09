@@ -20,6 +20,7 @@ import {
   preprocess, preprocessSignature, rotate90, sanitizeLangs, toAiLang, toGray, isDarkImage,
   type CleanOptions, type OcrErrorInfo, type OcrLine, type OcrWorkerHandle, type PreprocessOptions, type ProgressInfo, type PsmMode, type RgbaImage,
 } from '@/lib/ocr-local';
+import { useLeaveGuard } from '@/hooks/use-leave-guard';
 
 const MAX_AI_DIM = 2000;
 const MAX_SOURCE_BYTES = 25 * 1024 * 1024;
@@ -172,6 +173,7 @@ export default function AiOcrPage() {
   const [aiLabel, setAiLabel] = useState('');
   const [aiView, setAiView] = useState<'rendered' | 'raw'>('rendered');
   const [aiLoading, setAiLoading] = useState(false);
+  useLeaveGuard(running || aiLoading, 'Đang nhận dạng chữ, rời trang sẽ hủy và mất kết quả.');
   const [aiError, setAiError] = useState('');
   const [aiNote, setAiNote] = useState('');
   const aiAbort = useRef<AbortController | null>(null);

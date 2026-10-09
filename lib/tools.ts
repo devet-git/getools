@@ -258,7 +258,7 @@ const CATEGORY_SPECS: CategorySpec[] = [
     general: true,
     items: [
       { id: 'pomodoro', name: 'Pomodoro & bấm giờ', icon: Timer,
-        description: 'Làm việc tập trung theo chu kỳ 25/5 phút, có chuông báo, thông báo và đếm số phiên trong ngày', keywords: ['pomodoro', 'tap trung', 'bam gio', 'hen gio', 'timer', 'focus', 'nghi ngoi', 'hoc tap'], badge: 'Mới' },
+        description: 'Pomodoro, đếm ngược và bấm giờ (có vòng) chạy nền — sang công cụ khác hay đóng tab vẫn đếm, có chuông và thông báo', keywords: ['pomodoro', 'tap trung', 'bam gio', 'hen gio', 'dem nguoc', 'timer', 'stopwatch', 'countdown', 'focus', 'nghi ngoi', 'hoc tap', 'lap'], badge: 'Mới' },
       { id: 'checklist', name: 'Checklist', icon: ListChecks,
         description: 'Danh sách việc cần làm lưu trên trình duyệt, có mẫu dựng sẵn cho du lịch, chuyển nhà, họp, đi chợ Tết', keywords: ['checklist', 'viec can lam', 'todo', 'to do', 'danh sach', 'du lich', 'chuyen nha', 'ghi chu'], badge: 'Mới' },
       { id: 'calendar-event', name: 'Tạo lịch hẹn (.ics)', icon: CalendarPlus,

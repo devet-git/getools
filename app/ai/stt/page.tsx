@@ -61,6 +61,7 @@ import {
   type SttSegment,
 } from '@/lib/stt-local';
 import { toolHref } from '@/lib/tools';
+import { useLeaveGuard } from '@/hooks/use-leave-guard';
 
 interface STTHistoryItem {
   id: string;
@@ -209,6 +210,8 @@ export default function SpeechToTextPage() {
 
   // AI
   const [aiRunning, setAiRunning] = useState<AiTaskKey | null>(null);
+  useLeaveGuard(isRecording, 'Đang ghi âm. Rời trang sẽ dừng ghi âm.');
+  useLeaveGuard(!!aiRunning, 'AI đang xử lý bản ghi, rời trang sẽ mất kết quả.');
   const [aiResult, setAiResult] = useState<{ task: AiTaskKey; text: string } | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiParagraphs, setAiParagraphs] = useState(true);
