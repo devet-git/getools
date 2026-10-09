@@ -3,13 +3,14 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { AlertCircle, CheckCircle2, Hourglass, Loader2, Pause, Play, Timer, Watch, X } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Hourglass, Loader2, Pause, Play, SkipBack, SkipForward, Square, Timer, Volume2, Watch, X } from 'lucide-react';
 import { useNow } from '@/hooks/use-now';
 import { countdownPause, countdownRemaining, pomodoroRemaining, pomodoroToggle, stopwatchElapsed, stopwatchToggle } from '@/lib/clock';
 import { getClockSnapshot, getServerClockSnapshot, subscribeClock, unlockClockAudio, updateClock } from '@/lib/clock-store';
 import { PHASE_LABEL, formatClock } from '@/lib/pomodoro';
 import { getTool, toolHref } from '@/lib/tools';
 import { dismissJob, getJobsSnapshot, getServerJobsSnapshot, subscribeJobs, type BackgroundJob } from '@/lib/background-jobs';
+import { getServerTtsDockSnapshot, getTtsAudio, getTtsDockSnapshot, stopTts, subscribeTtsDock, ttsSpeaker, type TtsDockState } from '@/lib/tts-player';
 
 const CLOCK_HREF = toolHref('pomodoro');
 
@@ -94,6 +95,59 @@ function JobCard({ job }: { job: BackgroundJob }) {
   );
 }
 
+const TTS_HREF = toolHref('tts');
+
+function IconBtn({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" onClick={onClick} aria-label={label} data-tooltip={label}
+      className="flex h-7 w-7 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+      {children}
+    </button>
+  );
+}
+
+/** Trình phát thu nhỏ của tool TTS (đọc tiếp khi người dùng đã sang công cụ khác) */
+function TtsCard({ tts }: { tts: NonNullable<TtsDockState> }) {
+  const playing = tts.kind === 'browser' ? tts.status === 'playing' : tts.playing;
+  const toggle = () => {
+    if (tts.kind === 'browser') {
+      if (playing) ttsSpeaker.pause();
+      else ttsSpeaker.resume();
+    } else {
+      const a = getTtsAudio();
+      if (!a) return;
+      if (playing) a.pause();
+      else void a.play().catch(() => {});
+    }
+  };
+  const subtitle = tts.kind === 'browser'
+    ? `Câu ${tts.index + 1}/${tts.total} · ${tts.sentence}`
+    : `${formatClock(tts.currentTime)} / ${formatClock(tts.duration)}${tts.text ? ` · ${tts.text}` : ''}`;
+  return (
+    <div className="w-72 rounded-xl border border-slate-200 bg-white p-2.5 shadow-lg">
+      <Link href={TTS_HREF} className="flex items-start gap-2 rounded-lg hover:bg-slate-50" data-tooltip="Mở Chuyển văn bản thành giọng nói">
+        <Volume2 className={`mt-0.5 h-4 w-4 shrink-0 text-indigo-600 ${playing ? 'animate-pulse' : ''}`} />
+        <span className="min-w-0 flex-1">
+          <span className="block text-xs font-semibold text-slate-800">{playing ? 'Đang đọc' : 'Đã tạm dừng'}{tts.kind === 'ai' ? ' · giọng AI' : ''}</span>
+          <span className="block truncate text-[11px] text-slate-500">{subtitle}</span>
+        </span>
+      </Link>
+      <div className="mt-1.5 flex items-center justify-center gap-1">
+        {tts.kind === 'browser' && (
+          <IconBtn label="Câu trước" onClick={() => ttsSpeaker.seek(Math.max(0, tts.index - 1))}><SkipBack className="h-3.5 w-3.5" /></IconBtn>
+        )}
+        <IconBtn label={playing ? 'Tạm dừng' : 'Tiếp tục'} onClick={toggle}>
+          {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+        </IconBtn>
+        {tts.kind === 'browser' && (
+          <IconBtn label="Câu sau" onClick={() => ttsSpeaker.seek(Math.min(tts.total - 1, tts.index + 1))}><SkipForward className="h-3.5 w-3.5" /></IconBtn>
+        )}
+        <IconBtn label="Dừng đọc" onClick={stopTts}><Square className="h-3.5 w-3.5" /></IconBtn>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Khu nổi ở góc dưới: đồng hồ đang chạy và tác vụ nền (tải repo, asset...) khi người dùng ở trang khác — bấm để
  * quay lại tool; đồng thời cập nhật tiêu đề tab theo thời gian còn lại. Gắn một lần trong AppShell — việc đếm/báo giờ do lib/clock-store lo.
@@ -103,6 +157,8 @@ export function BackgroundDock() {
   const clock = useSyncExternalStore(subscribeClock, getClockSnapshot, getServerClockSnapshot);
   const { pomodoro: p, countdown: c, stopwatch: w } = clock;
   const allJobs = useSyncExternalStore(subscribeJobs, getJobsSnapshot, getServerJobsSnapshot);
+  const ttsState = useSyncExternalStore(subscribeTtsDock, getTtsDockSnapshot, getServerTtsDockSnapshot);
+  const tts = pathname === TTS_HREF ? null : ttsState;
   // Đang ở chính trang của tool thì trang đó đã hiện tiến trình
   const jobs = allJobs.filter((j) => getTool(j.toolId)?.href !== pathname);
   const anyRunning = p.endAt != null || c.endAt != null || w.startedAt != null;
@@ -141,10 +197,11 @@ export function BackgroundDock() {
 
   // Ở chính trang đồng hồ thì giao diện đầy đủ đã hiện, không cần widget
   const showClocks = anyRunning && pathname !== CLOCK_HREF;
-  if (!showClocks && jobs.length === 0) return null;
+  if (!showClocks && jobs.length === 0 && !tts) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2" aria-label="Tác vụ đang chạy">
+      {tts && <TtsCard tts={tts} />}
       {jobs.map((j) => <JobCard key={j.id} job={j} />)}
       {showClocks && (
         <>

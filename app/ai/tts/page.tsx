@@ -72,6 +72,7 @@ import {
 } from '@/lib/tts-local';
 import { subscribeStorageSync } from '@/lib/storage';
 import { apiFetch } from '@/lib/api-client';
+import { getTtsAudio, ttsAudioMeta, ttsSpeaker } from '@/lib/tts-player';
 
 const emptyArrayString = () => '[]';
 const noopSubscribe = () => () => {};
@@ -104,208 +105,6 @@ const VOICE_SAMPLES: Record<string, string> = {
   de: 'Hallo, das ist eine Stimmprobe.',
   es: 'Hola, esta es una muestra de voz.',
 };
-
-/* ------------------------------------------------------------------ */
-/* Bộ phát giọng trình duyệt: xếp hàng từng câu/cụm để tránh lỗi Chrome */
-/* ------------------------------------------------------------------ */
-
-interface SpeakCfg {
-  voice: SpeechSynthesisVoice | null;
-  lang: string;
-  rate: number;
-  pitch: number;
-  volume: number;
-}
-
-interface PlayerSnap {
-  status: 'idle' | 'playing' | 'paused';
-  index: number;
-  word: { start: number; end: number } | null;
-  chunks: SpeechChunk[];
-}
-
-class ChunkSpeaker {
-  private snap: PlayerSnap = { status: 'idle', index: 0, word: null, chunks: [] };
-  private listeners = new Set<() => void>();
-  private gen = 0;
-  private utter: SpeechSynthesisUtterance | null = null; // giữ tham chiếu để Chrome không thu gom làm mất onend
-  private manualPaused = false;
-  cfg: SpeakCfg = { voice: null, lang: 'vi-VN', rate: 1, pitch: 1, volume: 1 };
-  onNotice: (msg: string) => void = () => {};
-
-  subscribe = (l: () => void) => {
-    this.listeners.add(l);
-    return () => {
-      this.listeners.delete(l);
-    };
-  };
-  getSnapshot = () => this.snap;
-
-  private set(p: Partial<PlayerSnap>) {
-    this.snap = { ...this.snap, ...p };
-    this.listeners.forEach((l) => l());
-  }
-
-  private get synth(): SpeechSynthesis | null {
-    return typeof window !== 'undefined' && 'speechSynthesis' in window ? window.speechSynthesis : null;
-  }
-
-  start(chunks: SpeechChunk[], from = 0) {
-    const synth = this.synth;
-    if (!synth || chunks.length === 0) return;
-    this.gen++;
-    this.manualPaused = false;
-    const i = Math.max(0, Math.min(from, chunks.length - 1));
-    this.set({ chunks, index: i, status: 'playing', word: null });
-    try {
-      synth.cancel();
-    } catch {
-      /* bỏ qua */
-    }
-    this.speak(i, this.gen);
-  }
-
-  private speak(i: number, token: number) {
-    const synth = this.synth;
-    if (!synth || token !== this.gen) return;
-    const chunks = this.snap.chunks;
-    if (i >= chunks.length) {
-      this.utter = null;
-      this.set({ status: 'idle', index: 0, word: null });
-      return;
-    }
-    const text = chunks[i].text;
-    const u = new SpeechSynthesisUtterance(text);
-    const { voice, lang, rate, pitch, volume } = this.cfg;
-    if (voice) u.voice = voice;
-    u.lang = voice?.lang || lang;
-    u.rate = Math.max(0.1, Math.min(10, rate));
-    u.pitch = Math.max(0, Math.min(2, pitch));
-    u.volume = Math.max(0, Math.min(1, volume));
-    let started = false;
-    u.onstart = () => {
-      started = true;
-      if (token === this.gen) this.set({ index: i, word: null });
-    };
-    u.onboundary = (e: SpeechSynthesisEvent) => {
-      if (token !== this.gen || e.name === 'sentence') return;
-      const start = e.charIndex;
-      let len = (e as SpeechSynthesisEvent & { charLength?: number }).charLength || 0;
-      if (!len) {
-        const m = /^\S+/.exec(text.slice(start));
-        len = m ? m[0].length : 0;
-      }
-      if (len > 0) this.set({ word: { start, end: start + len } });
-    };
-    u.onend = () => {
-      if (token !== this.gen) return;
-      this.set({ word: null });
-      this.speak(i + 1, token);
-    };
-    u.onerror = (e: SpeechSynthesisErrorEvent) => {
-      if (token !== this.gen) return;
-      const err = e.error;
-      if (err === 'canceled' || err === 'interrupted') return;
-      if (err === 'not-allowed') {
-        this.onNotice('Trình duyệt chặn phát âm thanh. Hãy bấm nút Đọc một lần nữa (Safari/iOS yêu cầu thao tác bấm trực tiếp).');
-        this.stop();
-        return;
-      }
-      if (err === 'synthesis-unavailable' || err === 'voice-unavailable' || err === 'language-unavailable' || err === 'synthesis-failed') {
-        this.onNotice('Giọng đã chọn không đọc được. Hãy chọn giọng khác trong danh sách.');
-        this.stop();
-        return;
-      }
-      this.speak(i + 1, token); // lỗi lẻ: bỏ qua cụm này, đọc tiếp
-    };
-    this.utter = u;
-    this.set({ index: i });
-    try {
-      synth.speak(u);
-    } catch {
-      this.onNotice('Không thể bắt đầu đọc. Hãy thử lại.');
-      this.stop();
-      return;
-    }
-    // Giọng mạng/đang tải có thể im lặng: nhắc người dùng nếu 8 giây vẫn chưa bắt đầu
-    setTimeout(() => {
-      if (!started && token === this.gen && this.snap.status === 'playing' && this.utter === u && !(this.synth?.paused)) {
-        this.onNotice('Giọng đọc chưa phản hồi. Nếu vẫn im lặng, hãy chọn giọng "Cục bộ" khác hoặc bấm Đọc lại.');
-      }
-    }, 8000);
-  }
-
-  pause() {
-    const synth = this.synth;
-    if (!synth || this.snap.status !== 'playing') return;
-    synth.pause();
-    this.set({ status: 'paused' });
-    const token = this.gen;
-    // Một số trình duyệt (Android) không hỗ trợ pause: dừng hẳn và đọc lại cụm hiện tại khi tiếp tục
-    setTimeout(() => {
-      if (token === this.gen && this.snap.status === 'paused' && !synth.paused) {
-        this.manualPaused = true;
-        this.gen++;
-        synth.cancel();
-      }
-    }, 200);
-  }
-
-  resume() {
-    const synth = this.synth;
-    if (!synth || this.snap.status !== 'paused') return;
-    if (this.manualPaused) {
-      this.start(this.snap.chunks, this.snap.index);
-      return;
-    }
-    synth.resume();
-    this.set({ status: 'playing' });
-    const token = this.gen;
-    const idx = this.snap.index;
-    // Chrome đôi khi không tiếp tục được sau khi tạm dừng lâu: đọc lại cụm hiện tại
-    setTimeout(() => {
-      if (token === this.gen && this.snap.status === 'playing' && !synth.speaking && !synth.pending) {
-        this.start(this.snap.chunks, idx);
-      }
-    }, 500);
-  }
-
-  stop() {
-    this.gen++;
-    this.manualPaused = false;
-    this.utter = null;
-    try {
-      this.synth?.cancel();
-    } catch {
-      /* bỏ qua */
-    }
-    if (this.snap.status !== 'idle' || this.snap.word) this.set({ status: 'idle', index: 0, word: null });
-  }
-
-  seek(i: number) {
-    if (this.snap.chunks.length === 0) return;
-    this.start(this.snap.chunks, i);
-  }
-
-  restartCurrent() {
-    if (this.snap.status === 'playing') this.start(this.snap.chunks, this.snap.index);
-  }
-
-  /** Nghe thử một giọng với câu mẫu (dừng phiên đọc hiện tại) */
-  preview(voice: SpeechSynthesisVoice, text: string, rate: number, pitch: number, volume: number) {
-    const synth = this.synth;
-    if (!synth) return;
-    this.stop();
-    const u = new SpeechSynthesisUtterance(text);
-    u.voice = voice;
-    u.lang = voice.lang;
-    u.rate = rate;
-    u.pitch = pitch;
-    u.volume = volume;
-    this.utter = u;
-    synth.speak(u);
-  }
-}
 
 /* ------------------------------------------------------------------ */
 /* Danh sách giọng của trình duyệt (tải bất đồng bộ, thử lại)           */
@@ -506,7 +305,8 @@ export default function TextToSpeechPage() {
   const isSafari = /safari/i.test(userAgent) && !/chrome|chromium|crios|edg|android/i.test(userAgent);
   const { voices, loading: voicesLoading, reload: reloadVoices } = useSpeechVoices(supported);
 
-  const speaker = useMemo(() => new ChunkSpeaker(), []);
+  // Bộ phát dùng chung toàn app: rời trang vẫn đọc tiếp, điều khiển ở khu nổi góc màn hình
+  const speaker = ttsSpeaker;
   const player = useSyncExternalStore(speaker.subscribe, speaker.getSnapshot, speaker.getSnapshot);
 
   /* ---------------- AI Gemini (mở rộng) ---------------- */
@@ -525,7 +325,8 @@ export default function TextToSpeechPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [aiBusy, setAiBusy] = useState<string | null>(null);
   const [aiBackup, setAiBackup] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Phần tử audio dùng chung (lib/tts-player) thay cho <audio> trong trang: rời trang vẫn phát tiếp
+  const audioRef = useRef<HTMLAudioElement | null>(getTtsAudio());
 
   /* ---------------- Lịch sử ---------------- */
   const rawTTSHistory = useSyncExternalStore(subscribeStorageSync, getTTSHistorySnapshot, emptyArrayString);
@@ -651,15 +452,44 @@ export default function TextToSpeechPage() {
     return () => clearTimeout(t);
   }, [cfgKey, speaker, player.status]);
 
-  // Dừng đọc khi rời trang / ẩn trang
+  // Đóng / tải lại tab thì dừng đọc. Chuyển sang công cụ khác thì KHÔNG dừng: đọc tiếp, điều khiển ở khu nổi
   useEffect(() => {
     const stopAll = () => speaker.stop();
     window.addEventListener('pagehide', stopAll);
-    return () => {
-      window.removeEventListener('pagehide', stopAll);
-      speaker.stop();
-    };
+    return () => window.removeEventListener('pagehide', stopAll);
   }, [speaker]);
+
+  // Quay lại trang khi vẫn đang đọc / phát: khôi phục văn bản và trình phát AI
+  useEffect(() => {
+    const audio = audioRef.current;
+    // Đồng bộ một lần từ trình phát dùng chung khi vào trang
+    if (speaker.getSnapshot().status !== 'idle' && speaker.text) {
+      setText(speaker.text);
+      setEngine('browser');
+    } else if (audio && ttsAudioMeta.url && audio.src === ttsAudioMeta.url && !audio.ended && (!audio.paused || audio.currentTime > 0)) {
+      if (ttsAudioMeta.text) setText(ttsAudioMeta.text);
+      setEngine('ai');
+      setCurrentAudioMime(ttsAudioMeta.mime);
+      setCurrentAudioUrl(ttsAudioMeta.url);
+      setIsPlaying(!audio.paused);
+      setAudioDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
+      setCurrentTime(audio.currentTime);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Gắn bản AI mới vào audio dùng chung (thay cho thuộc tính src của thẻ <audio> trước đây)
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !currentAudioUrl) return;
+    ttsAudioMeta.url = currentAudioUrl;
+    ttsAudioMeta.mime = currentAudioMime;
+    if (audio.src !== currentAudioUrl) {
+      ttsAudioMeta.text = text.trim();
+      audio.src = currentAudioUrl;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentAudioUrl, currentAudioMime]);
 
   // Cuộn tới câu đang đọc (chỉ cuộn trong khung văn bản)
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -766,6 +596,7 @@ export default function TextToSpeechPage() {
     }
     if (audioRef.current) audioRef.current.pause();
     speaker.cfg = { voice: selVoice, lang: LANG_BCP47[effLang as DetectedLang] || 'vi-VN', rate, pitch, volume };
+    speaker.text = rawForHistory ?? text;
     speaker.start(chunks, from);
     if (from === 0) recordHistory(rawForHistory ?? text);
   };
@@ -1950,7 +1781,6 @@ export default function TextToSpeechPage() {
 
   return (
     <div className="space-y-3.5">
-      <audio ref={audioRef} src={currentAudioUrl || undefined} preload="auto" />
       <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept=".txt,.md,.text" className="hidden" />
 
       {/* Header */}
