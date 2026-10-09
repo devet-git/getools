@@ -270,7 +270,7 @@ const Row = memo(function Row({ entry: e, top, height, open, traceOpen, hl, onTo
       <div className="group flex items-center gap-2 px-2 h-7 text-xs cursor-pointer hover:bg-slate-50" onClick={() => onToggle(e.id)}>
         {open ? <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" /> : <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />}
         <span className="w-12 shrink-0 text-right text-[10px] text-slate-400 font-mono">{e.line}</span>
-        <span className="w-44 shrink-0 truncate font-mono text-[11px] text-slate-500 hidden sm:block" title={e.tsText}>
+        <span className="w-44 shrink-0 truncate font-mono text-[11px] text-slate-500 hidden sm:block" data-tooltip={e.tsText}>
           {e.tsText}
         </span>
         <span className={`w-14 shrink-0 text-center rounded px-1 py-0.5 text-[10px] font-bold ${LEVEL_BADGE[e.level]}`}>
@@ -281,7 +281,7 @@ const Row = memo(function Row({ entry: e, top, height, open, traceOpen, hl, onTo
         </span>
         <button
           className="opacity-0 group-hover:opacity-100 shrink-0 p-1 rounded hover:bg-slate-200 text-slate-500"
-          title="Sao chép entry"
+          data-tooltip="Sao chép entry" aria-label="Sao chép entry"
           onClick={(ev) => {
             ev.stopPropagation();
             onCopy(entryFullText(e), 'entry');
@@ -870,7 +870,7 @@ export default function LogViewerPage() {
                     className={`px-2 py-1 rounded-md text-[11px] font-bold border transition ${
                       on ? `${LEVEL_BADGE[lv]} border-transparent` : 'bg-white text-slate-300 border-slate-200 line-through'
                     }`}
-                    title={on ? 'Đang hiện - bấm để ẩn' : 'Đang ẩn - bấm để hiện'}
+                    data-tooltip={on ? 'Đang hiện - bấm để ẩn' : 'Đang ẩn - bấm để hiện'}
                   >
                     {LEVEL_LABEL[lv]}
                     {stats && on ? ` ${fmtNum(stats.levelCounts[lv])}` : ''}
@@ -881,7 +881,7 @@ export default function LogViewerPage() {
                 <input type="checkbox" checked={onlyTrace} onChange={(ev) => setOnlyTrace(ev.target.checked)} />
                 Chỉ entry có stack trace
               </label>
-              <label className="flex items-center gap-1 text-xs text-slate-600 ml-2 cursor-pointer" title="Che email, IP, Bearer token, password=... khi sao chép / xuất">
+              <label className="flex items-center gap-1 text-xs text-slate-600 ml-2 cursor-pointer" data-tooltip="Che email, IP, Bearer token, password=... khi sao chép / xuất">
                 <input type="checkbox" checked={mask} onChange={(ev) => setMask(ev.target.checked)} />
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
                 Che dữ liệu nhạy cảm
@@ -956,7 +956,7 @@ export default function LogViewerPage() {
                 <h2 className="text-xs font-bold text-slate-700">Theo mức độ</h2>
                 <div className="space-y-1">
                   {LEVELS.filter((l) => stats.levelCounts[l] > 0).map((l) => (
-                    <button key={l} className="w-full flex items-center gap-2 text-[11px] hover:bg-slate-50 rounded" onClick={() => setLevels(new Set<Level>([l]))} title="Chỉ hiện mức này">
+                    <button key={l} className="w-full flex items-center gap-2 text-[11px] hover:bg-slate-50 rounded" onClick={() => setLevels(new Set<Level>([l]))} data-tooltip="Chỉ hiện mức này">
                       <span className={`w-14 text-center rounded px-1 py-0.5 text-[10px] font-bold ${LEVEL_BADGE[l]}`}>{LEVEL_LABEL[l]}</span>
                       <span className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                         <span className={`block h-full ${LEVEL_BAR[l]}`} style={{ width: `${(stats.levelCounts[l] / maxLevel) * 100}%` }} />
@@ -1020,7 +1020,7 @@ export default function LogViewerPage() {
                     key={c.key}
                     className="w-full text-left flex items-start gap-2 text-[11px] hover:bg-slate-50 rounded p-1"
                     onClick={() => setCluster(c.key)}
-                    title="Bấm để lọc theo nhóm này"
+                    data-tooltip="Bấm để lọc theo nhóm này"
                   >
                     <span className="w-12 shrink-0 text-right font-mono font-bold text-slate-700">{fmtNum(c.count)}</span>
                     <span className={`shrink-0 rounded px-1 text-[10px] font-bold ${LEVEL_BADGE[c.level]}`}>{LEVEL_LABEL[c.level]}</span>
@@ -1060,7 +1060,7 @@ export default function LogViewerPage() {
                       {stats.access.slowest.length === 0 && <div className="text-slate-400">Không có dữ liệu độ trễ.</div>}
                       {stats.access.slowest.map((s) => (
                         <div key={s.key} className="flex justify-between gap-2 font-mono text-slate-600">
-                          <span className="truncate" title={s.key}>{s.key}</span>
+                          <span className="truncate" data-tooltip={s.key}>{s.key}</span>
                           <span className="shrink-0">{Math.round(s.avgMs)}ms / max {Math.round(s.maxMs)}</span>
                         </div>
                       ))}
@@ -1069,7 +1069,7 @@ export default function LogViewerPage() {
                       <div className="font-semibold text-slate-600 mb-1">Top path</div>
                       {stats.access.topPaths.map((s) => (
                         <div key={s.key} className="flex justify-between gap-2 font-mono text-slate-600">
-                          <span className="truncate" title={s.key}>{s.key}</span>
+                          <span className="truncate" data-tooltip={s.key}>{s.key}</span>
                           <span>{fmtNum(s.count)}</span>
                         </div>
                       ))}

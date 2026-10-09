@@ -35,7 +35,7 @@ function CopyBtn({ text }: { text: string }) {
   return (
     <button
       type="button"
-      title="Sao chép"
+      data-tooltip="Sao chép"
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(text);
@@ -399,7 +399,7 @@ export default function TimeToolsPage() {
                     <td>
                       <button
                         type="button"
-                        title="Xoá"
+                        data-tooltip="Xoá" aria-label="Xoá"
                         onClick={() => setZones((z) => z.filter((x) => x !== r.tz))}
                         className="p-1 text-slate-400 hover:text-red-600 rounded-md"
                       >
@@ -475,7 +475,7 @@ export default function TimeToolsPage() {
                         return (
                           <td
                             key={i}
-                            title={`${pad(c.hour)}:${pad(c.minute)}${c.dayShift ? (c.dayShift > 0 ? ' (ngày hôm sau)' : ' (ngày hôm trước)') : ''}`}
+                            data-tooltip={`${pad(c.hour)}:${pad(c.minute)}${c.dayShift ? (c.dayShift > 0 ? ' (ngày hôm sau)' : ' (ngày hôm trước)') : ''}`}
                             className={`text-center font-mono px-1 py-0.5 rounded-xs ${
                               s.allWorking
                                 ? 'bg-emerald-500 text-white font-semibold'

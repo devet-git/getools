@@ -717,7 +717,7 @@ function ConvertTab({ sp }: { sp: URLSearchParams }) {
             const r = convertUnit(value, from, u, ctx);
             const text = r === null ? '—' : `${fmtNum(r, 4)}${u}`;
             return (
-              <button key={u} type="button" disabled={r === null} onClick={() => copy(text, u)} title="Bấm để sao chép" className={`text-left rounded-lg border px-2.5 py-1.5 hover:bg-slate-50 ${u === from ? 'border-indigo-300 bg-indigo-50/50' : 'border-slate-200'}`}>
+              <button key={u} type="button" disabled={r === null} onClick={() => copy(text, u)} data-tooltip="Bấm để sao chép" className={`text-left rounded-lg border px-2.5 py-1.5 hover:bg-slate-50 ${u === from ? 'border-indigo-300 bg-indigo-50/50' : 'border-slate-200'}`}>
                 <div className="text-[10px] uppercase text-slate-400">{u}</div>
                 <div className="text-sm font-mono text-slate-800 break-all">{text}</div>
               </button>

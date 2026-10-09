@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { rejectForeign } from '@/lib/api-guard';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -10,23 +11,15 @@ function clean(v: string | undefined): string {
 
 /**
  * Client ID OAuth cho tính năng đồng bộ Google Drive, đọc lúc chạy (đổi biến môi trường không cần build lại).
- * Client ID không phải bí mật — nó vốn hiển thị công khai trong cửa sổ đăng nhập Google.
+ * Chỉ trả cho chính trang GeTools (mở thẳng URL hay trang khác gọi sang nhận 404). Lưu ý: Client ID vẫn hiện trong
+ * URL cửa sổ đăng nhập Google — đó là thiết kế của OAuth; an toàn dựa vào danh sách "Authorized JavaScript origins".
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const foreign = rejectForeign(req);
+  if (foreign) return foreign;
   const clientId = clean(process.env.GOOGLE_CLIENT_ID) || clean(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
-  if (clientId) return NextResponse.json({ clientId }, { headers: { 'Cache-Control': 'no-store' } });
-
-  // Chưa có: trả thêm thông tin chẩn đoán — chỉ TÊN biến gần giống, không bao giờ trả giá trị
   return NextResponse.json(
-    {
-      clientId: null,
-      debug: {
-        hint: 'Biến GOOGLE_CLIENT_ID không có trong môi trường của tiến trình đang chạy.',
-        similarEnvNames: Object.keys(process.env).filter((k) => /google|client.?id/i.test(k)).sort(),
-        vercelEnv: process.env.VERCEL_ENV ?? null,
-        commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null,
-      },
-    },
-    { headers: { 'Cache-Control': 'no-store' } },
+    { clientId: clientId || null },
+    { headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } },
   );
 }

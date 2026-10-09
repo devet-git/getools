@@ -59,7 +59,7 @@ function CmdList({ items, onCopy }: { items: GeneratedCommand[]; onCopy: (t: str
           <div className="text-[11px] text-slate-500 mb-0.5">{c.label}</div>
           <div className="flex items-start gap-2 bg-slate-900 text-slate-100 rounded-lg px-3 py-2">
             <pre className="flex-1 min-w-0 text-xs font-mono whitespace-pre-wrap break-all">{c.command}</pre>
-            <button onClick={() => onCopy(c.command)} className="text-slate-400 hover:text-white shrink-0" title="Sao chép" aria-label="Sao chép lệnh">
+            <button onClick={() => onCopy(c.command)} className="text-slate-400 hover:text-white shrink-0" data-tooltip="Sao chép" aria-label="Sao chép lệnh">
               <Copy className="h-3.5 w-3.5" />
             </button>
           </div>

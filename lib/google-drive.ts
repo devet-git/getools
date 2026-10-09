@@ -6,6 +6,8 @@
  * không đọc được bất kỳ file nào khác trong Drive của người dùng.
  */
 
+import { apiFetch } from '@/lib/api-client';
+
 export const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
 export const SYNC_FILE_NAME = 'getools-sync.json';
 
@@ -62,7 +64,7 @@ let clientIdPromise: Promise<string | null> | null = null;
  * tách riêng để không báo nhầm "chưa cấu hình".
  */
 export function getClientId(): Promise<string | null> {
-  clientIdPromise ??= fetch('/api/drive/config', { cache: 'no-store' })
+  clientIdPromise ??= apiFetch('/api/drive/config')
     .catch(() => {
       throw new Error('Không kết nối được máy chủ để đọc cấu hình Google Drive (mất mạng?).');
     })

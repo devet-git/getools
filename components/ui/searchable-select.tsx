@@ -352,7 +352,7 @@ export function SearchableSelect({
         aria-haspopup="listbox"
         aria-controls={open ? listId : undefined}
         aria-label={ariaLabel}
-        title={title}
+        data-tooltip={title}
         disabled={disabled}
         onClick={() => (open ? close() : openList())}
         onKeyDown={onKey}

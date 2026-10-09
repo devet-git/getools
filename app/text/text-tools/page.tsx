@@ -366,7 +366,7 @@ export default function TextToolsPage() {
                     const pct = (w.count / stats.topWords[0].count) * 100;
                     return (
                       <li key={w.word} className="flex items-center gap-2 text-xs">
-                        <span className="w-28 sm:w-40 truncate text-slate-800 font-medium" title={w.word}>
+                        <span className="w-28 sm:w-40 truncate text-slate-800 font-medium" data-tooltip={w.word}>
                           {w.word}
                         </span>
                         <div className="flex-1 h-2 rounded bg-slate-100 overflow-hidden">

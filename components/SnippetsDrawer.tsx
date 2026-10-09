@@ -11,6 +11,7 @@ import {
   getSnippetsSnapshot, getServerSnippetsSnapshot, subscribeSnippets, parseSnippets,
   renameSnippet, togglePin, removeSnippet, clearHistory, promoteHistory, type Snippet,
 } from '@/lib/snippets';
+import { showConfirm } from '@/lib/dialog';
 
 export const OPEN_SNIPPETS_EVENT = 'getools:open-snippets';
 
@@ -159,7 +160,7 @@ export function SnippetsDrawer() {
             <div className="flex justify-end">
               <button
                 type="button"
-                onClick={() => { if (window.confirm('Xóa toàn bộ lịch sử? Snippet đã lưu sẽ được giữ nguyên.')) report(clearHistory()); }}
+                onClick={async () => { if (await showConfirm('Xóa toàn bộ lịch sử? Snippet đã lưu sẽ được giữ nguyên.', { danger: true })) report(clearHistory()); }}
                 className="text-xs font-semibold text-red-600 hover:text-red-700 flex items-center gap-1"
               >
                 <Trash2 className="h-3.5 w-3.5" /> Xóa lịch sử
@@ -205,7 +206,7 @@ export function SnippetsDrawer() {
                             className="flex-1 min-w-0 px-1.5 py-0.5 text-xs font-semibold border border-indigo-300 rounded-md bg-white text-slate-800 focus:outline-hidden"
                           />
                         ) : (
-                          <div className="flex-1 min-w-0 text-xs font-semibold text-slate-800 truncate" title={s.title}>
+                          <div className="flex-1 min-w-0 text-xs font-semibold text-slate-800 truncate" data-tooltip={s.title}>
                             {s.pinned && <Pin className="inline h-3 w-3 text-amber-500 mr-1 -mt-0.5" />}{s.title}
                           </div>
                         )}
@@ -216,23 +217,23 @@ export function SnippetsDrawer() {
                       </pre>
                       <div className="mt-1.5 flex items-center gap-0.5 flex-wrap">
                         {s.kind === 'history' ? (
-                          <button type="button" className={btn} title="Lưu thành snippet" aria-label="Lưu thành snippet" onClick={() => report(promoteHistory(s.id))}>
+                          <button type="button" className={btn} data-tooltip="Lưu thành snippet" aria-label="Lưu thành snippet" onClick={() => report(promoteHistory(s.id))}>
                             <ArrowUpFromLine className="h-3.5 w-3.5" />
                           </button>
                         ) : (
                           <>
-                            <button type="button" className={btn} title={s.pinned ? 'Bỏ ghim' : 'Ghim'} aria-label={s.pinned ? 'Bỏ ghim' : 'Ghim'} aria-pressed={s.pinned} onClick={() => report(togglePin(s.id))}>
+                            <button type="button" className={btn} data-tooltip={s.pinned ? 'Bỏ ghim' : 'Ghim'} aria-label={s.pinned ? 'Bỏ ghim' : 'Ghim'} aria-pressed={s.pinned} onClick={() => report(togglePin(s.id))}>
                               {s.pinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
                             </button>
-                            <button type="button" className={btn} title="Đổi tên" aria-label="Đổi tên" onClick={() => { setEditId(s.id); setEditTitle(s.title); }}>
+                            <button type="button" className={btn} data-tooltip="Đổi tên" aria-label="Đổi tên" onClick={() => { setEditId(s.id); setEditTitle(s.title); }}>
                               <Pencil className="h-3.5 w-3.5" />
                             </button>
                           </>
                         )}
-                        <button type="button" className={btn} title="Sao chép" aria-label="Sao chép" onClick={() => copy(s)}>
+                        <button type="button" className={btn} data-tooltip="Sao chép" aria-label="Sao chép" onClick={() => copy(s)}>
                           <Copy className="h-3.5 w-3.5" />
                         </button>
-                        <button type="button" className={`${btn} hover:text-red-600`} title="Xóa" aria-label="Xóa" onClick={() => report(removeSnippet(s.id))}>
+                        <button type="button" className={`${btn} hover:text-red-600`} data-tooltip="Xóa" aria-label="Xóa" onClick={() => report(removeSnippet(s.id))}>
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
                         <button

@@ -95,7 +95,7 @@ function RefTableView({
                     <td key={ci} className="px-1 py-0.5 border-b border-slate-100 align-top">
                       <button
                         type="button"
-                        title="Bấm để sao chép ô này"
+                        data-tooltip="Bấm để sao chép ô này"
                         onClick={() => { onSelect(row.id); void copy(text, k); }}
                         className={`text-left w-full px-1 py-0.5 rounded hover:bg-indigo-100/60 flex items-start gap-1 ${mono ? 'font-mono' : ''}`}
                       >

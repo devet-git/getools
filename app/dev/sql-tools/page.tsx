@@ -237,7 +237,7 @@ export default function SqlToolsPage() {
             <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">SQL đầu vào</span>
             <button
               onClick={() => setInput('')}
-              title="Xóa"
+              data-tooltip="Xóa" aria-label="Xóa"
               className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
             >
               <Trash2 className="h-4 w-4" />

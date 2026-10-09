@@ -603,7 +603,7 @@ export default function LlmTokensPage() {
                 <input type="checkbox" checked={batch} onChange={(e) => setBatch(e.target.checked)} className="accent-indigo-600" />
                 Dùng Batch API
               </label>
-              <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer" title="Cộng thêm phụ phí định dạng chat cho mỗi tin nhắn">
+              <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer" data-tooltip="Cộng thêm phụ phí định dạng chat cho mỗi tin nhắn">
                 <input type="checkbox" checked={convMode} onChange={(e) => setConvMode(e.target.checked)} className="accent-indigo-600" />
                 Văn bản là hội thoại
               </label>
@@ -694,7 +694,7 @@ export default function LlmTokensPage() {
                           {r.model.provider} · {FAMILIES.find((f) => f.id === r.model.family)?.label} · {r.model.confidence}
                         </div>
                       </td>
-                      <td className="px-2 py-2 text-right whitespace-nowrap" title="min – likely – max">
+                      <td className="px-2 py-2 text-right whitespace-nowrap" data-tooltip="min – likely – max">
                         <div className="font-semibold text-slate-800">{fmt(r.est.likely)}</div>
                         <div className="text-[10px] text-slate-500">{fmt(r.est.min)} – {fmt(r.est.max)}</div>
                       </td>
@@ -712,7 +712,7 @@ export default function LlmTokensPage() {
                         {r.pct <= 100 && r.pct > 80 && <div className="text-[10px] text-amber-600 mt-0.5">Gần đầy (&gt; 80%)</div>}
                         {r.pct <= 100 && expectedOut > r.model.maxOutput && <div className="text-[10px] text-red-600 mt-0.5">Đầu ra &gt; tối đa {fmtCtx(r.model.maxOutput)}</div>}
                       </td>
-                      <td className="px-2 py-2 text-right whitespace-nowrap" title={`${formatUsd(r.costInMin)} – ${formatUsd(r.costInMax)}`}>
+                      <td className="px-2 py-2 text-right whitespace-nowrap" data-tooltip={`${formatUsd(r.costInMin)} – ${formatUsd(r.costInMax)}`}>
                         <div className="text-slate-800">{formatUsd(r.costIn)}</div>
                         <div className="text-[10px] text-slate-500">{formatUsd(r.costInMin)} – {formatUsd(r.costInMax)}</div>
                       </td>

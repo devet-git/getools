@@ -515,7 +515,7 @@ export default function AiOcrPage() {
       const nodes = l.words.map((w, wi) => (
         <span
           key={`${li}-${wi}`}
-          title={`Độ tin cậy ${Math.round(w.conf)}%`}
+          data-tooltip={`Độ tin cậy ${Math.round(w.conf)}%`}
           className={w.conf < LOW_CONF ? 'underline decoration-wavy decoration-red-500 underline-offset-2 bg-red-50' : ''}
         >
           {w.text}{' '}
@@ -602,7 +602,7 @@ export default function AiOcrPage() {
               <div className="flex gap-1.5 overflow-x-auto pb-1">
                 {items.map((it, idx) => (
                   <div key={it.id} className={`relative shrink-0 h-14 w-14 rounded-md border-2 overflow-hidden ${it.id === selectedId ? 'border-indigo-500' : 'border-slate-200'}`}>
-                    <button onClick={() => setSelectedId(it.id)} className="h-full w-full" title={it.file.name}>
+                    <button onClick={() => setSelectedId(it.id)} className="h-full w-full" data-tooltip={it.file.name}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={it.url} alt={`Ảnh ${idx + 1}`} className="h-full w-full object-cover" />
                     </button>

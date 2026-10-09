@@ -204,7 +204,7 @@ function TextConverter({
         <Pane
           title="Đầu vào"
           right={
-            <button onClick={() => setInput('')} title="Xóa" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+            <button onClick={() => setInput('')} data-tooltip="Xóa" aria-label="Xóa" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
               <Trash2 className="h-4 w-4" />
             </button>
           }
@@ -224,7 +224,7 @@ function TextConverter({
               setInput(output);
               setDir(dir === 'encode' ? 'decode' : 'encode');
             }}
-            title="Đưa kết quả làm đầu vào và đảo chiều"
+            data-tooltip="Đưa kết quả làm đầu vào và đảo chiều" aria-label="Đưa kết quả làm đầu vào và đảo chiều"
             className="p-2 rounded-full border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 shadow-xs transition disabled:opacity-40"
           >
             <ArrowDownUp className="h-4 w-4 lg:-rotate-90" />
@@ -347,7 +347,7 @@ function JwtTab({ initial, onShare }: TabProps) {
       <Pane
         title="JWT"
         right={
-          <button onClick={() => setToken('')} title="Xóa" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+          <button onClick={() => setToken('')} data-tooltip="Xóa" aria-label="Xóa" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
             <Trash2 className="h-4 w-4" />
           </button>
         }
@@ -481,7 +481,7 @@ function HashTab({ initial, onShare }: TabProps) {
       <Pane
         title="Băm văn bản (UTF-8)"
         right={
-          <button onClick={() => setText('')} title="Xóa" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+          <button onClick={() => setText('')} data-tooltip="Xóa" aria-label="Xóa" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
             <Trash2 className="h-4 w-4" />
           </button>
         }
@@ -591,7 +591,7 @@ function GeneratorTab() {
         title="UUID v4"
         right={
           <>
-            <button onClick={download} disabled={!uuids.length} title="Tải về .txt" className="p-1.5 text-slate-600 hover:bg-slate-100 border border-slate-200 rounded-lg transition disabled:opacity-40">
+            <button onClick={download} disabled={!uuids.length} data-tooltip="Tải về .txt" aria-label="Tải về .txt" className="p-1.5 text-slate-600 hover:bg-slate-100 border border-slate-200 rounded-lg transition disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
             </button>
             <CopyButton text={uuids.join('\n')} label="Chép tất cả" />

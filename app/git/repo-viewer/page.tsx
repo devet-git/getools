@@ -445,7 +445,7 @@ export default function RepoViewerPage() {
           {rate && rate.remaining !== null && (
             <span
               className={`ml-auto ${rate.remaining < 10 ? 'text-red-600' : 'text-slate-500'}`}
-              title={rate.reset ? `Đặt lại ${formatReset(rate.reset)}` : undefined}
+              data-tooltip={rate.reset ? `Đặt lại ${formatReset(rate.reset)}` : undefined}
             >
               API còn {fmtNum(rate.remaining)}
               {rate.limit ? `/${fmtNum(rate.limit)}` : ''} lượt{token ? '' : ' (chưa dùng token)'}
@@ -525,7 +525,7 @@ export default function RepoViewerPage() {
               <div>
                 <div className="flex h-2.5 rounded-full overflow-hidden bg-slate-100" role="img" aria-label="Tỷ lệ ngôn ngữ lập trình">
                   {langs.map((l) => (
-                    <div key={l.name} style={{ width: `${l.percent}%`, backgroundColor: l.color }} title={`${l.name} ${l.percent.toFixed(1)}%`} />
+                    <div key={l.name} style={{ width: `${l.percent}%`, backgroundColor: l.color }} data-tooltip={`${l.name} ${l.percent.toFixed(1)}%`} />
                   ))}
                 </div>
                 <ul className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-slate-700">
@@ -612,7 +612,7 @@ export default function RepoViewerPage() {
                   <ul className="text-xs divide-y divide-slate-100">
                     {stats.largest.map((f) => (
                       <li key={f.path} className="flex justify-between gap-2 py-1">
-                        <button type="button" onClick={() => setSelected(f.path)} className="text-left text-indigo-600 hover:underline truncate" title={f.path}>
+                        <button type="button" onClick={() => setSelected(f.path)} className="text-left text-indigo-600 hover:underline truncate" data-tooltip={f.path}>
                           {f.path}
                         </button>
                         <span className="text-slate-500 shrink-0">{formatSize(f.size)}</span>
@@ -710,7 +710,7 @@ export default function RepoViewerPage() {
                                 <FileIcon className="h-4 w-4 shrink-0 text-slate-400" />
                               </>
                             )}
-                            <span className="truncate text-slate-800" title={node.path}>{filter && node.type === 'file' ? node.path : node.name}</span>
+                            <span className="truncate text-slate-800" data-tooltip={node.path}>{filter && node.type === 'file' ? node.path : node.name}</span>
                           </button>
                           {(node.type === 'file' || !truncated) && node.size > 0 && (
                             <span className="text-[11px] text-slate-400 shrink-0">{formatSize(node.size)}</span>
@@ -718,10 +718,10 @@ export default function RepoViewerPage() {
                           <span className="hidden group-hover:flex items-center gap-1.5 shrink-0">
                             {node.type === 'file' && (
                               <>
-                                <a href={blobUrl(owner, repoName, gitRef, node.path)} target="_blank" rel="noopener noreferrer" title="Mở trên GitHub" aria-label="Mở trên GitHub" className="text-slate-400 hover:text-indigo-600">
+                                <a href={blobUrl(owner, repoName, gitRef, node.path)} target="_blank" rel="noopener noreferrer" data-tooltip="Mở trên GitHub" aria-label="Mở trên GitHub" className="text-slate-400 hover:text-indigo-600">
                                   <ExternalLink className="h-3.5 w-3.5" />
                                 </a>
-                                <a href={rawUrl(owner, repoName, gitRef, node.path)} target="_blank" rel="noopener noreferrer" title="Mở bản raw" aria-label="Mở bản raw" className="text-slate-400 hover:text-indigo-600">
+                                <a href={rawUrl(owner, repoName, gitRef, node.path)} target="_blank" rel="noopener noreferrer" data-tooltip="Mở bản raw" aria-label="Mở bản raw" className="text-slate-400 hover:text-indigo-600">
                                   <FileText className="h-3.5 w-3.5" />
                                 </a>
                               </>
@@ -741,7 +741,7 @@ export default function RepoViewerPage() {
                 {selected && (
                   <div className="border-t lg:border-t-0 lg:border-l border-slate-200 min-w-0 flex flex-col">
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border-b border-slate-200 text-xs">
-                      <span className="font-mono truncate mr-auto" title={selected}>{selected}</span>
+                      <span className="font-mono truncate mr-auto" data-tooltip={selected}>{selected}</span>
                       <a href={blobUrl(owner, repoName, gitRef, selected)} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline shrink-0">GitHub</a>
                       <a href={rawUrl(owner, repoName, gitRef, selected)} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline shrink-0">Raw</a>
                       <button type="button" onClick={() => setSelected(null)} aria-label="Đóng xem trước" className="text-slate-400 hover:text-slate-700">

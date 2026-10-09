@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { buildPrompt, validateAiRequest } from '@/lib/ai-prompts';
 import { AiProviderError, generateText } from '@/lib/ai-server';
 import { readAiConfig } from '@/lib/ai-request-config';
+import { rateLimit, rejectForeign } from '@/lib/api-guard';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -10,12 +11,21 @@ const MAX_BODY_BYTES = 12 * 1024 * 1024;
 
 const fail = (error: string, status: number) => NextResponse.json({ error }, { status });
 
+/** Lượt dùng khóa Gemini của máy chủ cho mỗi IP */
+const SERVER_KEY_LIMIT = { count: 30, windowMs: 10 * 60_000 };
+
 export async function POST(req: NextRequest) {
+  const foreign = rejectForeign(req);
+  if (foreign) return foreign;
   const len = Number(req.headers.get('content-length') || 0);
   if (len > MAX_BODY_BYTES) return fail('Dữ liệu gửi lên quá lớn.', 413);
 
   const cfg = readAiConfig(req.headers);
   if (!cfg.ok) return fail(cfg.error, cfg.status);
+  if (cfg.usesServerKey) {
+    const limited = rateLimit(req, 'ai', SERVER_KEY_LIMIT.count, SERVER_KEY_LIMIT.windowMs);
+    if (limited) return limited;
+  }
 
   let body: unknown;
   try {

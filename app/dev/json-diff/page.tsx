@@ -179,7 +179,7 @@ function Pane({
           </button>
           <button
             onClick={() => onChange({ name: '', text: '' })}
-            title="Xóa nội dung"
+            data-tooltip="Xóa nội dung" aria-label="Xóa nội dung"
             className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
           >
             <Trash2 className="h-4 w-4" />
@@ -207,7 +207,7 @@ function Pane({
       />
       <div className="px-3 py-1.5 border-t border-slate-100 text-[11px] flex justify-between gap-2">
         {parsed.state === 'error' ? (
-          <span className="text-red-600 truncate" title={parsed.error.message}>
+          <span className="text-red-600 truncate" data-tooltip={parsed.error.message}>
             Lỗi{parsed.error.line ? ` (dòng ${parsed.error.line}${parsed.error.col ? `, cột ${parsed.error.col}` : ''})` : ''}: {parsed.error.message}
           </span>
         ) : parsed.state === 'ok' ? (
@@ -231,7 +231,7 @@ function ValueBox({ v, tone }: { v: unknown; tone: 'old' | 'new' }) {
   const full = previewValue(v, 4000);
   return (
     <code
-      title={full}
+      data-tooltip={full}
       className={`block px-1.5 py-0.5 rounded text-[11px] font-mono break-all whitespace-pre-wrap max-h-24 overflow-hidden ${
         tone === 'old' ? 'bg-red-100/70 text-red-800' : 'bg-emerald-100/70 text-emerald-800'
       }`}
@@ -249,14 +249,14 @@ function ChangeRow({ ch, onCopy }: { ch: Change; onCopy: (t: string, m?: string)
         <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${meta.badge}`}>{meta.label}</span>
         <button
           onClick={() => onCopy(ch.jsonPath, 'Đã chép JSONPath!')}
-          title="Bấm để chép JSONPath"
+          data-tooltip="Bấm để chép JSONPath"
           className="font-mono font-semibold text-slate-800 break-all text-left hover:text-indigo-600"
         >
           {ch.jsonPath}
         </button>
         <button
           onClick={() => onCopy(ch.pointer, 'Đã chép JSON Pointer!')}
-          title="Bấm để chép JSON Pointer"
+          data-tooltip="Bấm để chép JSON Pointer"
           className="font-mono text-[11px] text-slate-400 break-all hover:text-indigo-600"
         >
           {ch.pointer || '(gốc)'}
@@ -713,7 +713,7 @@ export default function JsonDiffPage() {
               setLeft(right);
               setRight(left);
             }}
-            title="Đổi chỗ hai bên"
+            data-tooltip="Đổi chỗ hai bên"
             className={btnDark}
           >
             <ArrowLeftRight className="h-3 w-3" />

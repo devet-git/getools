@@ -5,6 +5,7 @@ import { ListChecks, Plus, Trash2, Copy, RotateCcw, ClipboardList } from 'lucide
 import { useApp } from '@/components/AppContext';
 import { ToolHeader } from '@/components/ToolHeader';
 import { TEMPLATES, load, newItem, newList, parseBulk, progress, save, toText, type CheckList } from '@/lib/checklist';
+import { showConfirm } from '@/lib/dialog';
 
 const ACTIVE_KEY = 'getools_checklist_active';
 const card = 'bg-white rounded-xl border border-slate-200/90 shadow-xs p-3.5';
@@ -38,8 +39,8 @@ export default function ChecklistPage() {
     setText(''); inputRef.current?.focus();
   };
   const addList = (title: string, items: string[] = []) => { const l = newList(title, items); setLists((ls) => [...ls, l]); setActiveId(l.id); };
-  const removeList = () => {
-    if (!active || !window.confirm(`Xóa danh sách "${active.title}"?`)) return;
+  const removeList = async () => {
+    if (!active || !(await showConfirm(`Xóa danh sách "${active.title}"?`, { danger: true }))) return;
     const rest = lists.filter((l) => l.id !== active.id);
     const next = rest.length ? rest : [newList('Việc cần làm')];
     setLists(next); setActiveId(next[0].id);
@@ -77,9 +78,9 @@ export default function ChecklistPage() {
         <section className={`${card} space-y-3`}>
           <div className="flex items-center gap-2">
             <input value={active.title} onChange={(e) => patchList((l) => ({ ...l, title: e.target.value }))} aria-label="Tên danh sách" className={`${field} text-base font-semibold`} />
-            <button onClick={copy} title="Sao chép dạng văn bản" aria-label="Sao chép" className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50"><Copy className="h-4 w-4" /></button>
-            <button onClick={() => patchList((l) => ({ ...l, items: l.items.map((i) => ({ ...i, done: false })) }))} title="Bỏ chọn tất cả" aria-label="Bỏ chọn tất cả" className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50"><RotateCcw className="h-4 w-4" /></button>
-            <button onClick={removeList} title="Xóa danh sách" aria-label="Xóa danh sách" className="p-2 rounded-lg border border-slate-200 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+            <button onClick={copy} data-tooltip="Sao chép dạng văn bản" aria-label="Sao chép" className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50"><Copy className="h-4 w-4" /></button>
+            <button onClick={() => patchList((l) => ({ ...l, items: l.items.map((i) => ({ ...i, done: false })) }))} data-tooltip="Bỏ chọn tất cả" aria-label="Bỏ chọn tất cả" className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50"><RotateCcw className="h-4 w-4" /></button>
+            <button onClick={removeList} data-tooltip="Xóa danh sách" aria-label="Xóa danh sách" className="p-2 rounded-lg border border-slate-200 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
           </div>
           <div>
             <div className="flex justify-between text-xs text-slate-500 mb-1"><span>{p.done}/{p.total} xong</span><span>{p.pct}%</span></div>

@@ -34,6 +34,7 @@ import {
 import { useApp } from '@/components/AppContext';
 
 import { SendToButton } from '@/components/SendToButton';
+import { showConfirm } from '@/lib/dialog';
 type ViewMode = 'edit' | 'split' | 'preview';
 interface OutlineItem {
   level: number;
@@ -527,11 +528,11 @@ export default function MarkdownPreviewPage() {
 
       {/* Actions */}
       <div className="flex flex-wrap items-center gap-1.5">
-        <button onClick={() => setText(SAMPLE)} className={btn} title="Nạp tài liệu mẫu">
+        <button onClick={() => setText(SAMPLE)} className={btn} data-tooltip="Nạp tài liệu mẫu">
           <Sparkles className="h-3.5 w-3.5 text-amber-500" />
           Mẫu
         </button>
-        <button onClick={() => fileRef.current?.click()} className={btn} title="Mở tệp .md / .txt (hoặc kéo thả vào khung soạn)">
+        <button onClick={() => fileRef.current?.click()} className={btn} data-tooltip="Mở tệp .md / .txt (hoặc kéo thả vào khung soạn)">
           <FileUp className="h-3.5 w-3.5" />
           Mở tệp
         </button>
@@ -563,7 +564,7 @@ export default function MarkdownPreviewPage() {
           <Download className="h-3.5 w-3.5" />
           Tải .html
         </button>
-        <button onClick={doPrint} className={btn} title="In hoặc lưu thành PDF (chỉ in phần xem trước)">
+        <button onClick={doPrint} className={btn} data-tooltip="In hoặc lưu thành PDF (chỉ in phần xem trước)">
           <Printer className="h-3.5 w-3.5" />
           In / PDF
         </button>
@@ -584,11 +585,11 @@ export default function MarkdownPreviewPage() {
           Thống kê
         </label>
         <button
-          onClick={() => {
-            if (!text || confirm('Xóa toàn bộ nội dung?')) setText('');
+          onClick={async () => {
+            if (!text || (await showConfirm('Xóa toàn bộ nội dung đang soạn?', { danger: true }))) setText('');
           }}
           className="ml-auto p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-          title="Xóa nội dung"
+          data-tooltip="Xóa nội dung" aria-label="Xóa nội dung"
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -614,7 +615,7 @@ export default function MarkdownPreviewPage() {
                       onClick={() => scrollToHeading(i)}
                       style={{ paddingLeft: `${(o.level - 1) * 12 + 8}px` }}
                       className="w-full text-left py-1 pr-2 rounded hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 truncate"
-                      title={o.text}
+                      data-tooltip={o.text}
                     >
                       {o.text || '(trống)'}
                     </button>
@@ -650,7 +651,7 @@ export default function MarkdownPreviewPage() {
                     key={t.key}
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={t.run}
-                    title={t.title}
+                    data-tooltip={t.title}
                     aria-label={t.title}
                     className="p-1.5 rounded-md text-slate-600 hover:text-indigo-700 hover:bg-indigo-50 transition"
                   >

@@ -5,6 +5,27 @@ const nextConfig: NextConfig = {
   // Cho phép chạy nhiều server dev/build song song (mỗi tiến trình một thư mục build riêng)
   distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
+  // Không quảng cáo framework/phiên bản qua header X-Powered-By
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+      // API nội bộ: không cache, không lập chỉ mục
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store' },
+          { key: 'X-Robots-Tag', value: 'noindex' },
+        ],
+      },
+    ];
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

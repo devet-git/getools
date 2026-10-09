@@ -258,7 +258,7 @@ function ReverseBuilder({ onUse }: { onUse: (cmd: string) => void }) {
                 <button
                   onClick={() => setHeaders((rows) => rows.filter((r) => r.id !== h.id))}
                   className="px-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-slate-100"
-                  title="Xóa header"
+                  data-tooltip="Xóa header" aria-label="Xóa header"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -506,7 +506,7 @@ export default function CurlConverterPage() {
                 <div className="px-3 py-2 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100">
                   <label
                     className={`flex items-center gap-1.5 text-xs cursor-pointer ${hasJson ? 'text-slate-700' : 'text-slate-400'}`}
-                    title="Bật để giữ body ở dạng chuỗi gốc thay vì cấu trúc native (object/dict/map)"
+                    data-tooltip="Bật để giữ body ở dạng chuỗi gốc thay vì cấu trúc native (object/dict/map)"
                   >
                     <input
                       type="checkbox"

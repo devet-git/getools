@@ -214,7 +214,7 @@ function EntryCard({
               </pre>
               <button
                 onClick={() => onCopy(filled, key)}
-                title="Sao chép lệnh"
+                data-tooltip="Sao chép lệnh"
                 aria-label="Sao chép lệnh"
                 className="shrink-0 px-2 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 transition"
               >

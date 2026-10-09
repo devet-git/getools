@@ -173,7 +173,7 @@ export default function HtmlToMarkdownPage() {
           <button
             onClick={() => setInputText(SAMPLE_INPUTS.fullArticle.html)}
             className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"
-            title="Tài liệu toàn diện có đầy đủ tiêu đề, code, list và bảng"
+            data-tooltip="Tài liệu toàn diện có đầy đủ tiêu đề, code, list và bảng"
           >
             <BookOpen className="h-3 w-3 text-amber-400" />
             Bài viết Toàn diện
@@ -181,7 +181,7 @@ export default function HtmlToMarkdownPage() {
           <button
             onClick={() => setInputText(SAMPLE_INPUTS.excelSales.html)}
             className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"
-            title="Bảng doanh số sao chép từ Excel hoặc Google Sheets"
+            data-tooltip="Bảng doanh số sao chép từ Excel hoặc Google Sheets"
           >
             <FileSpreadsheet className="h-3 w-3 text-emerald-400" />
             Bảng Excel / Sheets
@@ -189,7 +189,7 @@ export default function HtmlToMarkdownPage() {
           <button
             onClick={() => setInputText(SAMPLE_INPUTS.techComparison.html)}
             className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1"
-            title="Bảng so sánh công nghệ với code và link"
+            data-tooltip="Bảng so sánh công nghệ với code và link"
           >
             <TableIcon className="h-3 w-3 text-cyan-400" />
             Bảng So sánh
@@ -220,7 +220,7 @@ export default function HtmlToMarkdownPage() {
             <div className="flex items-center gap-1.5">
               <button
                 onClick={handlePasteFromClipboardBtn}
-                title="Dán nhanh từ Clipboard"
+                data-tooltip="Dán nhanh từ Clipboard"
                 className="px-2 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition flex items-center gap-1 border border-indigo-200"
               >
                 <ClipboardPaste className="h-3.5 w-3.5" />
@@ -228,7 +228,7 @@ export default function HtmlToMarkdownPage() {
               </button>
               <button
                 onClick={() => setInputText('')}
-                title="Xóa nội dung"
+                data-tooltip="Xóa nội dung" aria-label="Xóa nội dung"
                 className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
               >
                 <Trash2 className="h-4 w-4" />
@@ -276,7 +276,7 @@ export default function HtmlToMarkdownPage() {
                       ? 'bg-white text-slate-900 shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
-                  title="Xem trước kết quả đã render toàn bộ Markdown (Heading, List, Code, Bảng)"
+                  data-tooltip="Xem trước kết quả đã render toàn bộ Markdown (Heading, List, Code, Bảng)"
                 >
                   <Eye className="h-3 w-3" />
                   Xem trước
@@ -288,7 +288,7 @@ export default function HtmlToMarkdownPage() {
                       ? 'bg-white text-slate-900 shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
-                  title="Xem mã nguồn Markdown thuần"
+                  data-tooltip="Xem mã nguồn Markdown thuần"
                 >
                   <Code2 className="h-3 w-3" />
                   Mã Markdown
@@ -301,7 +301,7 @@ export default function HtmlToMarkdownPage() {
                         ? 'bg-white text-emerald-900 shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
-                    title="Chế độ tập trung kiểm tra Bảng biểu"
+                    data-tooltip="Chế độ tập trung kiểm tra Bảng biểu"
                   >
                     <TableIcon className="h-3 w-3 text-emerald-600" />
                     Bảng ({tableRows})
@@ -314,7 +314,7 @@ export default function HtmlToMarkdownPage() {
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setShowSettings(!showSettings)}
-                title="Tùy chọn cấu hình Markdown & Bảng"
+                data-tooltip="Tùy chọn cấu hình Markdown & Bảng" aria-label="Tùy chọn cấu hình Markdown & Bảng"
                 className={`p-1.5 rounded-lg border transition ${
                   showSettings
                     ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
@@ -333,7 +333,7 @@ export default function HtmlToMarkdownPage() {
               </button>
               <button
                 onClick={handleDownloadMarkdown}
-                title="Tải về file .md"
+                data-tooltip="Tải về file .md" aria-label="Tải về file .md"
                 className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 rounded-lg transition"
               >
                 <Download className="h-3.5 w-3.5" />

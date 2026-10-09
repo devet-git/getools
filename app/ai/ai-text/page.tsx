@@ -517,7 +517,7 @@ export default function AiTextPage() {
         </div>
         {support && (
           <span
-            title={supportChip ? BROWSER_AI_OK_MESSAGE : BROWSER_AI_NO_MESSAGE}
+            data-tooltip={supportChip ? BROWSER_AI_OK_MESSAGE : BROWSER_AI_NO_MESSAGE}
             className={`ml-auto hidden md:inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full border shrink-0 ${supportChip ? 'bg-emerald-500/15 border-emerald-400/30 text-emerald-300' : 'bg-slate-700/60 border-slate-600 text-slate-300'}`}
           >
             <Cpu className="h-3 w-3" /> {supportChip ? BROWSER_AI_OK_MESSAGE : BROWSER_AI_NO_MESSAGE}

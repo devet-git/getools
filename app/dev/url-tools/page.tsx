@@ -382,7 +382,7 @@ export default function UrlToolsPage() {
                               patch({ path: segmentsToPath(l.flatMap((x) => x.split('/')), false) });
                             }}
                           />
-                          <span className="text-[10px] text-slate-400 shrink-0 hidden sm:inline max-w-40 truncate" title={safeDecode(sg)}>{safeDecode(sg) !== sg ? safeDecode(sg) : ''}</span>
+                          <span className="text-[10px] text-slate-400 shrink-0 hidden sm:inline max-w-40 truncate" data-tooltip={safeDecode(sg)}>{safeDecode(sg) !== sg ? safeDecode(sg) : ''}</span>
                           <button className={iconBtn} disabled={i === 0} onClick={() => { const l = [...segs]; [l[i - 1], l[i]] = [l[i], l[i - 1]]; patch({ path: segmentsToPath(l) }); }}><ArrowUp className="h-3 w-3" /></button>
                           <button className={iconBtn} disabled={i === segs.length - 1} onClick={() => { const l = [...segs]; [l[i + 1], l[i]] = [l[i], l[i + 1]]; patch({ path: segmentsToPath(l) }); }}><ArrowDown className="h-3 w-3" /></button>
                           <button className={iconBtn} onClick={() => patch({ path: segmentsToPath(segs.filter((_, j) => j !== i), false) })}><Trash2 className="h-3 w-3" /></button>
@@ -488,10 +488,10 @@ export default function UrlToolsPage() {
                           />
                         </td>
                         <td className="py-1 whitespace-nowrap">
-                          <button className={iconBtn} title="Lên" disabled={i === 0} onClick={() => moveParam(i, -1)}><ArrowUp className="h-3 w-3" /></button>
-                          <button className={iconBtn} title="Xuống" disabled={i === params.length - 1} onClick={() => moveParam(i, 1)}><ArrowDown className="h-3 w-3" /></button>
-                          <button className={iconBtn} title="Nhân đôi" onClick={() => { const l = [...params]; l.splice(i + 1, 0, { ...p }); writeParams(l); }}><CopyPlus className="h-3 w-3" /></button>
-                          <button className={iconBtn} title="Xóa" onClick={() => writeParams(params.filter((_, j) => j !== i))}><Trash2 className="h-3 w-3" /></button>
+                          <button className={iconBtn} data-tooltip="Lên" aria-label="Lên" disabled={i === 0} onClick={() => moveParam(i, -1)}><ArrowUp className="h-3 w-3" /></button>
+                          <button className={iconBtn} data-tooltip="Xuống" aria-label="Xuống" disabled={i === params.length - 1} onClick={() => moveParam(i, 1)}><ArrowDown className="h-3 w-3" /></button>
+                          <button className={iconBtn} data-tooltip="Nhân đôi" aria-label="Nhân đôi" onClick={() => { const l = [...params]; l.splice(i + 1, 0, { ...p }); writeParams(l); }}><CopyPlus className="h-3 w-3" /></button>
+                          <button className={iconBtn} data-tooltip="Xóa" aria-label="Xóa" onClick={() => writeParams(params.filter((_, j) => j !== i))}><Trash2 className="h-3 w-3" /></button>
                         </td>
                       </tr>
                     ))}
@@ -557,7 +557,7 @@ export default function UrlToolsPage() {
                   {pct.tokens.map((t, i) => (
                     <span
                       key={i}
-                      title={t.kind === 'plain' ? '' : t.kind === 'valid' ? `Giải mã: ${t.decoded}` : t.kind === 'invalid' ? 'Dấu % không theo sau bởi 2 chữ số hex' : 'Dãy byte không phải UTF-8 hợp lệ'}
+                      data-tooltip={t.kind === 'plain' ? '' : t.kind === 'valid' ? `Giải mã: ${t.decoded}` : t.kind === 'invalid' ? 'Dấu % không theo sau bởi 2 chữ số hex' : 'Dãy byte không phải UTF-8 hợp lệ'}
                       className={
                         t.kind === 'valid' ? 'bg-emerald-100 text-emerald-800 rounded-xs' : t.kind === 'plain' ? '' : 'bg-red-200 text-red-900 rounded-xs'
                       }

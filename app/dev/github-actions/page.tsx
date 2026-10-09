@@ -118,7 +118,7 @@ function KVEditor({ items, onChange, kPlaceholder = 'khóa', vPlaceholder = 'gi�
             placeholder={vPlaceholder}
             onChange={(e) => onChange(items.map((x, j) => (j === i ? { ...x, v: e.target.value } : x)))}
           />
-          <button className={iconBtn} onClick={() => onChange(items.filter((_, j) => j !== i))} title="Xóa">
+          <button className={iconBtn} onClick={() => onChange(items.filter((_, j) => j !== i))} data-tooltip="Xóa" aria-label="Xóa">
             <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -195,7 +195,7 @@ function IssueList({ issues, onJump }: { issues: LintIssue[]; onJump?: (line: nu
           <li key={idx} className={`rounded-lg border px-2.5 py-1.5 text-xs ${st.cls}`}>
             <div className="flex flex-wrap items-center gap-1.5">
               <span className={`px-1.5 py-px rounded text-[10px] font-bold ${st.badge}`}>{st.label}</span>
-              <button className="font-mono text-[11px] underline decoration-dotted" onClick={() => onJump?.(i.line)} title={RULE_DOCS[i.rule]}>
+              <button className="font-mono text-[11px] underline decoration-dotted" onClick={() => onJump?.(i.line)} data-tooltip={RULE_DOCS[i.rule]}>
                 {i.rule} · dòng {i.line}:{i.col}
               </button>
               <span className="text-[10.5px] opacity-70">{RULE_DOCS[i.rule]}</span>
@@ -387,13 +387,13 @@ function StepEditor({ s, index, total, onChange, onMove, onRemove }: { s: StepDe
       <div className="flex items-center gap-1.5">
         <span className="text-[10px] font-bold text-slate-400 w-5">#{index + 1}</span>
         <input className={inputCls} value={s.name} placeholder="Tên step (name)" onChange={(e) => onChange({ name: e.target.value })} />
-        <button className={iconBtn} disabled={index === 0} onClick={() => onMove(-1)} title="Lên">
+        <button className={iconBtn} disabled={index === 0} onClick={() => onMove(-1)} data-tooltip="Lên" aria-label="Lên">
           <ArrowUp className="h-3.5 w-3.5" />
         </button>
-        <button className={iconBtn} disabled={index === total - 1} onClick={() => onMove(1)} title="Xuống">
+        <button className={iconBtn} disabled={index === total - 1} onClick={() => onMove(1)} data-tooltip="Xuống" aria-label="Xuống">
           <ArrowDown className="h-3.5 w-3.5" />
         </button>
-        <button className={iconBtn} onClick={onRemove} title="Xóa step">
+        <button className={iconBtn} onClick={onRemove} data-tooltip="Xóa step" aria-label="Xóa step">
           <Trash2 className="h-3.5 w-3.5 text-red-500" />
         </button>
       </div>
@@ -495,7 +495,7 @@ function JobEditor({
           <button className={iconBtn} disabled={index === total - 1} onClick={() => onMove(1)}>
             <ArrowDown className="h-3.5 w-3.5" />
           </button>
-          <button className={iconBtn} disabled={total <= 1} onClick={onRemove} title="Xóa job">
+          <button className={iconBtn} disabled={total <= 1} onClick={onRemove} data-tooltip="Xóa job" aria-label="Xóa job">
             <Trash2 className="h-3.5 w-3.5 text-red-500" />
           </button>
         </div>
@@ -1070,7 +1070,7 @@ export default function GithubActionsPage() {
                     <Field label="directory">
                       <input className={monoCls} value={d.directory} onChange={(e) => set({ directory: e.target.value })} />
                     </Field>
-                    <button className={iconBtn} onClick={() => setDeps(deps.filter((_, j) => j !== i))} title="Xóa">
+                    <button className={iconBtn} onClick={() => setDeps(deps.filter((_, j) => j !== i))} data-tooltip="Xóa" aria-label="Xóa">
                       <Trash2 className="h-3.5 w-3.5 text-red-500" />
                     </button>
                   </div>

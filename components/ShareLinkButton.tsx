@@ -34,7 +34,7 @@ export function ShareLinkButton({
     <button
       type="button"
       onClick={handleClick}
-      title="Sao chép link giữ nguyên cấu hình hiện tại"
+      data-tooltip="Sao chép link giữ nguyên cấu hình hiện tại"
       className={
         className ??
         'px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 transition flex items-center gap-1'

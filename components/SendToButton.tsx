@@ -143,7 +143,7 @@ export function SendToButton({ text, fromToolId, className = '' }: SendToButtonP
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        title="Gửi kết quả sang công cụ khác"
+        data-tooltip="Gửi kết quả sang công cụ khác"
         className="px-2.5 py-1 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-100 transition flex items-center gap-1 disabled:opacity-50"
       >
         <Send className="h-3.5 w-3.5" />

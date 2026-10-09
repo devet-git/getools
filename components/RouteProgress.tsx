@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { usePathname } from 'next/navigation';
 import { beginNavigation, endNavigation, subscribeNavigation, getPendingPath, getServerPendingPath } from '@/lib/route-progress';
 
-/** Trang đã prefetch thường mở gần như tức thì: chờ một chút mới hiện thanh để khỏi nháy. */
-const SHOW_DELAY = 150;
+/** Thời gian tối thiểu thanh hiện trên màn hình, kể cả khi trang đã prefetch và mở tức thì */
+const MIN_VISIBLE_MS = 380;
 /** Không bao giờ treo thanh mãi: quá thời gian này coi như đã xong. */
 const GIVE_UP_AFTER = 12_000;
 
@@ -18,6 +18,7 @@ export function RouteProgress() {
   const pending = useSyncExternalStore(subscribeNavigation, getPendingPath, getServerPendingPath);
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
+  const finishAt = useRef(0);
 
   // Click vào link nội bộ (Link của Next lẫn <a> thường), bỏ qua mở tab mới / tải file
   useEffect(() => {
@@ -37,34 +38,38 @@ export function RouteProgress() {
     endNavigation();
   }, [pathname]);
 
-  // Đang tải: chạy nhanh lúc đầu rồi chậm dần, không bao giờ tự chạm 100%
+  // Đang tải: hiện ngay, chạy nhanh lúc đầu rồi chậm dần, không bao giờ tự chạm 100%
   useEffect(() => {
     if (!pending) return;
+    const startedAt = Date.now();
     let p = 0;
     let trickle: ReturnType<typeof setInterval> | undefined;
     const tick = () => {
-      p = p === 0 ? 0.18 : p + (0.92 - p) * 0.09;
+      p = p === 0 ? 0.3 : p + (0.92 - p) * 0.09;
       setVisible(true);
       setProgress(p);
     };
     const start = setTimeout(() => {
       tick();
       trickle = setInterval(tick, 220);
-    }, SHOW_DELAY);
+    }, 0);
     const giveUp = setTimeout(endNavigation, GIVE_UP_AFTER);
     return () => {
       clearTimeout(start);
       clearInterval(trickle);
       clearTimeout(giveUp);
-      // Xong: nếu thanh đã hiện thì chạy nốt tới cuối rồi mới mờ đi
-      setProgress((cur) => (cur > 0 ? 1 : 0));
+      // Xong: chạy nốt tới cuối; trang mở quá nhanh thì vẫn giữ thanh đủ lâu để người dùng thấy phản hồi
+      finishAt.current = startedAt + MIN_VISIBLE_MS;
+      setVisible(true);
+      setProgress(1);
     };
   }, [pending]);
 
   useEffect(() => {
     if (progress !== 1) return;
-    const fade = setTimeout(() => setVisible(false), 260);
-    const reset = setTimeout(() => setProgress(0), 600);
+    const fadeAfter = Math.max(260, finishAt.current - Date.now());
+    const fade = setTimeout(() => setVisible(false), fadeAfter);
+    const reset = setTimeout(() => setProgress(0), fadeAfter + 350); // đợi mờ hẳn mới thu thanh về 0
     return () => {
       clearTimeout(fade);
       clearTimeout(reset);

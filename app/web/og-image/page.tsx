@@ -1121,7 +1121,7 @@ function UploadRow({
           <span className="text-xs text-slate-600 truncate max-w-48">
             {img.name} ({img.w}×{img.h})
           </span>
-          <button type="button" onClick={onClear} className="p-1 text-slate-400 hover:text-red-600" title="Xóa ảnh">
+          <button type="button" onClick={onClear} className="p-1 text-slate-400 hover:text-red-600" data-tooltip="Xóa ảnh" aria-label="Xóa ảnh">
             <Trash2 className="h-4 w-4" />
           </button>
         </>
@@ -1412,7 +1412,7 @@ export default function OgImagePage() {
                   zones.map((z) => (
                     <div
                       key={z.label}
-                      title={z.label}
+                      data-tooltip={z.label}
                       className={`absolute pointer-events-none ${
                         z.kind === 'trim' ? 'bg-red-500/35' : 'border-2 border-dashed border-emerald-400'
                       }`}
@@ -1445,7 +1445,7 @@ export default function OgImagePage() {
                   className={`px-2 py-1 rounded-lg text-xs border transition ${
                     s.size === z.id ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                   }`}
-                  title={z.note}
+                  data-tooltip={z.note}
                 >
                   {z.w}×{z.h}
                 </button>
@@ -1547,7 +1547,7 @@ export default function OgImagePage() {
                 <button
                   key={tp.id}
                   onClick={() => set('template', tp.id)}
-                  title={tp.hint}
+                  data-tooltip={tp.hint}
                   className={`text-left px-2.5 py-2 rounded-lg border transition ${
                     s.template === tp.id ? 'bg-indigo-50 border-indigo-500 ring-1 ring-indigo-500' : 'bg-white border-slate-200 hover:bg-slate-50'
                   }`}
@@ -1578,7 +1578,7 @@ export default function OgImagePage() {
                   type="button"
                   onClick={() => set('title', (s.title + em).slice(0, 300))}
                   className="h-7 w-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-sm"
-                  title="Chèn emoji vào cuối tiêu đề"
+                  data-tooltip="Chèn emoji vào cuối tiêu đề"
                 >
                   {em}
                 </button>

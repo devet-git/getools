@@ -7,7 +7,6 @@ import {
   Clock,
   Star,
   Settings,
-  Key,
   Menu,
   X,
   ChevronRight,
@@ -45,7 +44,7 @@ function readCategoryState(): Record<string, boolean> {
   }
 }
 
-/** Nút phụ gắn với một nhóm (vd. Bookmarks / Lịch sử / Token của nhóm Git) */
+/** Nút ở chân thanh bên (Bookmark / Lịch sử tải / Cài đặt) */
 interface SidebarAction {
   label: string;
   title: string;
@@ -58,16 +57,9 @@ interface SidebarAction {
   dot?: { text?: string; className: string };
 }
 
-interface CategoryExtras {
-  /** Nút nhỏ cạnh tiêu đề nhóm */
-  headerAction?: SidebarAction;
-  /** Các nút hiện dưới danh sách tool của nhóm */
-  footer: SidebarAction[];
-}
-
 export function Sidebar() {
   const pathname = usePathname();
-  const { isToolLocked } = useAiSettings();
+  const { isToolLocked, ready: aiReady } = useAiSettings();
   const {
     bookmarksCount,
     historyCount,
@@ -119,52 +111,43 @@ export function Sidebar() {
     setIsHistoryModalOpen(true);
     closeMobile();
   };
-  const openGitSettings = () => {
-    openSettings('git');
-    closeMobile();
-  };
+  const settingsConfigured = hasConfiguredKeys || aiReady;
 
-  const gitExtras: CategoryExtras = {
-    headerAction: {
-      label: 'Cài đặt Công cụ Git',
-      title: `Cài đặt API Tokens Git (GitHub / GitLab / Bitbucket)${hasConfiguredKeys ? ' • Đã thiết lập' : ''}`,
-      icon: Settings,
-      iconClassName: 'group-hover:rotate-45 transition-transform duration-200',
-      onClick: openGitSettings,
-      dot: hasConfiguredKeys ? { className: 'bg-emerald-500' } : undefined,
+  // Chân thanh bên: thao tác dùng chung cho cả ứng dụng, không thuộc riêng nhóm nào
+  const footerActions: SidebarAction[] = [
+    {
+      label: 'Bookmark đã ghim',
+      title: `Bookmark repo / link đã ghim (${bookmarksCount})`,
+      icon: Star,
+      iconClassName: 'text-amber-500 fill-amber-500/20',
+      onClick: () => openHistory('bookmarks'),
+      pill: { text: String(bookmarksCount), className: 'text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/50' },
+      dot: bookmarksCount > 0 ? { text: String(bookmarksCount), className: 'bg-amber-500 text-white' } : undefined,
     },
-    footer: [
-      {
-        label: 'Bookmarks đã ghim',
-        title: `Bookmarks đã ghim (${bookmarksCount})`,
-        icon: Star,
-        iconClassName: 'text-amber-500 fill-amber-500/20',
-        onClick: () => openHistory('bookmarks'),
-        pill: { text: String(bookmarksCount), className: 'text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/50' },
-        dot: bookmarksCount > 0 ? { text: String(bookmarksCount), className: 'bg-amber-500 text-white' } : undefined,
+    {
+      label: 'Lịch sử tải',
+      title: `Lịch sử tải file / repo (${historyCount})`,
+      icon: Clock,
+      iconClassName: 'text-slate-500',
+      onClick: () => openHistory('history'),
+      pill: { text: String(historyCount), className: 'text-[11px] font-semibold bg-slate-100 text-slate-600' },
+      dot: historyCount > 0 ? { text: String(historyCount), className: 'bg-slate-700 text-white' } : undefined,
+    },
+    {
+      label: 'Cài đặt',
+      title: `Cài đặt: token Git, khóa AI, sao lưu & đồng bộ Google Drive${settingsConfigured ? ' • Đã thiết lập' : ''}`,
+      icon: Settings,
+      iconClassName: 'text-slate-500 group-hover:rotate-45 transition-transform duration-200',
+      onClick: () => {
+        openSettings();
+        closeMobile();
       },
-      {
-        label: 'Lịch sử tải',
-        title: `Lịch sử tải (${historyCount})`,
-        icon: Clock,
-        iconClassName: 'text-slate-500',
-        onClick: () => openHistory('history'),
-        pill: { text: String(historyCount), className: 'text-[11px] font-semibold bg-slate-100 text-slate-600' },
-        dot: historyCount > 0 ? { text: String(historyCount), className: 'bg-slate-700 text-white' } : undefined,
-      },
-      {
-        label: 'API Tokens',
-        title: `API Tokens (${hasConfiguredKeys ? 'Đã cài' : 'Chưa cài'})`,
-        icon: Key,
-        iconClassName: 'text-slate-500',
-        onClick: openGitSettings,
-        pill: hasConfiguredKeys
-          ? { text: 'Đã cài', className: 'text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/50' }
-          : { text: 'Chưa có', className: 'text-[10px] font-medium bg-slate-100 text-slate-500' },
-        dot: hasConfiguredKeys ? { className: 'bg-emerald-500' } : undefined,
-      },
-    ],
-  };
+      pill: settingsConfigured
+        ? { text: 'Đã thiết lập', className: 'text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/50' }
+        : undefined,
+      dot: settingsConfigured ? { className: 'bg-emerald-500' } : undefined,
+    },
+  ];
 
   return (
     <>
@@ -184,7 +167,8 @@ export function Sidebar() {
             size="sm"
             onClick={openPalette}
             className="h-8 w-8 p-0"
-            title="Tìm công cụ"
+            data-tooltip="Tìm công cụ"
+            aria-label="Tìm công cụ"
           >
             <Search className="h-4 w-4" />
           </Button>
@@ -199,7 +183,7 @@ export function Sidebar() {
               setIsHistoryModalOpen(true);
             }}
             className="h-8 px-2 text-xs"
-            title="Lịch sử & Bookmark"
+            data-tooltip="Lịch sử & Bookmark"
           >
             <Clock className="h-4 w-4" />
             {bookmarksCount > 0 && (
@@ -210,9 +194,10 @@ export function Sidebar() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => openSettings('git')}
+            onClick={() => openSettings()}
             className="h-8 w-8 p-0"
-            title="Cài đặt API Token"
+            data-tooltip="Cài đặt"
+            aria-label="Cài đặt"
           >
             <Settings className="h-4 w-4" />
           </Button>
@@ -222,6 +207,7 @@ export function Sidebar() {
             size="sm"
             onClick={() => setIsMobileOpen(!isMobileOpen)}
             className="h-8 w-8 p-0"
+            aria-label={isMobileOpen ? 'Đóng menu' : 'Mở menu'}
           >
             {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
@@ -242,48 +228,57 @@ export function Sidebar() {
           isMobileOpen ? 'translate-x-0 shadow-2xl w-72' : '-translate-x-full'
         } ${isSidebarCollapsed ? 'lg:w-20' : 'lg:w-72'}`}
       >
-        {/* Brand / Logo Header */}
-        <div className={`p-4 border-b border-border flex items-center ${isSidebarCollapsed ? 'justify-center flex-col gap-2' : 'justify-between'}`}>
-          <Link 
-            href="/" 
-            onClick={closeMobile} 
+        {/* Logo + nút sáng/tối + thu gọn */}
+        <div className={`relative p-4 border-b border-border flex items-center ${isSidebarCollapsed ? 'flex-col gap-2' : 'justify-between'}`}>
+          <Link
+            href="/"
+            onClick={closeMobile}
             className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'}`}
-            title="GeTools"
+            data-tooltip-side={isSidebarCollapsed ? 'right' : undefined}
+            data-tooltip="GeTools — Trang chủ"
           >
             <Logo className="h-10 w-10" />
-            {!isSidebarCollapsed && (
-              <div className="min-w-0">
-                <span className="font-bold text-base tracking-tight text-slate-900 block truncate">GeTools</span>
-                <span className="text-xs text-muted-foreground block truncate">Bộ công cụ Git & văn bản</span>
-              </div>
-            )}
+            {!isSidebarCollapsed && <span className="font-bold text-base tracking-tight text-slate-900 truncate">GeTools</span>}
           </Link>
 
-          {/* Desktop Toggle Button */}
-          <div className="flex items-center gap-0.5">
-            {!isSidebarCollapsed && <ThemeToggle compact />}
-            <button
-              type="button"
-              onClick={toggleSidebarCollapse}
-              className="hidden lg:flex p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-              title={isSidebarCollapsed ? "Mở rộng thanh bên (Expand)" : "Thu gọn thanh bên (Collapse)"}
-            >
-              {isSidebarCollapsed ? (
-                <PanelLeftOpen className="h-4 w-4" />
-              ) : (
+          {isSidebarCollapsed ? (
+            <>
+              <ThemeToggle compact />
+              {/* Nút mở rộng dính ở mép phải thanh bên, ngang tâm logo */}
+              <button
+                type="button"
+                onClick={toggleSidebarCollapse}
+                aria-label="Mở rộng thanh bên"
+                data-tooltip-side="right"
+                data-tooltip="Mở rộng thanh bên"
+                className="hidden lg:flex absolute -right-3 top-9 -translate-y-1/2 h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:text-slate-900 hover:bg-slate-50 transition-colors"
+              >
+                <PanelLeftOpen className="h-3.5 w-3.5" />
+              </button>
+            </>
+          ) : (
+            <div className="flex items-center gap-0.5">
+              <ThemeToggle compact />
+              <button
+                type="button"
+                onClick={toggleSidebarCollapse}
+                aria-label="Thu gọn thanh bên"
+                data-tooltip="Thu gọn thanh bên"
+                className="hidden lg:flex p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+              >
                 <PanelLeftClose className="h-4 w-4" />
-              )}
-            </button>
-
-            {/* Mobile close button */}
-            <button
-              type="button"
-              onClick={closeMobile}
-              className="lg:hidden p-1 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
+              </button>
+              {/* Nút đóng trên điện thoại */}
+              <button
+                type="button"
+                onClick={closeMobile}
+                aria-label="Đóng thanh bên"
+                className="lg:hidden p-1 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Tìm nhanh công cụ (Ctrl+K) */}
@@ -291,7 +286,8 @@ export function Sidebar() {
           <button
             type="button"
             onClick={openPalette}
-            title="Tìm công cụ (Ctrl+K)"
+            data-tooltip-side={isSidebarCollapsed ? 'right' : undefined}
+            data-tooltip="Tìm công cụ (Ctrl+K)"
             className={`w-full flex items-center rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 transition-colors ${
               isSidebarCollapsed ? 'justify-center p-2.5' : 'gap-2 px-3 py-2 text-xs'
             }`}
@@ -304,11 +300,6 @@ export function Sidebar() {
               </>
             )}
           </button>
-          {isSidebarCollapsed && (
-            <div className="flex justify-center mt-2">
-              <ThemeToggle compact />
-            </div>
-          )}
         </div>
 
         {/* Lối tắt: Dán thông minh + Snippet */}
@@ -320,7 +311,8 @@ export function Sidebar() {
             <button
               key={event}
               type="button"
-              title={title}
+              data-tooltip-side={isSidebarCollapsed ? 'right' : undefined}
+              data-tooltip={title}
               onClick={() => {
                 setIsMobileOpen(false);
                 window.dispatchEvent(new CustomEvent(event));
@@ -341,7 +333,8 @@ export function Sidebar() {
           <Link
             href="/"
             onClick={closeMobile}
-            title="Trang chủ - tổng quan các công cụ"
+            data-tooltip-side={isSidebarCollapsed ? 'right' : undefined}
+            data-tooltip="Trang chủ - tổng quan các công cụ"
             className={`flex items-center rounded-lg text-[13px] font-semibold transition-all ${
               isSidebarCollapsed ? 'justify-center p-2.5 rounded-xl' : 'gap-3 px-3 py-2.5'
             } ${pathname === '/' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
@@ -352,21 +345,17 @@ export function Sidebar() {
 
           {visibleCategories.map((cat) => {
             const expanded = isSidebarCollapsed || isCategoryExpanded(cat.id);
-            const extras = cat.id === 'git' ? gitExtras : null;
             return (
               <div key={cat.id}>
                 {isSidebarCollapsed ? (
-                  <div>
-                    <div className="w-full h-px bg-slate-100 my-2" />
-                    {extras?.headerAction && <CategoryHeaderAction action={extras.headerAction} collapsed />}
-                  </div>
+                  <div className="w-full h-px bg-slate-100 my-2" />
                 ) : (
-                  <div className="flex items-center justify-between pb-1">
+                  <div className="pb-1">
                     <button
                       type="button"
                       onClick={() => toggleCategory(cat.id)}
                       aria-expanded={expanded}
-                      title={expanded ? 'Thu gọn mục' : 'Mở rộng mục'}
+                      data-tooltip={expanded ? 'Thu gọn mục' : 'Mở rộng mục'}
                       className="flex-1 min-w-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold text-slate-400 hover:text-slate-700 hover:bg-slate-50 uppercase tracking-wider transition-colors cursor-pointer"
                     >
                       <ChevronDown
@@ -379,12 +368,10 @@ export function Sidebar() {
                         </span>
                       )}
                     </button>
-                    {extras?.headerAction && <CategoryHeaderAction action={extras.headerAction} />}
                   </div>
                 )}
                 {expanded && (
-                  <>
-                    <nav className="space-y-1">
+                  <nav className="space-y-1">
                       {cat.items.map((item) => (
                         <SidebarToolLink
                           key={item.id}
@@ -395,21 +382,19 @@ export function Sidebar() {
                           onNavigate={closeMobile}
                         />
                       ))}
-                    </nav>
-                    {extras && extras.footer.length > 0 && (
-                      <div className="space-y-1 mt-1">
-                        {extras.footer.map((a) => (
-                          <SidebarActionButton key={a.label} action={a} collapsed={isSidebarCollapsed} />
-                        ))}
-                      </div>
-                    )}
-                  </>
+                  </nav>
                 )}
               </div>
             );
           })}
         </div>
 
+        {/* Chân thanh bên */}
+        <div className="shrink-0 border-t border-border p-2.5 space-y-1">
+          {footerActions.map((a) => (
+            <SidebarActionButton key={a.label} action={a} collapsed={isSidebarCollapsed} />
+          ))}
+        </div>
       </aside>
     </>
   );
@@ -429,7 +414,8 @@ function SidebarToolLink({ tool, active, locked, collapsed, onNavigate }: {
       <Link
         href={tool.href}
         onClick={onNavigate}
-        title={`${tool.name} - ${tool.description}${locked ? ' (cần khóa AI)' : ''}`}
+        data-tooltip-side="right"
+        data-tooltip={`${tool.name} - ${tool.description}${locked ? ' (cần khóa AI)' : ''}`}
         className={`flex items-center justify-center p-2.5 rounded-xl transition-all relative group ${locked ? 'opacity-50' : ''} ${
           active
             ? 'bg-slate-900 text-white shadow-xs'
@@ -452,7 +438,7 @@ function SidebarToolLink({ tool, active, locked, collapsed, onNavigate }: {
     <Link
       href={tool.href}
       onClick={onNavigate}
-      title={locked ? 'Cần khóa AI để sử dụng' : undefined}
+      data-tooltip={locked ? 'Cần khóa AI để sử dụng' : undefined}
       className={`flex items-start gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all group ${locked ? 'opacity-55' : ''} ${
         active
           ? 'bg-slate-900 text-white shadow-xs'
@@ -470,7 +456,7 @@ function SidebarToolLink({ tool, active, locked, collapsed, onNavigate }: {
               </span>
             )}
             {tool.aiEnhanced && (
-              <span title="Dùng được miễn phí; thêm khóa AI để mở thêm tính năng nâng cao" className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-violet-100 text-violet-700">
+              <span data-tooltip="Dùng được miễn phí; thêm khóa AI để mở thêm tính năng nâng cao" className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-violet-100 text-violet-700">
                 <Sparkles className="h-2.5 w-2.5" /> +AI
               </span>
             )}
@@ -492,28 +478,7 @@ function SidebarToolLink({ tool, active, locked, collapsed, onNavigate }: {
   );
 }
 
-/** Nút nhỏ cạnh tiêu đề nhóm (vd. cài đặt token của nhóm Git) */
-function CategoryHeaderAction({ action, collapsed = false }: { action: SidebarAction; collapsed?: boolean }) {
-  const Icon = action.icon;
-  return (
-    <button
-      type="button"
-      onClick={action.onClick}
-      title={action.title}
-      aria-label={action.label}
-      className={`flex items-center justify-center text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors relative group cursor-pointer ${
-        collapsed ? 'w-full p-2 mb-1 rounded-xl' : 'p-1 mr-1 rounded-md'
-      }`}
-    >
-      <Icon className={`${collapsed ? 'h-4 w-4' : 'h-3.5 w-3.5'} ${action.iconClassName}`} />
-      {action.dot && (
-        <span className={`absolute h-1.5 w-1.5 rounded-full ring-1 ring-white ${collapsed ? 'top-1.5 right-2' : 'top-0.5 right-0.5'} ${action.dot.className}`} />
-      )}
-    </button>
-  );
-}
-
-/** Nút phụ dưới danh sách tool của nhóm: dạng icon khi sidebar thu gọn, dạng dòng có nhãn khi mở rộng */
+/** Nút ở chân thanh bên: dạng icon khi thu gọn, dạng dòng có nhãn khi mở rộng */
 function SidebarActionButton({ action, collapsed }: { action: SidebarAction; collapsed: boolean }) {
   const Icon = action.icon;
 
@@ -522,8 +487,9 @@ function SidebarActionButton({ action, collapsed }: { action: SidebarAction; col
       <button
         type="button"
         onClick={action.onClick}
-        title={action.title}
-        className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
+        data-tooltip-side="right"
+        data-tooltip={action.title}
+        className="group w-full flex items-center justify-center p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors relative"
       >
         <Icon className={`h-5 w-5 ${action.iconClassName}`} />
         {action.dot && (
@@ -543,7 +509,7 @@ function SidebarActionButton({ action, collapsed }: { action: SidebarAction; col
     <button
       type="button"
       onClick={action.onClick}
-      className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+      className="group w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
     >
       <div className="flex items-center gap-2.5">
         <Icon className={`h-4 w-4 ${action.iconClassName}`} />

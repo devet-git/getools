@@ -846,7 +846,7 @@ export default function FaviconGenPage() {
                       setImgSrc(null);
                     }}
                     className="p-1 text-slate-400 hover:text-red-600"
-                    title="Xóa ảnh"
+                    data-tooltip="Xóa ảnh" aria-label="Xóa ảnh"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -1191,7 +1191,7 @@ export default function FaviconGenPage() {
               <label
                 key={d.id}
                 className={`flex items-start gap-2 text-xs ${unavailable ? 'opacity-50' : ''}`}
-                title={unavailable ? d.desc : undefined}
+                data-tooltip={unavailable ? d.desc : undefined}
               >
                 <input
                   type="checkbox"

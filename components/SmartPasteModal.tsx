@@ -214,7 +214,7 @@ export function SmartPasteModal() {
                         </span>
                         <span className="block text-xs text-slate-500 truncate">{d.reason}</span>
                       </span>
-                      <span className="shrink-0 flex items-center gap-2" title={`Độ tin cậy ${pct}%`}>
+                      <span className="shrink-0 flex items-center gap-2" data-tooltip={`Độ tin cậy ${pct}%`}>
                         <span className="h-1.5 w-16 rounded-full bg-slate-200 overflow-hidden">
                           <span className={`block h-full rounded-full ${pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-indigo-500' : 'bg-amber-500'}`} style={{ width: `${pct}%` }} />
                         </span>

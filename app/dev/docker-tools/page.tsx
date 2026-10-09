@@ -223,7 +223,7 @@ export default function DockerToolsPage() {
             </span>
             <button
               onClick={() => setInput('')}
-              title="Xóa nội dung"
+              data-tooltip="Xóa nội dung" aria-label="Xóa nội dung"
               className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
             >
               <Trash2 className="h-4 w-4" />
@@ -272,7 +272,7 @@ export default function DockerToolsPage() {
               <button
                 onClick={download}
                 disabled={!output}
-                title={mode === 'run2compose' ? 'Tải docker-compose.yml' : 'Tải docker-run.sh'}
+                data-tooltip={mode === 'run2compose' ? 'Tải docker-compose.yml' : 'Tải docker-run.sh'} aria-label={mode === 'run2compose' ? 'Tải docker-compose.yml' : 'Tải docker-run.sh'}
                 className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 rounded-lg transition disabled:opacity-40"
               >
                 <Download className="h-3.5 w-3.5" />

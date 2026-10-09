@@ -25,6 +25,7 @@ import {
 import { useApp } from '@/components/AppContext';
 import { useAppRouter } from '@/hooks/use-app-router';
 import { toolHref } from '@/lib/tools';
+import { showConfirm } from '@/lib/dialog';
 
 const emptyArrayString = () => '[]';
 
@@ -93,8 +94,8 @@ export function HistoryBookmarksModal() {
     showToast('Đã xóa mục khỏi lịch sử!');
   };
 
-  const handleClearHistory = () => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử tải? (Bookmarks vẫn được giữ nguyên)')) {
+  const handleClearHistory = async () => {
+    if (await showConfirm('Xóa toàn bộ lịch sử tải? Bookmark vẫn được giữ nguyên.', { danger: true })) {
       clearHistory();
       showToast('Đã xóa toàn bộ lịch sử tải!');
     }
@@ -204,7 +205,7 @@ export function HistoryBookmarksModal() {
               <div key={item.id} className="py-3 px-1 flex items-start justify-between gap-3 group hover:bg-muted/30 rounded-md transition-colors">
                 <div className="min-w-0 flex-1 space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-xs text-foreground truncate max-w-[280px]" title={item.name}>
+                    <span className="font-semibold text-xs text-foreground truncate max-w-[280px]" data-tooltip={item.name}>
                       {item.name}
                     </span>
                     <span className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
@@ -220,7 +221,7 @@ export function HistoryBookmarksModal() {
                     )}
                   </div>
 
-                  <p className="text-[11px] text-muted-foreground truncate font-mono" title={item.url}>
+                  <p className="text-[11px] text-muted-foreground truncate font-mono" data-tooltip={item.url}>
                     {item.url}
                   </p>
 
@@ -236,7 +237,7 @@ export function HistoryBookmarksModal() {
                     variant="ghost"
                     className="h-7 w-7 p-0 text-muted-foreground hover:text-amber-500"
                     onClick={() => handleToggleBookmark(item)}
-                    title={item.isBookmarked ? 'Bỏ ghim' : 'Ghim bookmark'}
+                    data-tooltip={item.isBookmarked ? 'Bỏ ghim' : 'Ghim bookmark'} aria-label={item.isBookmarked ? 'Bỏ ghim' : 'Ghim bookmark'}
                   >
                     <Star className={`h-3.5 w-3.5 ${item.isBookmarked ? 'text-amber-500 fill-amber-500' : ''}`} />
                   </Button>
@@ -245,7 +246,7 @@ export function HistoryBookmarksModal() {
                     variant="ghost"
                     className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
                     onClick={() => copyToClipboard(item.url, 'Đã sao chép link!')}
-                    title="Sao chép URL"
+                    data-tooltip="Sao chép URL" aria-label="Sao chép URL"
                   >
                     <Copy className="h-3.5 w-3.5" />
                   </Button>
@@ -254,7 +255,7 @@ export function HistoryBookmarksModal() {
                     variant="ghost"
                     className="h-7 w-7 p-0 text-muted-foreground hover:text-primary"
                     onClick={() => handleNavigateToUrl(item.url)}
-                    title="Nạp URL vào ô Tải"
+                    data-tooltip="Nạp URL vào ô Tải" aria-label="Nạp URL vào ô Tải"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
                   </Button>
@@ -264,7 +265,7 @@ export function HistoryBookmarksModal() {
                       variant="ghost"
                       className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
                       onClick={() => handleRemoveHistory(item.id)}
-                      title="Xóa khỏi lịch sử"
+                      data-tooltip="Xóa khỏi lịch sử" aria-label="Xóa khỏi lịch sử"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>

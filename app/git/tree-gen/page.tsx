@@ -553,7 +553,7 @@ export default function TreeGenPage() {
                           onKeyDown={(e) => { if (e.key === 'Enter') commitDraft(); if (e.key === 'Escape') setDraft(null); }}
                           onBlur={commitDraft} />
                       ) : (
-                        <span className="font-mono truncate text-slate-800" title={node.name}>{node.name}</span>
+                        <span className="font-mono truncate text-slate-800" data-tooltip={node.name}>{node.name}</span>
                       )}
                     </div>
                     <input
@@ -563,21 +563,21 @@ export default function TreeGenPage() {
                       onChange={(e) => apply((r) => setComment(r, node.id, e.target.value))}
                     />
                     <div className="flex items-center gap-0.5 shrink-0">
-                      <button type="button" title="Đổi tên" className="p-1 text-slate-500 hover:text-indigo-600"
+                      <button type="button" data-tooltip="Đổi tên" aria-label="Đổi tên" className="p-1 text-slate-500 hover:text-indigo-600"
                         onClick={() => setDraft({ mode: 'rename', id: node.id, value: node.name })}>
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
-                      <button type="button" title="Thêm mục con" className="p-1 text-slate-500 hover:text-emerald-600"
+                      <button type="button" data-tooltip="Thêm mục con" aria-label="Thêm mục con" className="p-1 text-slate-500 hover:text-emerald-600"
                         onClick={() => setDraft({ mode: 'add', id: node.id, value: '' })}>
                         <Plus className="h-3.5 w-3.5" />
                       </button>
-                      <button type="button" title={dir ? 'Đổi thành file' : 'Đổi thành thư mục'}
+                      <button type="button" data-tooltip={dir ? 'Đổi thành file' : 'Đổi thành thư mục'} aria-label={dir ? 'Đổi thành file' : 'Đổi thành thư mục'}
                         className="p-1 text-slate-500 hover:text-amber-600 disabled:opacity-30"
                         disabled={node.children.length > 0}
                         onClick={() => apply((r) => toggleDir(r, node.id))}>
                         <Folder className="h-3.5 w-3.5" />
                       </button>
-                      <button type="button" title="Xóa" className="p-1 text-slate-500 hover:text-red-600"
+                      <button type="button" data-tooltip="Xóa" aria-label="Xóa" className="p-1 text-slate-500 hover:text-red-600"
                         onClick={() => apply((r) => deleteNode(r, node.id))}>
                         <X className="h-3.5 w-3.5" />
                       </button>

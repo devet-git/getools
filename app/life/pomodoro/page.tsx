@@ -115,7 +115,7 @@ export default function PomodoroPage() {
           <div className="h-2 rounded-full bg-slate-100 overflow-hidden" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}><div className="h-full bg-indigo-500 transition-[width] duration-300" style={{ width: `${pct}%` }} /></div>
           <div className="flex justify-center gap-2">
             <button onClick={toggle} disabled={!!cfgError} className="px-5 py-2 rounded-lg text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-1.5">{running ? <><Pause className="h-4 w-4" /> Tạm dừng</> : <><Play className="h-4 w-4" /> Bắt đầu</>}</button>
-            <button onClick={skip} className="px-3 py-2 rounded-lg text-sm border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5" title="Bỏ qua giai đoạn này"><SkipForward className="h-4 w-4" /> Bỏ qua</button>
+            <button onClick={skip} className="px-3 py-2 rounded-lg text-sm border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5" data-tooltip="Bỏ qua giai đoạn này"><SkipForward className="h-4 w-4" /> Bỏ qua</button>
             <button onClick={reset} className="px-3 py-2 rounded-lg text-sm border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5"><RotateCcw className="h-4 w-4" /> Đặt lại</button>
           </div>
           <p className="text-sm text-slate-600">Hôm nay: <b className="text-slate-900">{done}</b> phiên tập trung{done > 0 && <> (~{Math.round((done * cfg.workMin) / 6) / 10} giờ)</>}</p>

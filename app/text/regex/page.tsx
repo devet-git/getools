@@ -162,7 +162,7 @@ export default function RegexPage() {
                 <button
                   key={f}
                   onClick={() => toggleFlag(f)}
-                  title={FLAG_INFO[f].desc}
+                  data-tooltip={FLAG_INFO[f].desc}
                   aria-pressed={flags.includes(f)}
                   className={`h-8 w-8 rounded-lg text-xs font-mono font-bold border transition ${
                     flags.includes(f)
@@ -244,7 +244,7 @@ export default function RegexPage() {
             <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Chuỗi kiểm thử</span>
             <button
               onClick={() => setText('')}
-              title="Xóa nội dung"
+              data-tooltip="Xóa nội dung" aria-label="Xóa nội dung"
               className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
             >
               <Trash2 className="h-4 w-4" />
@@ -277,13 +277,13 @@ export default function RegexPage() {
                 ) : p.empty ? (
                   <span
                     key={i}
-                    title={`Khớp #${p.match + 1} (rỗng)`}
+                    data-tooltip={`Khớp #${p.match + 1} (rỗng)`}
                     className="inline-block w-0.5 h-3.5 align-middle bg-red-500"
                   />
                 ) : (
                   <mark
                     key={i}
-                    title={`Khớp #${p.match + 1}`}
+                    data-tooltip={`Khớp #${p.match + 1}`}
                     className={`${MARK_COLORS[p.match % MARK_COLORS.length]} text-slate-900 rounded-xs`}
                   >
                     {p.text}

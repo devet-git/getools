@@ -491,7 +491,7 @@ Write-Host "Done!" -ForegroundColor Green
                           size="sm"
                           className="h-7 w-7 p-0"
                           onClick={() => copyToClipboard(`git clone ${repoUrl}`, 'Đã copy lệnh clone!')}
-                          title="Copy git clone command"
+                          data-tooltip="Copy git clone command" aria-label="Copy git clone command"
                         >
                           <Copy className="h-3.5 w-3.5" />
                         </Button>
@@ -500,7 +500,7 @@ Write-Host "Done!" -ForegroundColor Green
                           size="sm" 
                           className="h-7 px-2 text-xs flex items-center gap-1 text-slate-700" 
                           onClick={() => handleSendToDownloader(project.web_url)}
-                          title="Mở trong trang Tải File/Folder để tải từng thư mục con"
+                          data-tooltip="Mở trong trang Tải File/Folder để tải từng thư mục con"
                         >
                           <FolderDown className="h-3.5 w-3.5 text-primary" />
                           <span className="hidden sm:inline">Tải folder</span>

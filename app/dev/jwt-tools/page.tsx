@@ -492,7 +492,7 @@ export default function JwtToolsPage() {
               right={
                 <div className="flex flex-wrap gap-1">
                   {(['iat', 'exp', 'nbf', 'jti'] as const).map((c) => (
-                    <button key={c} className={btnSecondary} onClick={() => addC(c)} title={c === 'exp' ? 'Hết hạn sau 1 giờ' : undefined}>
+                    <button key={c} className={btnSecondary} onClick={() => addC(c)} data-tooltip={c === 'exp' ? 'Hết hạn sau 1 giờ' : undefined}>
                       +{c}{c === 'exp' ? ' (+1h)' : ''}
                     </button>
                   ))}

@@ -1,8 +1,17 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 import { normalizeApiKey } from "@/lib/ai-request-config";
+import { rateLimit, rejectForeign } from "@/lib/api-guard";
+
+/** Giới hạn độ dài văn bản mỗi lần đọc (đường dự phòng chia ~180 ký tự/đoạn và gọi song song) */
+const MAX_TTS_CHARS = 5000;
+const LANGS = new Set(["vi", "en", "zh", "ko", "ja"]);
+/** Lượt dùng tài nguyên máy chủ (khóa Gemini của máy chủ hoặc luồng dự phòng) cho mỗi IP */
+const SERVER_LIMIT = { count: 30, windowMs: 10 * 60_000 };
 
 export async function POST(req: NextRequest) {
+  const foreign = rejectForeign(req);
+  if (foreign) return foreign;
   try {
     const body = await req.json();
     const { 
@@ -18,6 +27,12 @@ export async function POST(req: NextRequest) {
         { error: 'Vui lòng cung cấp đoạn văn bản cần chuyển đổi thành giọng nói.' },
         { status: 400 }
       );
+    }
+    if (text.length > MAX_TTS_CHARS) {
+      return NextResponse.json({ error: `Văn bản quá dài (tối đa ${MAX_TTS_CHARS} ký tự mỗi lần).` }, { status: 413 });
+    }
+    if (typeof language !== 'string' || !LANGS.has(language)) {
+      return NextResponse.json({ error: 'Ngôn ngữ không được hỗ trợ.' }, { status: 400 });
     }
 
     // Determine target voice and gender
@@ -72,7 +87,13 @@ export async function POST(req: NextRequest) {
     const isPlausibleApiKey = (key?: string | null): key is string => !!key && /^[\x21-\x7e]{8,512}$/.test(key);
 
     // 1. Thử mô hình TTS của Gemini khi có khóa (do người dùng nhập hoặc cấu hình trên máy chủ)
-    const userApiKey = normalizeApiKey(req.headers.get('x-gemini-key')) || normalizeApiKey(process.env.GEMINI_API_KEY);
+    const ownKey = normalizeApiKey(req.headers.get('x-gemini-key'));
+    const userApiKey = ownKey || normalizeApiKey(process.env.GEMINI_API_KEY);
+    // Không có khóa riêng thì mọi đường (khóa máy chủ hoặc dự phòng) đều tốn tài nguyên máy chủ
+    if (!isPlausibleApiKey(ownKey)) {
+      const limited = rateLimit(req, 'tts', SERVER_LIMIT.count, SERVER_LIMIT.windowMs);
+      if (limited) return limited;
+    }
 
     if (isPlausibleApiKey(userApiKey)) {
       try {

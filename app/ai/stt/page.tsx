@@ -998,7 +998,7 @@ export default function SpeechToTextPage() {
                     ? 'bg-red-600 ring-4 ring-red-200 animate-pulse'
                     : 'bg-indigo-600 hover:bg-indigo-700 ring-4 ring-indigo-100'
                 }`}
-                title={isRecording ? 'Bấm để dừng ghi âm' : 'Bấm để bắt đầu ghi âm giọng nói'}
+                data-tooltip={isRecording ? 'Bấm để dừng ghi âm' : 'Bấm để bắt đầu ghi âm giọng nói'}
               >
                 {isRecording ? <Square className="h-6 w-6" /> : <Mic className="h-7 w-7" />}
               </button>
@@ -1048,7 +1048,7 @@ export default function SpeechToTextPage() {
                   type="button"
                   role="radio"
                   aria-checked={cmdMode === m.id}
-                  title={m.hint}
+                  data-tooltip={m.hint}
                   onClick={() => setCmdMode(m.id)}
                   className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition ${
                     cmdMode === m.id
@@ -1155,7 +1155,7 @@ export default function SpeechToTextPage() {
                     size="sm"
                     onClick={handleUndo}
                     className="h-7 text-xs px-2 text-slate-600 hover:text-slate-900"
-                    title="Hoàn tác thao tác vừa rồi"
+                    data-tooltip="Hoàn tác thao tác vừa rồi"
                   >
                     <Undo2 className="h-3.5 w-3.5 mr-1" />
                     Hoàn tác
@@ -1166,7 +1166,7 @@ export default function SpeechToTextPage() {
                   size="sm"
                   onClick={handleCopy}
                   className="h-7 text-xs px-2 text-slate-600 hover:text-slate-900"
-                  title="Sao chép toàn bộ văn bản"
+                  data-tooltip="Sao chép toàn bộ văn bản"
                 >
                   {isCopied ? <Check className="h-3.5 w-3.5 mr-1 text-emerald-600" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
                   {isCopied ? 'Đã chép' : 'Sao chép'}
@@ -1176,7 +1176,7 @@ export default function SpeechToTextPage() {
                   size="sm"
                   onClick={handleClearTranscript}
                   className="h-7 text-xs px-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
-                  title="Xóa trắng văn bản"
+                  data-tooltip="Xóa trắng văn bản"
                 >
                   <Trash2 className="h-3.5 w-3.5 mr-1" />
                   Xóa
@@ -1218,7 +1218,7 @@ export default function SpeechToTextPage() {
                   type="button"
                   onClick={handleSendToTTS}
                   className="px-2.5 py-1 text-xs font-semibold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded-lg transition flex items-center gap-1.5"
-                  title="Đưa văn bản này sang bộ đọc Text-to-Speech"
+                  data-tooltip="Đưa văn bản này sang bộ đọc Text-to-Speech"
                 >
                   <Volume2 className="h-3.5 w-3.5 text-indigo-600" />
                   Đọc lại bằng TTS
@@ -1228,7 +1228,7 @@ export default function SpeechToTextPage() {
                   type="button"
                   onClick={handleSendToMarkdown}
                   className="px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition flex items-center gap-1.5"
-                  title="Đưa văn bản sang trình chuyển đổi Markdown"
+                  data-tooltip="Đưa văn bản sang trình chuyển đổi Markdown"
                 >
                   <FileText className="h-3.5 w-3.5 text-emerald-600" />
                   Chuyển sang Markdown
@@ -1271,7 +1271,7 @@ export default function SpeechToTextPage() {
                 <Wand2 className="h-3.5 w-3.5" />
                 Làm sạch văn bản
               </button>
-              <button type="button" onClick={handleFormat} className={smallBtn} title="Sửa khoảng trắng trước dấu câu và viết hoa đầu câu">
+              <button type="button" onClick={handleFormat} className={smallBtn} data-tooltip="Sửa khoảng trắng trước dấu câu và viết hoa đầu câu">
                 Sửa khoảng trắng &amp; viết hoa
               </button>
             </div>
@@ -1469,7 +1469,7 @@ export default function SpeechToTextPage() {
                       >
                         Nạp lại
                       </button>
-                      <button onClick={() => deleteHistoryItem(item.id)} className="p-1 text-slate-400 hover:text-red-600" title="Xóa">
+                      <button onClick={() => deleteHistoryItem(item.id)} className="p-1 text-slate-400 hover:text-red-600" data-tooltip="Xóa" aria-label="Xóa">
                         <Trash2 className="h-3 w-3" />
                       </button>
                     </div>

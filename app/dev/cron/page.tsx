@@ -208,7 +208,7 @@ export default function CronPage() {
                 setWithSeconds(!!p.seconds);
                 setExpr(p.expr);
               }}
-              title={p.expr}
+              data-tooltip={p.expr}
               className="px-2 py-1 rounded-lg text-[11px] font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition"
             >
               {p.label}
@@ -351,7 +351,7 @@ export default function CronPage() {
             />
             <button
               type="button"
-              title="Tính lại từ bây giờ"
+              data-tooltip="Tính lại từ bây giờ" aria-label="Tính lại từ bây giờ"
               onClick={() => setFrom(Date.now())}
               className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200 transition"
             >

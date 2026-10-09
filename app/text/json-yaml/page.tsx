@@ -188,7 +188,7 @@ export default function JsonYamlPage() {
             <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Đầu vào</span>
             <button
               onClick={() => setInput('')}
-              title="Xóa nội dung"
+              data-tooltip="Xóa nội dung" aria-label="Xóa nội dung"
               className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
             >
               <Trash2 className="h-4 w-4" />
@@ -210,7 +210,7 @@ export default function JsonYamlPage() {
         <div className="flex lg:flex-col items-center justify-center">
           <button
             onClick={handleSwap}
-            title="Đưa kết quả lên ô nhập"
+            data-tooltip="Đưa kết quả lên ô nhập" aria-label="Đưa kết quả lên ô nhập"
             className="p-2 rounded-full border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 shadow-xs transition"
           >
             <ArrowLeftRight className="h-4 w-4 rotate-90 lg:rotate-0" />
@@ -239,7 +239,7 @@ export default function JsonYamlPage() {
               <button
                 onClick={handleDownload}
                 disabled={!result.output}
-                title={`Tải về file .${ext}`}
+                data-tooltip={`Tải về file .${ext}`} aria-label={`Tải về file .${ext}`}
                 className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 rounded-lg transition disabled:opacity-50"
               >
                 <Download className="h-3.5 w-3.5" />

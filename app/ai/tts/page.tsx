@@ -71,6 +71,7 @@ import {
   type DetectedLang,
 } from '@/lib/tts-local';
 import { subscribeStorageSync } from '@/lib/storage';
+import { apiFetch } from '@/lib/api-client';
 
 const emptyArrayString = () => '[]';
 const noopSubscribe = () => () => {};
@@ -874,7 +875,7 @@ export default function TextToSpeechPage() {
 
       const textToSpeak = autoAdaptStyleText ? rewriteTextForStyle(text.trim(), styleToUse, aiLangId) : text.trim();
 
-      const res = await fetch('/api/tts', {
+      const res = await apiFetch('/api/tts', {
         method: 'POST',
         headers,
         body: JSON.stringify({ text: textToSpeak, language: aiLangId, voice: selectedVoice, gender: effectiveGender, style: styleToUse }),
@@ -967,7 +968,7 @@ export default function TextToSpeechPage() {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (keys.gemini) headers['x-gemini-key'] = keys.gemini.trim();
 
-      const res = await fetch('/api/tts', {
+      const res = await apiFetch('/api/tts', {
         method: 'POST',
         headers,
         body: JSON.stringify({ text: text.trim(), language: aiLangId, voice: selectedVoice, gender: effectiveGender, style: selectedStyle }),
@@ -1130,28 +1131,28 @@ export default function TextToSpeechPage() {
                 size="sm"
                 onClick={() => handleApplyStyleToText()}
                 className="h-7 text-xs px-2.5 text-amber-800 bg-amber-50 hover:bg-amber-100 border-amber-300 font-medium"
-                title="Biến đổi văn bản đầu vào theo phong cách diễn đạt đang chọn"
+                data-tooltip="Biến đổi văn bản đầu vào theo phong cách diễn đạt đang chọn"
               >
                 <Wand2 className="h-3.5 w-3.5 mr-1 text-amber-600" />
                 Diễn đạt lại theo phong cách
               </Button>
               {originalTextBackup && (
-                <Button variant="ghost" size="sm" onClick={handleRestoreOriginalText} className="h-7 text-xs px-2 text-slate-600 hover:text-slate-900" title="Khôi phục lại văn bản ban đầu">
+                <Button variant="ghost" size="sm" onClick={handleRestoreOriginalText} className="h-7 text-xs px-2 text-slate-600 hover:text-slate-900" data-tooltip="Khôi phục lại văn bản ban đầu">
                   <RotateCcw className="h-3 w-3 mr-1 text-slate-500" />
                   Bản gốc
                 </Button>
               )}
             </>
           )}
-          <Button variant="ghost" size="sm" onClick={readFromClipboard} className="h-7 text-xs px-2 text-slate-600 hover:text-slate-900" title="Dán văn bản từ clipboard và đọc ngay" disabled={engine === 'ai'}>
+          <Button variant="ghost" size="sm" onClick={readFromClipboard} className="h-7 text-xs px-2 text-slate-600 hover:text-slate-900" data-tooltip="Dán văn bản từ clipboard và đọc ngay" disabled={engine === 'ai'}>
             <ClipboardPaste className="h-3.5 w-3.5 mr-1" />
             Đọc từ clipboard
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()} className="h-7 text-xs px-2 text-slate-600 hover:text-slate-900" title="Tải văn bản từ file .txt hoặc .md">
+          <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()} className="h-7 text-xs px-2 text-slate-600 hover:text-slate-900" data-tooltip="Tải văn bản từ file .txt hoặc .md">
             <Upload className="h-3.5 w-3.5 mr-1" />
             Nạp file
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleCopyText} className="h-7 text-xs px-2 text-slate-600 hover:text-slate-900" title="Sao chép văn bản gốc">
+          <Button variant="ghost" size="sm" onClick={handleCopyText} className="h-7 text-xs px-2 text-slate-600 hover:text-slate-900" data-tooltip="Sao chép văn bản gốc">
             {copied ? <Check className="h-3.5 w-3.5 mr-1 text-emerald-600" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
             {copied ? 'Đã chép' : 'Sao chép'}
           </Button>
@@ -1165,7 +1166,7 @@ export default function TextToSpeechPage() {
               speaker.stop();
             }}
             className="h-7 text-xs px-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
-            title="Xóa trắng"
+            data-tooltip="Xóa trắng"
           >
             <Trash2 className="h-3.5 w-3.5 mr-1" />
             Xóa
@@ -1211,7 +1212,7 @@ export default function TextToSpeechPage() {
           <button
             onClick={() => setText('Hôm nay là thứ 3, ngày 5/3/2024. Cuộc họp bắt đầu lúc 14:30 tại Q.1, TP.HCM. Chi phí dự kiến 1.234.567đ (tăng 12,5%), liên hệ 0912 345 678 hoặc an@gmail.com.')}
             className="text-xs text-left px-2.5 py-1.5 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition"
-            title="Văn bản có số, ngày giờ, tiền, viết tắt để thử bộ chuẩn hóa"
+            data-tooltip="Văn bản có số, ngày giờ, tiền, viết tắt để thử bộ chuẩn hóa"
           >
             <span className="font-medium block">Thử chuẩn hóa số &amp; ngày giờ</span>
           </button>
@@ -1300,7 +1301,7 @@ export default function TextToSpeechPage() {
             onClick={() => skip(-1)}
             disabled={!hasChunks || (active && player.index === 0)}
             className="h-10 px-3 border-slate-700 hover:bg-slate-800 text-slate-200"
-            title="Câu trước"
+            data-tooltip="Câu trước" aria-label="Câu trước"
           >
             <SkipBack className="h-4 w-4" />
           </Button>
@@ -1331,11 +1332,11 @@ export default function TextToSpeechPage() {
             onClick={() => skip(1)}
             disabled={!hasChunks || (active && player.index >= player.chunks.length - 1)}
             className="h-10 px-3 border-slate-700 hover:bg-slate-800 text-slate-200"
-            title="Câu sau"
+            data-tooltip="Câu sau" aria-label="Câu sau"
           >
             <SkipForward className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" onClick={() => speaker.stop()} disabled={!active} className="h-10 px-3 hover:bg-slate-800 text-slate-400 hover:text-white" title="Dừng">
+          <Button variant="ghost" onClick={() => speaker.stop()} disabled={!active} className="h-10 px-3 hover:bg-slate-800 text-slate-400 hover:text-white" data-tooltip="Dừng" aria-label="Dừng">
             <Square className="h-4 w-4" />
           </Button>
         </div>
@@ -1378,7 +1379,7 @@ export default function TextToSpeechPage() {
                     key={idx}
                     data-chunk={idx}
                     onClick={() => (active ? speaker.seek(idx) : startBrowserSpeech(liveChunks, idx))}
-                    title="Bấm để đọc từ câu này"
+                    data-tooltip="Bấm để đọc từ câu này"
                     className={`cursor-pointer rounded px-0.5 transition-colors ${isActive ? 'bg-amber-100 ring-1 ring-amber-300' : 'hover:bg-indigo-50'}`}
                   >
                     {w && w.end <= ct.length ? (
@@ -1471,7 +1472,7 @@ export default function TextToSpeechPage() {
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <label className="text-xs font-semibold text-slate-700">Chọn giọng ({voices.length}):</label>
-              <button type="button" onClick={reloadVoices} className="text-[11px] text-slate-500 hover:text-slate-800 flex items-center gap-1" title="Tải lại danh sách giọng">
+              <button type="button" onClick={reloadVoices} className="text-[11px] text-slate-500 hover:text-slate-800 flex items-center gap-1" data-tooltip="Tải lại danh sách giọng">
                 <RefreshCw className={`h-3 w-3 ${voicesLoading ? 'animate-spin' : ''}`} />
                 Tải lại
               </button>
@@ -1536,7 +1537,7 @@ export default function TextToSpeechPage() {
                                   Cục bộ
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-0.5 px-1.5 rounded bg-sky-100 text-sky-700 font-semibold" title="Cần mạng, có thể có độ trễ">
+                                <span className="inline-flex items-center gap-0.5 px-1.5 rounded bg-sky-100 text-sky-700 font-semibold" data-tooltip="Cần mạng, có thể có độ trễ">
                                   <Wifi className="h-2.5 w-2.5" />
                                   Mạng
                                 </span>
@@ -1544,7 +1545,7 @@ export default function TextToSpeechPage() {
                               {v.default && <span className="px-1.5 rounded bg-slate-200 text-slate-700">Mặc định</span>}
                             </span>
                           </button>
-                          <button type="button" onClick={() => previewVoice(v)} className="shrink-0 h-7 px-2 rounded-md border border-slate-200 text-slate-600 hover:bg-white flex items-center gap-1" title="Nghe thử giọng này">
+                          <button type="button" onClick={() => previewVoice(v)} className="shrink-0 h-7 px-2 rounded-md border border-slate-200 text-slate-600 hover:bg-white flex items-center gap-1" data-tooltip="Nghe thử giọng này">
                             <Volume2 className="h-3 w-3" />
                             Nghe thử
                           </button>
@@ -1569,7 +1570,7 @@ export default function TextToSpeechPage() {
                   key={st.id}
                   type="button"
                   onClick={() => applyPreset(st.id)}
-                  title={st.description}
+                  data-tooltip={st.description}
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border transition ${
                     preset === st.id ? 'border-amber-500 bg-amber-50 text-amber-900 ring-1 ring-amber-400' : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
@@ -1759,11 +1760,11 @@ export default function TextToSpeechPage() {
             )}
           </Button>
           {currentAudioUrl && (
-            <Button variant="outline" onClick={togglePlayPauseAi} className="h-10 px-3 border-slate-700 hover:bg-slate-800 text-slate-200" title={isPlaying ? 'Tạm dừng' : 'Tiếp tục phát'}>
+            <Button variant="outline" onClick={togglePlayPauseAi} className="h-10 px-3 border-slate-700 hover:bg-slate-800 text-slate-200" data-tooltip={isPlaying ? 'Tạm dừng' : 'Tiếp tục phát'}>
               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </Button>
           )}
-          <Button variant="ghost" onClick={stopAudio} className="h-10 px-3 hover:bg-slate-800 text-slate-400 hover:text-white" title="Dừng phát">
+          <Button variant="ghost" onClick={stopAudio} className="h-10 px-3 hover:bg-slate-800 text-slate-400 hover:text-white" data-tooltip="Dừng phát" aria-label="Dừng phát">
             <RotateCcw className="h-4 w-4" />
           </Button>
         </div>
@@ -1772,7 +1773,7 @@ export default function TextToSpeechPage() {
           onClick={() => handleDownloadSpeech()}
           disabled={isDownloading || !text.trim()}
           className="h-10 px-4 border-slate-700 hover:bg-slate-800 text-emerald-400 hover:text-emerald-300 gap-2 text-xs font-semibold shadow-xs"
-          title="Tải đoạn âm thanh đã tạo về máy tính (.wav/.mp3)"
+          data-tooltip="Tải đoạn âm thanh đã tạo về máy tính (.wav/.mp3)"
         >
           {isDownloading ? (
             <>
@@ -1912,7 +1913,7 @@ export default function TextToSpeechPage() {
                       handleApplyStyleToText(st.id);
                     }}
                     className="text-[10px] font-medium text-amber-700 hover:text-amber-900 hover:bg-amber-100/80 px-1.5 py-0.5 rounded transition flex items-center gap-1"
-                    title="Áp dụng cấu trúc văn phong này vào khung soạn thảo"
+                    data-tooltip="Áp dụng cấu trúc văn phong này vào khung soạn thảo"
                   >
                     <Wand2 className="h-2.5 w-2.5" />
                     Đổi lời văn
@@ -1976,7 +1977,7 @@ export default function TextToSpeechPage() {
             className={`px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1 ${
               langMode === 'auto' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/60'
             }`}
-            title="Tự nhận diện ngôn ngữ từ văn bản"
+            data-tooltip="Tự nhận diện ngôn ngữ từ văn bản"
           >
             <span>🌐</span>
             <span>Tự động</span>
@@ -2097,7 +2098,7 @@ export default function TextToSpeechPage() {
                     <p className="truncate text-slate-700">{item.text}</p>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <Button variant="outline" size="sm" onClick={() => handlePlayHistory(item)} className="h-7 text-xs px-2.5" title="Khôi phục / phát lại mục này">
+                    <Button variant="outline" size="sm" onClick={() => handlePlayHistory(item)} className="h-7 text-xs px-2.5" data-tooltip="Khôi phục / phát lại mục này">
                       <Play className="h-3 w-3 mr-1" />
                       Phát
                     </Button>
@@ -2106,7 +2107,7 @@ export default function TextToSpeechPage() {
                       size="sm"
                       onClick={() => handleDownloadHistoryItem(item)}
                       className="h-7 text-xs px-2.5 text-emerald-700 hover:text-emerald-800 border-emerald-200 hover:bg-emerald-50"
-                      title="Tải đoạn âm thanh này về máy (giọng AI)"
+                      data-tooltip="Tải đoạn âm thanh này về máy (giọng AI)"
                     >
                       <Download className="h-3 w-3 mr-1" />
                       Tải về
@@ -2119,7 +2120,7 @@ export default function TextToSpeechPage() {
                         showToast('Đã xóa mục khỏi lịch sử!');
                       }}
                       className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                      title="Xóa mục"
+                      data-tooltip="Xóa mục" aria-label="Xóa mục"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>

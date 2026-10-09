@@ -8,6 +8,7 @@ import { Select } from '@/components/ui/searchable-select';
 import { TransferQr } from '@/components/TransferQr';
 import { readShareParams } from '@/lib/share-link';
 import { Expense, Person, fmtMoney, parseMoney, shareOf, summarize, summaryText } from '@/lib/split-bill';
+import { showConfirm } from '@/lib/dialog';
 
 const KEY = 'getools_split_bill';
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -72,9 +73,9 @@ export default function SplitBillPage() {
     setNewName('');
     setDraftParts(null);
   };
-  const removePerson = (id: string) => {
+  const removePerson = async (id: string) => {
     if (expenses.some((e) => e.payer === id || e.participants.includes(id))) {
-      if (!window.confirm('Người này có trong các khoản chi. Xóa người và gỡ khỏi các khoản đó?')) return;
+      if (!(await showConfirm('Người này có trong các khoản chi. Xóa người và gỡ khỏi các khoản đó?', { danger: true }))) return;
     }
     patch({
       people: people.filter((p) => p.id !== id),
@@ -118,8 +119,8 @@ export default function SplitBillPage() {
     a.click();
   };
 
-  const reset = () => {
-    if (window.confirm('Xóa toàn bộ nhóm và các khoản chi?')) { setState({ title: '', people: [], expenses: [] }); setDraftParts(null); }
+  const reset = async () => {
+    if (await showConfirm('Xóa toàn bộ nhóm và các khoản chi?', { danger: true })) { setState({ title: '', people: [], expenses: [] }); setDraftParts(null); }
   };
 
   return (
@@ -273,7 +274,7 @@ export default function SplitBillPage() {
                       <span className="ml-auto font-bold text-indigo-700">{fmtMoney(t.amount)}</span>
                       <button
                         onClick={() => setQrOpen(qrOpen === `${t.from}>${t.to}` ? null : `${t.from}>${t.to}`)}
-                        title="Mã QR chuyển khoản VietQR" aria-label={`Mã QR ${nameOf(t.from)} chuyển cho ${nameOf(t.to)}`}
+                        data-tooltip="Mã QR chuyển khoản VietQR" aria-label={`Mã QR ${nameOf(t.from)} chuyển cho ${nameOf(t.to)}`}
                         aria-expanded={qrOpen === `${t.from}>${t.to}`}
                         className="p-1 rounded-md text-indigo-600 hover:bg-indigo-100"
                       ><QrCode className="h-4 w-4" /></button>

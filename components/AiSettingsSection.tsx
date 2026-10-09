@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useAiSettings } from '@/lib/use-ai-config';
 import { AI_PROVIDERS, AiProvider, PROVIDER_INFO } from '@/lib/ai-providers';
 import { aiHeaders } from '@/lib/ai-client';
+import { apiFetch } from '@/lib/api-client';
 
 type TestState = { status: 'idle' } | { status: 'loading' } | { status: 'ok'; model: string } | { status: 'error'; message: string };
 
@@ -31,7 +32,7 @@ export function AiSettingsSection() {
   const runTest = async () => {
     setTest({ status: 'loading' });
     try {
-      const res = await fetch('/api/ai/test', { method: 'POST', headers: aiHeaders(ai.config) });
+      const res = await apiFetch('/api/ai/test', { method: 'POST', headers: aiHeaders(ai.config) });
       const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; model?: string };
       if (res.ok && data.ok) setTest({ status: 'ok', model: data.model || ai.config.model || info.defaultModel });
       else setTest({ status: 'error', message: data.error || 'Không kiểm tra được khóa. Vui lòng thử lại.' });
@@ -124,7 +125,7 @@ export function AiSettingsSection() {
               spellCheck={false}
               className="text-xs font-mono"
             />
-            <Button type="button" variant="outline" size="sm" onClick={() => setShow(!show)} title={show ? 'Ẩn khóa' : 'Hiện khóa'} className="px-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => setShow(!show)} data-tooltip={show ? 'Ẩn khóa' : 'Hiện khóa'} className="px-2">
               {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
             {key && (
@@ -136,7 +137,7 @@ export function AiSettingsSection() {
                   ai.setKey(provider, '');
                   setTest({ status: 'idle' });
                 }}
-                title="Xóa khóa đã lưu"
+                data-tooltip="Xóa khóa đã lưu" aria-label="Xóa khóa đã lưu"
                 className="px-2 text-red-600"
               >
                 <Trash2 className="h-4 w-4" />

@@ -130,7 +130,7 @@ function FieldRow({
           searchPlaceholder="Tìm kiểu dữ liệu..."
           onChange={(v) => onChange({ ...field, type: v, opts: defaultOpts(v) })}
         />
-        <label className="flex items-center gap-1 text-[11px] text-slate-600 select-none" title="Đảm bảo giá trị không trùng giữa các dòng">
+        <label className="flex items-center gap-1 text-[11px] text-slate-600 select-none" data-tooltip="Đảm bảo giá trị không trùng giữa các dòng">
           <input
             type="checkbox"
             checked={!!field.unique}
@@ -139,7 +139,7 @@ function FieldRow({
           />
           Duy nhất
         </label>
-        <label className="flex items-center gap-1 text-[11px] text-slate-600" title="Tỉ lệ giá trị null (0-100%)">
+        <label className="flex items-center gap-1 text-[11px] text-slate-600" data-tooltip="Tỉ lệ giá trị null (0-100%)">
           null
           <input
             className={`${inputCls} w-14`}
@@ -152,16 +152,16 @@ function FieldRow({
           %
         </label>
         <div className="ml-auto flex items-center">
-          <button className={iconBtn} disabled={index === 0} onClick={() => onMove(-1)} title="Lên" aria-label="Chuyển lên">
+          <button className={iconBtn} disabled={index === 0} onClick={() => onMove(-1)} data-tooltip="Lên" aria-label="Chuyển lên">
             <ChevronUp className="h-3.5 w-3.5" />
           </button>
-          <button className={iconBtn} disabled={index === total - 1} onClick={() => onMove(1)} title="Xuống" aria-label="Chuyển xuống">
+          <button className={iconBtn} disabled={index === total - 1} onClick={() => onMove(1)} data-tooltip="Xuống" aria-label="Chuyển xuống">
             <ChevronDown className="h-3.5 w-3.5" />
           </button>
-          <button className={iconBtn} onClick={onDuplicate} title="Nhân đôi" aria-label="Nhân đôi trường">
+          <button className={iconBtn} onClick={onDuplicate} data-tooltip="Nhân đôi" aria-label="Nhân đôi trường">
             <CopyPlus className="h-3.5 w-3.5" />
           </button>
-          <button className={`${iconBtn} hover:text-red-600`} onClick={onRemove} title="Xóa" aria-label="Xóa trường">
+          <button className={`${iconBtn} hover:text-red-600`} onClick={onRemove} data-tooltip="Xóa" aria-label="Xóa trường">
             <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -448,7 +448,7 @@ export default function MockDataPage() {
                 <button
                   onClick={randomSeed}
                   className="px-2 py-1 rounded-lg text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 transition flex items-center gap-1"
-                  title="Chọn seed ngẫu nhiên"
+                  data-tooltip="Chọn seed ngẫu nhiên"
                 >
                   <Shuffle className="h-3 w-3" />
                   Ngẫu nhiên

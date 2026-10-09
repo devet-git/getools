@@ -16,6 +16,8 @@ import { HandoffReceiver } from '@/components/HandoffReceiver';
 import { ShareBoot } from '@/components/ShareBoot';
 import { RouteProgress } from '@/components/RouteProgress';
 import { NavigationOverlay } from '@/components/AppLoader';
+import { DialogHost } from '@/components/DialogHost';
+import { TooltipHost } from '@/components/TooltipHost';
 import { startDriveAutoSync } from '@/lib/drive-sync-client';
 import { Check } from 'lucide-react';
 
@@ -62,6 +64,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <HandoffReceiver />
       <SettingsModal />
       <HistoryBookmarksModal />
+      <DialogHost />
+      <TooltipHost />
 
       {/* Main Content Area */}
       <main

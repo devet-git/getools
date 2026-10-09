@@ -1,6 +1,7 @@
 /** Helper fetch gọi /api/ai ở phía client. Khoá Gemini chỉ đi qua header, không bao giờ nhúng vào bundle. */
 import type { AiImage, AiTask } from '@/lib/ai-prompts';
 import type { AiConfig } from '@/lib/ai-providers';
+import { apiFetch } from '@/lib/api-client';
 
 export interface CallAiParams {
   task: AiTask;
@@ -49,7 +50,7 @@ export async function callAi({ task, input = '', options = {}, image, ai, signal
 
   let res: Response;
   try {
-    res = await fetch('/api/ai', {
+    res = await apiFetch('/api/ai', {
       method: 'POST',
       headers,
       body: JSON.stringify({ task, input, options, image }),

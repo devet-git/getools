@@ -777,14 +777,14 @@ export default function ImageToolsPage() {
                   <button
                     onClick={() => setSelectedId(isSel ? null : it.id)}
                     className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
-                    title="Xem so sánh trước/sau"
+                    data-tooltip="Xem so sánh trước/sau"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={it.previewUrl} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" />
                   </button>
                   <div className="min-w-0 flex-1 space-y-0.5">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="truncate text-sm font-medium text-slate-800" title={it.file.name}>
+                      <p className="truncate text-sm font-medium text-slate-800" data-tooltip={it.file.name}>
                         {it.file.name}
                       </p>
                       <button

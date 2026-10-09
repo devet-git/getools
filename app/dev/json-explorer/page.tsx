@@ -475,7 +475,7 @@ export default function JsonExplorerPage() {
                 setText('');
                 setFileName('');
               }}
-              title="Xóa nội dung"
+              data-tooltip="Xóa nội dung" aria-label="Xóa nội dung"
               className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
             >
               <Trash2 className="h-4 w-4" />
@@ -545,10 +545,10 @@ export default function JsonExplorerPage() {
                     <span className="text-[11px] text-slate-500 whitespace-nowrap">
                       {search.paths.length ? `${curIdx + 1}/${search.paths.length}${search.capped ? '+' : ''}` : '0 kết quả'}
                     </span>
-                    <button onClick={() => stepMatch(-1)} title="Kết quả trước" className={btnLight} disabled={!search.paths.length}>
+                    <button onClick={() => stepMatch(-1)} data-tooltip="Kết quả trước" aria-label="Kết quả trước" className={btnLight} disabled={!search.paths.length}>
                       <ArrowUp className="h-3.5 w-3.5" />
                     </button>
-                    <button onClick={() => stepMatch(1)} title="Kết quả tiếp theo" className={btnLight} disabled={!search.paths.length}>
+                    <button onClick={() => stepMatch(1)} data-tooltip="Kết quả tiếp theo" className={btnLight} disabled={!search.paths.length}>
                       <ArrowDown className="h-3.5 w-3.5" />
                       Tiếp
                     </button>
@@ -617,7 +617,7 @@ export default function JsonExplorerPage() {
                         setPathQ(e.query);
                         setResLimit(100);
                       }}
-                      title={e.query}
+                      data-tooltip={e.query}
                       className="px-2 py-0.5 rounded-full text-[11px] bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100 transition"
                     >
                       {e.label}
@@ -708,7 +708,7 @@ export default function JsonExplorerPage() {
                       <code className="flex-1 min-w-0 px-2 py-1 rounded bg-slate-50 border border-slate-100 font-mono break-all">{val}</code>
                       <button
                         onClick={() => void copy(label === 'JSON Pointer' ? toPointer(selPath) : val, msg)}
-                        title={`Chép ${label}`}
+                        data-tooltip={`Chép ${label}`} aria-label={`Chép ${label}`}
                         className={btnLight}
                       >
                         <Copy className="h-3.5 w-3.5" />

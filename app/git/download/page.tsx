@@ -290,7 +290,7 @@ function DownloaderContent() {
                   type="button"
                   onClick={handleToggleBookmarkCurrent}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-amber-500 transition-colors"
-                  title={isCurrentUrlBookmarked ? "Bỏ ghim khỏi Bookmark" : "Ghim vào Bookmark yêu thích"}
+                  data-tooltip={isCurrentUrlBookmarked ? "Bỏ ghim khỏi Bookmark" : "Ghim vào Bookmark yêu thích"} aria-label={isCurrentUrlBookmarked ? "Bỏ ghim khỏi Bookmark" : "Ghim vào Bookmark yêu thích"}
                 >
                   <Star className={`h-4 w-4 ${isCurrentUrlBookmarked ? 'text-amber-500 fill-amber-500' : ''}`} />
                 </button>
@@ -401,7 +401,7 @@ function DownloaderContent() {
               {parsed.path && (
                 <>
                   <span className="text-slate-300">·</span>
-                  <div className="truncate max-w-[280px] font-mono text-slate-700" title={parsed.path}>
+                  <div className="truncate max-w-[280px] font-mono text-slate-700" data-tooltip={parsed.path}>
                     /{parsed.path}
                   </div>
                 </>

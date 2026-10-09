@@ -38,6 +38,7 @@ import {
   looksBinary,
   dedupeName,
 } from '@/lib/file-tools';
+import { showConfirm } from '@/lib/dialog';
 
 const MAX_TOTAL_BYTES = 100 * 1024 * 1024;
 const TEXT_PREVIEW_CAP = 500 * 1024;
@@ -250,7 +251,7 @@ function MergeTab() {
                   <span className="text-[11px] text-slate-400 w-5 shrink-0">{idx + 1}.</span>
                   <FileText className="h-4 w-4 text-red-500 shrink-0" />
                   <div className="min-w-0 flex-1 basis-40">
-                    <p className="text-xs font-medium text-slate-800 truncate" title={it.file.name}>
+                    <p className="text-xs font-medium text-slate-800 truncate" data-tooltip={it.file.name}>
                       {it.file.name}
                     </p>
                     <p className="text-[11px] text-slate-400">
@@ -728,8 +729,8 @@ function ZipTab() {
 
   const confirmBig = (size: number | null) =>
     size !== null && size > BIG_ENTRY_CONFIRM
-      ? window.confirm(`File này khi giải nén là ${formatBytes(size)}. Có thể làm trình duyệt chậm hoặc treo. Vẫn tiếp tục?`)
-      : true;
+      ? showConfirm(`File này khi giải nén là ${formatBytes(size)}. Có thể làm trình duyệt chậm hoặc treo. Vẫn tiếp tục?`, { title: 'File lớn', confirmText: 'Vẫn giải nén' })
+      : Promise.resolve(true);
 
   const doPreview = async (row: ZipRow) => {
     const entry = getEntry(row.path);
@@ -767,7 +768,7 @@ function ZipTab() {
 
   const downloadOne = async (row: ZipRow) => {
     const entry = getEntry(row.path);
-    if (!entry || !confirmBig(row.size)) return;
+    if (!entry || !(await confirmBig(row.size))) return;
     setBusy(true);
     try {
       const blob = await entry.async('blob');
@@ -783,7 +784,7 @@ function ZipTab() {
     const files = rows.filter((r) => selected.has(r.path) && !r.dir);
     if (files.length === 0) return showToast('Chưa chọn file nào.');
     const total = files.reduce((s, r) => s + (r.size ?? 0), 0);
-    if (total > BIG_ENTRY_CONFIRM && !window.confirm(`Các file đã chọn có tổng ${formatBytes(total)} khi giải nén. Vẫn tiếp tục?`)) return;
+    if (total > BIG_ENTRY_CONFIRM && !(await showConfirm(`Các file đã chọn có tổng ${formatBytes(total)} khi giải nén. Có thể làm trình duyệt chậm. Vẫn tiếp tục?`, { title: 'Dung lượng lớn', confirmText: 'Vẫn tải' }))) return;
     setBusy(true);
     try {
       const out = new JSZip();
@@ -948,7 +949,7 @@ function ZipTab() {
                           <td className="p-2 max-w-0 w-full">
                             <div className="flex items-center gap-1.5 min-w-0" style={{ paddingLeft: Math.min(depth, 8) * 12 }}>
                               {r.dir ? <Folder className="h-3.5 w-3.5 text-amber-500 shrink-0" /> : <FileText className="h-3.5 w-3.5 text-slate-400 shrink-0" />}
-                              <span className={`truncate ${r.unsafe ? 'text-red-700 font-medium' : 'text-slate-800'}`} title={r.path}>
+                              <span className={`truncate ${r.unsafe ? 'text-red-700 font-medium' : 'text-slate-800'}`} data-tooltip={r.path}>
                                 {baseName(clean) || r.path}
                               </span>
                               {r.unsafe && (
@@ -994,7 +995,7 @@ function ZipTab() {
                 {!preview && <p className="text-slate-400">Bấm biểu tượng mắt để xem file văn bản (≤ 500 KB) hoặc ảnh.</p>}
                 {preview && (
                   <>
-                    <p className="font-medium text-slate-800 truncate mb-2" title={preview.path}>
+                    <p className="font-medium text-slate-800 truncate mb-2" data-tooltip={preview.path}>
                       {preview.path}
                     </p>
                     {preview.kind === 'text' && (

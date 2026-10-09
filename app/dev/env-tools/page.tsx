@@ -92,7 +92,7 @@ function Editor({
         {onClear && (
           <button
             onClick={onClear}
-            title="Xóa nội dung"
+            data-tooltip="Xóa nội dung" aria-label="Xóa nội dung"
             className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
           >
             <Trash2 className="h-4 w-4" />
@@ -401,7 +401,7 @@ export default function EnvToolsPage() {
                   <button
                     onClick={() => download(conv?.output ?? '', ext[to])}
                     disabled={!conv?.output}
-                    title={`Tải ${ext[to]}`}
+                    data-tooltip={`Tải ${ext[to]}`} aria-label={`Tải ${ext[to]}`}
                     className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 rounded-lg transition disabled:opacity-40"
                   >
                     <Download className="h-3.5 w-3.5" />
@@ -558,7 +558,7 @@ export default function EnvToolsPage() {
                   <button
                     onClick={() => download(example, '.env.example')}
                     disabled={!example}
-                    title="Tải .env.example"
+                    data-tooltip="Tải .env.example" aria-label="Tải .env.example"
                     className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 rounded-lg transition disabled:opacity-40"
                   >
                     <Download className="h-3.5 w-3.5" />

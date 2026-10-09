@@ -220,7 +220,7 @@ export default function GitignorePage() {
                       key={id}
                       onClick={() => toggle(id)}
                       className="px-2 py-0.5 rounded-full text-xs bg-indigo-600 text-white flex items-center gap-1"
-                      title="Bỏ chọn"
+                      data-tooltip="Bỏ chọn"
                     >
                       {findTemplate(id)?.name}
                       <X className="h-3 w-3" />

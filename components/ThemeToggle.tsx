@@ -55,7 +55,7 @@ export function ThemeToggle({ compact = false, className = '' }: { compact?: boo
     <button
       type="button"
       onClick={cycle}
-      title={title}
+      data-tooltip={title}
       aria-label={title}
       suppressHydrationWarning
       className={

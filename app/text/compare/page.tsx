@@ -147,7 +147,7 @@ function FilePane({
           </button>
           <button
             onClick={() => onChange({ name: side.name, text: '' })}
-            title="Xóa nội dung"
+            data-tooltip="Xóa nội dung" aria-label="Xóa nội dung"
             className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
           >
             <Trash2 className="h-4 w-4" />
@@ -326,7 +326,7 @@ export default function ComparePage() {
         <div className="flex lg:flex-col items-center justify-center">
           <button
             onClick={handleSwap}
-            title="Hoán đổi hai bên"
+            data-tooltip="Hoán đổi hai bên" aria-label="Hoán đổi hai bên"
             className="p-2 rounded-full border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 shadow-xs transition"
           >
             <ArrowLeftRight className="h-4 w-4 lg:rotate-0 rotate-90" />
@@ -376,7 +376,7 @@ export default function ComparePage() {
             </button>
             <button
               onClick={handleDownload}
-              title="Tải về file .patch"
+              data-tooltip="Tải về file .patch" aria-label="Tải về file .patch"
               className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 rounded-lg transition"
             >
               <Download className="h-3.5 w-3.5" />

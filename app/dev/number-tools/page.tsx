@@ -88,7 +88,7 @@ function CopyBtn({ text, label }: { text: string; label?: string }) {
   return (
     <button
       type="button"
-      title="Sao chép"
+      data-tooltip="Sao chép"
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(text);
@@ -568,9 +568,9 @@ function FloatTab({ initial, onShare }: { initial: URLSearchParams; onShare: (p:
         {input.ok && (
           <Panel title="Bit: dấu | mũ | mantissa">
             <div className="font-mono text-sm break-all leading-relaxed">
-              <span className="text-red-600 font-bold" title="Dấu">{fb.sign}</span>{' '}
-              <span className="text-emerald-600 font-bold" title="Số mũ">{fb.exp}</span>{' '}
-              <span className="text-indigo-600" title="Mantissa">{fb.mant}</span>
+              <span className="text-red-600 font-bold" data-tooltip="Dấu">{fb.sign}</span>{' '}
+              <span className="text-emerald-600 font-bold" data-tooltip="Số mũ">{fb.exp}</span>{' '}
+              <span className="text-indigo-600" data-tooltip="Mantissa">{fb.mant}</span>
             </div>
             <div className="flex gap-3 text-[11px]">
               <span className="text-red-600">■ dấu (1 bit)</span>

@@ -36,7 +36,7 @@ function Toggle({
   title?: string;
 }) {
   return (
-    <label title={title} className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer select-none">
+    <label data-tooltip={title} className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer select-none">
       <input
         type="checkbox"
         checked={checked}
@@ -253,7 +253,7 @@ export default function JsonToCodePage() {
               <button
                 type="button"
                 onClick={() => setText('')}
-                title="Xóa"
+                data-tooltip="Xóa" aria-label="Xóa"
                 className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
               >
                 <Trash2 className="h-4 w-4" />

@@ -419,7 +419,7 @@ export default function ReadmeBuilderPage() {
                             <div className="text-[11px] text-slate-600">{d.title}</div>
                             {ok ? <BadgeImg key={dynamicBadgeUrl(d, badgeCtx, badgeStyle)} url={dynamicBadgeUrl(d, badgeCtx, badgeStyle)} alt={d.title} /> : <span className="text-[10px] text-slate-400">Thiếu thông tin</span>}
                           </div>
-                          <button type="button" className={btn} disabled={!ok} onClick={() => addBadge({ defId: d.id })} title="Thêm vào README">
+                          <button type="button" className={btn} disabled={!ok} onClick={() => addBadge({ defId: d.id })} data-tooltip="Thêm vào README" aria-label="Thêm vào README">
                             <Plus className="h-3.5 w-3.5" />
                           </button>
                         </div>

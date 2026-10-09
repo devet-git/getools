@@ -35,7 +35,7 @@ function Out({ label, v, big }: { label: string; v: number | string; big?: boole
   return (
     <div className="flex items-center justify-between gap-3 py-1.5 border-b border-slate-100 last:border-0">
       <span className="text-sm text-slate-600">{label}</span>
-      <button onClick={copy} title="Bấm để sao chép" className={`flex items-center gap-1.5 font-mono text-right break-all ${big ? 'text-lg font-bold text-slate-900' : 'text-sm text-slate-800'}`}>
+      <button onClick={copy} data-tooltip="Bấm để sao chép" className={`flex items-center gap-1.5 font-mono text-right break-all ${big ? 'text-lg font-bold text-slate-900' : 'text-sm text-slate-800'}`}>
         {text}<Copy className="h-3 w-3 text-slate-400 shrink-0" />
       </button>
     </div>

@@ -303,7 +303,7 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
                 key={s.id}
                 type="button"
                 onClick={() => changeScenario(s.id)}
-                title={s.desc}
+                data-tooltip={s.desc}
                 className={`text-left rounded-lg border px-2.5 py-1.5 transition ${sc === s.id ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
               >
                 <span className="block text-xs font-semibold leading-tight">{s.label}</span>
@@ -385,8 +385,8 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
               {o.servers.map((s, i) => (
                 <div key={i} className="flex items-center gap-1.5">
                   <input className={inputCls} value={s.addr} onChange={(e) => updServer(i, { addr: e.target.value })} placeholder="127.0.0.1:3000 hoặc unix:/run/app.sock" spellCheck={false} aria-label="Địa chỉ backend" />
-                  <input className={inputCls + ' !w-16'} type="number" min={1} value={s.weight} onChange={(e) => updServer(i, { weight: parseInt(e.target.value, 10) || 1 })} title="weight" aria-label="weight" />
-                  <label className="flex items-center gap-1 text-[10px] text-slate-500 whitespace-nowrap" title="Chỉ nhận request khi các server chính đều lỗi">
+                  <input className={inputCls + ' !w-16'} type="number" min={1} value={s.weight} onChange={(e) => updServer(i, { weight: parseInt(e.target.value, 10) || 1 })} data-tooltip="weight" aria-label="weight" />
+                  <label className="flex items-center gap-1 text-[10px] text-slate-500 whitespace-nowrap" data-tooltip="Chỉ nhận request khi các server chính đều lỗi">
                     <input type="checkbox" checked={s.backup} onChange={(e) => updServer(i, { backup: e.target.checked })} className="accent-indigo-600" />
                     backup
                   </label>
@@ -446,7 +446,7 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
                 <div key={i} className="flex items-center gap-1.5">
                   <input className={inputCls} value={r.path} onChange={(e) => updRoute(i, { path: e.target.value })} placeholder="/users/" spellCheck={false} aria-label="Đường dẫn route" />
                   <input className={inputCls} value={r.target} onChange={(e) => updRoute(i, { target: e.target.value })} placeholder="127.0.0.1:3001" spellCheck={false} aria-label="Địa chỉ service" />
-                  <label className="flex items-center gap-1 text-[10px] text-slate-500 whitespace-nowrap" title="Bỏ tiền tố khi gửi tới service">
+                  <label className="flex items-center gap-1 text-[10px] text-slate-500 whitespace-nowrap" data-tooltip="Bỏ tiền tố khi gửi tới service">
                     <input type="checkbox" checked={r.strip} onChange={(e) => updRoute(i, { strip: e.target.checked })} className="accent-indigo-600" />
                     strip
                   </label>
@@ -752,7 +752,7 @@ function GeneratorTab({ onSendToAnalyzer }: { onSendToAnalyzer: (t: string) => v
                 <Download className="h-3 w-3" /> Tải
               </button>
               {out !== 'commands' && (
-                <button type="button" className={btnCls} onClick={() => onSendToAnalyzer(text)} title="Mở trong tab Phân tích">
+                <button type="button" className={btnCls} onClick={() => onSendToAnalyzer(text)} data-tooltip="Mở trong tab Phân tích">
                   <ArrowRightLeft className="h-3 w-3" /> Phân tích
                 </button>
               )}

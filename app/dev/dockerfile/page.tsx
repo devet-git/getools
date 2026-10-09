@@ -82,7 +82,7 @@ function SevIcon({ sev, className = 'h-3.5 w-3.5' }: { sev: Severity; className?
 
 function Toggle({ checked, onChange, label, title }: { checked: boolean; onChange: (v: boolean) => void; label: string; title?: string }) {
   return (
-    <label title={title} className="flex items-center gap-1.5 cursor-pointer select-none text-slate-700 font-medium text-xs">
+    <label data-tooltip={title} className="flex items-center gap-1.5 cursor-pointer select-none text-slate-700 font-medium text-xs">
       <input
         type="checkbox"
         checked={checked}
@@ -192,7 +192,7 @@ function CodeView({
 function ScoreBadge({ score }: { score: number }) {
   const tone = score >= 90 ? 'text-emerald-600 border-emerald-300 bg-emerald-50' : score >= 70 ? 'text-amber-600 border-amber-300 bg-amber-50' : 'text-red-600 border-red-300 bg-red-50';
   return (
-    <div className={`h-12 w-12 rounded-full border-2 flex flex-col items-center justify-center shrink-0 ${tone}`} title="Điểm = 100 − (15 × lỗi + 6 × cảnh báo + 2 × gợi ý + 1 × phong cách)">
+    <div className={`h-12 w-12 rounded-full border-2 flex flex-col items-center justify-center shrink-0 ${tone}`} data-tooltip="Điểm = 100 − (15 × lỗi + 6 × cảnh báo + 2 × gợi ý + 1 × phong cách)">
       <span className="text-base font-bold leading-none">{score}</span>
       <span className="text-[8px] uppercase tracking-wider">điểm</span>
     </div>
@@ -224,7 +224,7 @@ function Summary({
               key={s}
               onClick={() => onFilter(filter === s ? null : s)}
               className={`px-2 py-0.5 rounded-md text-[11px] font-semibold flex items-center gap-1 border transition ${SEV_STYLE[s].chip} ${filter === s ? 'border-slate-500' : 'border-transparent'} ${counts[s] === 0 ? 'opacity-50' : ''}`}
-              title="Bấm để lọc theo mức độ"
+              data-tooltip="Bấm để lọc theo mức độ"
             >
               <SevIcon sev={s} className="h-3 w-3" />
               {counts[s]} {SEVERITY_LABEL[s].toLowerCase()}
@@ -507,7 +507,7 @@ export default function DockerfilePage() {
                   <button
                     key={s.id}
                     onClick={() => setStack(s.id)}
-                    title={s.hint}
+                    data-tooltip={s.hint}
                     className={`px-2 py-1.5 rounded-lg text-xs font-semibold text-left border transition ${opts.stack === s.id ? 'bg-indigo-50 border-indigo-400 text-indigo-800' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}
                   >
                     {s.label}
@@ -801,7 +801,7 @@ export default function DockerfilePage() {
                     showToast(r.applied ? `Đã áp dụng ${r.applied} sửa — hãy xem lại kết quả.` : 'Không có gợi ý sửa.');
                   }}
                   className="px-2.5 py-1.5 rounded-lg text-xs font-medium border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-50 text-slate-700 transition"
-                  title="Gồm cả các sửa cần kiểm tra lại (gộp RUN, thêm USER, ...)"
+                  data-tooltip="Gồm cả các sửa cần kiểm tra lại (gộp RUN, thêm USER, ...)"
                 >
                   Sửa cả gợi ý cần kiểm tra
                 </button>

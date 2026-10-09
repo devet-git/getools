@@ -75,7 +75,7 @@ function Swatches({ title, list, apply }: { title: string; list: string[]; apply
       <p className="text-[11px] font-medium text-slate-500 mb-1">{title}</p>
       <div className="flex flex-wrap gap-1.5">
         {list.map((h, i) => (
-          <button key={i} onClick={() => apply(h)} title={`${h} - bấm để chọn`} className="h-10 w-14 rounded-lg border border-slate-200 text-[9px] font-mono flex items-end justify-center pb-0.5 hover:scale-105 transition" style={{ background: h, color: wcag({ r: 0, g: 0, b: 0, a: 1 }, parseColor(h)!).ratio > 7 ? '#000' : '#fff' }}>{h}</button>
+          <button key={i} onClick={() => apply(h)} data-tooltip={`${h} - bấm để chọn`} className="h-10 w-14 rounded-lg border border-slate-200 text-[9px] font-mono flex items-end justify-center pb-0.5 hover:scale-105 transition" style={{ background: h, color: wcag({ r: 0, g: 0, b: 0, a: 1 }, parseColor(h)!).ratio > 7 ? '#000' : '#fff' }}>{h}</button>
         ))}
       </div>
     </div>
@@ -109,7 +109,7 @@ function Picker({ copy, showToast }: { copy: (s: string) => void; showToast: (m:
       <div className={panel}>
         <div className="flex gap-2 items-end">
           <div className="flex-1"><ColorInput label="Màu (HEX, rgb(), hsl(), hwb(), tên CSS)" value={text} onChange={apply} /></div>
-          <button className={btnCls} onClick={eyedrop} title="Lấy màu từ màn hình"><Pipette className="h-3.5 w-3.5" />Chấm màu</button>
+          <button className={btnCls} onClick={eyedrop} data-tooltip="Lấy màu từ màn hình"><Pipette className="h-3.5 w-3.5" />Chấm màu</button>
         </div>
         <div className="h-24 rounded-xl border border-slate-200" style={{ background: `repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0/16px 16px` }}>
           <div className="h-full w-full rounded-xl" style={{ background: toRgbString(color) }} />
@@ -256,7 +256,7 @@ function Gradient({ copy }: { copy: (s: string) => void }) {
           <p className="text-[11px] font-medium text-slate-500 mb-1">Mẫu có sẵn</p>
           <div className="flex flex-wrap gap-1.5">
             {GRADIENT_PRESETS.map((p) => (
-              <button key={p.name} onClick={() => setG(p.spec)} title={p.name} className="h-9 w-20 rounded-lg border border-slate-200 text-[10px] font-medium text-white drop-shadow" style={{ background: gradientCss(p.spec) }}>{p.name}</button>
+              <button key={p.name} onClick={() => setG(p.spec)} data-tooltip={p.name} className="h-9 w-20 rounded-lg border border-slate-200 text-[10px] font-medium text-white drop-shadow" style={{ background: gradientCss(p.spec) }}>{p.name}</button>
             ))}
           </div>
         </div>

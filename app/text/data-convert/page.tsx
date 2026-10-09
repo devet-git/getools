@@ -359,7 +359,7 @@ export default function DataConvertPage() {
                   setText('');
                   setFileName('');
                 }}
-                title="Xóa nội dung"
+                data-tooltip="Xóa nội dung" aria-label="Xóa nội dung"
                 className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
               >
                 <Trash2 className="h-4 w-4" />
@@ -396,7 +396,7 @@ export default function DataConvertPage() {
         <div className="flex lg:flex-col items-center justify-center">
           <button
             onClick={handleSwap}
-            title="Hoán đổi: dùng kết quả làm đầu vào"
+            data-tooltip="Hoán đổi: dùng kết quả làm đầu vào" aria-label="Hoán đổi: dùng kết quả làm đầu vào"
             className="p-2 rounded-full border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 shadow-xs transition"
           >
             <ArrowLeftRight className="h-4 w-4 lg:rotate-0 rotate-90" />
@@ -421,7 +421,7 @@ export default function DataConvertPage() {
               <button
                 onClick={handleDownload}
                 disabled={!output}
-                title={`Tải về file .${OUT_EXT[outFmt].ext}`}
+                data-tooltip={`Tải về file .${OUT_EXT[outFmt].ext}`} aria-label={`Tải về file .${OUT_EXT[outFmt].ext}`}
                 className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-40 border border-slate-200 rounded-lg transition"
               >
                 <Download className="h-3.5 w-3.5" />
@@ -507,7 +507,7 @@ export default function DataConvertPage() {
                           className={`px-3 py-1 border-b border-slate-100 text-slate-800 max-w-[320px] truncate align-top ${
                             table.align[ci] === 'right' ? 'text-right' : table.align[ci] === 'center' ? 'text-center' : ''
                           }`}
-                          title={cellToString(c)}
+                          data-tooltip={cellToString(c)}
                         >
                           {c === null ? <span className="text-slate-300 italic">null</span> : cellToString(c)}
                         </td>

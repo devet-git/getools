@@ -147,7 +147,7 @@ export default function LinkConverterPage() {
   const CopyBtn = ({ id, value }: { id: string; value: string }) => (
     <button
       onClick={() => void copy(value, id)}
-      title="Sao chép"
+      data-tooltip="Sao chép"
       className="px-2 py-1 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition flex items-center gap-1 shrink-0"
     >
       {copiedId === id ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -160,7 +160,7 @@ export default function LinkConverterPage() {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      title="Mở link trong tab mới"
+      data-tooltip="Mở link trong tab mới" aria-label="Mở link trong tab mới"
       className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 rounded-lg transition shrink-0"
     >
       <ExternalLink className="h-3.5 w-3.5" />
@@ -221,7 +221,7 @@ export default function LinkConverterPage() {
             <span className="text-[11px] text-slate-400">{lines.length} link (mỗi dòng một link)</span>
             <button
               onClick={() => setText('')}
-              title="Xóa nội dung"
+              data-tooltip="Xóa nội dung" aria-label="Xóa nội dung"
               className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
             >
               <Trash2 className="h-4 w-4" />
@@ -242,7 +242,7 @@ export default function LinkConverterPage() {
             <button
               key={s.label}
               onClick={() => setText(s.url)}
-              title={s.url}
+              data-tooltip={s.url}
               className="px-2 py-0.5 text-[11px] font-medium rounded-full border border-slate-200 bg-white hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 text-slate-600 transition"
             >
               {s.label}
@@ -370,7 +370,7 @@ export default function LinkConverterPage() {
                               ? 'bg-indigo-600 text-white border-indigo-600'
                               : 'bg-white text-slate-600 border-slate-200 hover:bg-indigo-50 hover:border-indigo-200'
                           }`}
-                          title={`ref = ${c.ref}, path = ${c.path || '(trống)'}`}
+                          data-tooltip={`ref = ${c.ref}, path = ${c.path || '(trống)'}`}
                         >
                           {c.ref}
                           <ArrowRight className="inline h-3 w-3 mx-0.5 opacity-60" />
@@ -465,7 +465,7 @@ export default function LinkConverterPage() {
                         <td className="px-3 py-2 font-mono text-slate-700 break-all">
                           {b.link.ref || 'HEAD'}
                           {b.link.ambiguous && (
-                            <span title="Tên nhánh có thể chứa dấu / - kiểm tra lại ở phần chi tiết" className="ml-1 text-amber-600">
+                            <span data-tooltip="Tên nhánh có thể chứa dấu / - kiểm tra lại ở phần chi tiết" className="ml-1 text-amber-600">
                               ?
                             </span>
                           )}
@@ -477,7 +477,7 @@ export default function LinkConverterPage() {
                               <span className="font-mono text-slate-600 break-all line-clamp-2 min-w-0">{b.raw}</span>
                               <button
                                 onClick={() => void copy(b.raw!, `row-raw-${i}`)}
-                                title="Sao chép URL raw"
+                                data-tooltip="Sao chép URL raw"
                                 className="p-1 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition shrink-0"
                               >
                                 {copiedId === `row-raw-${i}` ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -490,7 +490,7 @@ export default function LinkConverterPage() {
                         <td className="px-3 py-2">
                           <button
                             onClick={() => void copy(b.zip!, `row-zip-${i}`)}
-                            title={b.zip ?? ''}
+                            data-tooltip={b.zip ?? ''}
                             className="px-2 py-0.5 text-[11px] font-medium rounded-md border border-slate-200 text-slate-700 hover:bg-slate-100 transition flex items-center gap-1"
                           >
                             {copiedId === `row-zip-${i}` ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}

@@ -37,7 +37,7 @@ function ToolCard({ tool, favorite }: { tool: ToolDef; favorite: boolean }) {
             )}
             {tool.aiEnhanced && (
               <span
-                title="Dùng được miễn phí; thêm khóa AI để mở thêm tính năng nâng cao"
+                data-tooltip="Dùng được miễn phí; thêm khóa AI để mở thêm tính năng nâng cao"
                 className="inline-flex items-center gap-0.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold text-violet-700"
               >
                 <Sparkles className="h-2.5 w-2.5" /> +AI
@@ -57,7 +57,7 @@ function ToolCard({ tool, favorite }: { tool: ToolDef; favorite: boolean }) {
         onClick={() => toggleFavoriteTool(tool.id)}
         aria-pressed={favorite}
         aria-label={favorite ? `Bỏ yêu thích ${tool.name}` : `Thêm ${tool.name} vào yêu thích`}
-        title={favorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
+        data-tooltip={favorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
         className="absolute right-2 top-2 rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-amber-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
       >
         <Star className={cn('h-4 w-4', favorite && 'fill-amber-400 text-amber-500')} />

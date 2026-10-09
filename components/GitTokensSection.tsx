@@ -103,7 +103,7 @@ function TokenRow({ def }: { def: ProviderDef }) {
           spellCheck={false}
           className="text-xs font-mono"
         />
-        <Button type="button" variant="outline" size="sm" onClick={() => setShow(!show)} title={show ? 'Ẩn token' : 'Hiện token'} className="px-2">
+        <Button type="button" variant="outline" size="sm" onClick={() => setShow(!show)} data-tooltip={show ? 'Ẩn token' : 'Hiện token'} className="px-2">
           {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </Button>
         {has && (
@@ -115,7 +115,7 @@ function TokenRow({ def }: { def: ProviderDef }) {
               updateKey(def.id, '');
               setResult(null);
             }}
-            title="Xóa token đã lưu"
+            data-tooltip="Xóa token đã lưu" aria-label="Xóa token đã lưu"
             className="px-2 text-red-600"
           >
             <Trash2 className="h-4 w-4" />

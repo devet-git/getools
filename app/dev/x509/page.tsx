@@ -223,7 +223,7 @@ function CopyBtn({ text, label }: { text: string; label?: string }) {
   return (
     <button
       type="button"
-      title="Sao chép"
+      data-tooltip="Sao chép"
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(text);
@@ -286,7 +286,7 @@ function DnView({ dn }: { dn: Dn }) {
         <div key={i} className="flex flex-wrap gap-x-2">
           {rdn.map((a, j) => (
             <span key={j}>
-              <b className="text-slate-600" title={`${a.name} · ${a.oid}`}>
+              <b className="text-slate-600" data-tooltip={`${a.name} · ${a.oid}`}>
                 {a.short}
               </b>
               <span className="text-slate-400"> = </span>
@@ -639,7 +639,7 @@ function TreeNode({ node, bytes, depth, forceOpen }: { node: Asn1Node; bytes: Ui
         ) : (
           <span className="w-3.5 shrink-0" />
         )}
-        <span className="text-slate-400 shrink-0 w-14 text-right" title={`offset ${node.offset}, header ${node.hdr}, độ dài ${node.len}`}>
+        <span className="text-slate-400 shrink-0 w-14 text-right" data-tooltip={`offset ${node.offset}, header ${node.hdr}, độ dài ${node.len}`}>
           {node.offset}
         </span>
         <span className="text-indigo-700 font-semibold shrink-0">{d.name}</span>
@@ -909,7 +909,7 @@ export default function X509Page() {
               <Upload className="h-3.5 w-3.5" />
               Chọn file
             </button>
-            <button onClick={() => setText('')} title="Xóa" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+            <button onClick={() => setText('')} data-tooltip="Xóa" aria-label="Xóa" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
               <Trash2 className="h-4 w-4" />
             </button>
             <input

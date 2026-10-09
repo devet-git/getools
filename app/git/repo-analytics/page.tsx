@@ -302,7 +302,7 @@ function OpenBlock({ title, s, a, keyName, loading }: { title: string; s?: OpenS
                 {s.oldest.map((it) => (
                   <li key={it.number} className="px-2 py-1.5 flex items-center gap-2">
                     <a href={it.url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline shrink-0">#{it.number}</a>
-                    <span className="truncate flex-1 text-slate-700" title={it.title}>{it.title}</span>
+                    <span className="truncate flex-1 text-slate-700" data-tooltip={it.title}>{it.title}</span>
                     <span className="text-slate-400 shrink-0">{fmtDate(it.created_at)}</span>
                   </li>
                 ))}
@@ -500,7 +500,7 @@ export default function RepoAnalyticsPage() {
               So sánh 2 repo
             </label>
             {rate && rate.remaining !== null && (
-              <span className={`ml-auto ${rate.remaining < 30 ? 'text-red-600' : 'text-slate-500'}`} title={rate.reset ? `Đặt lại ${formatReset(rate.reset)}` : undefined}>
+              <span className={`ml-auto ${rate.remaining < 30 ? 'text-red-600' : 'text-slate-500'}`} data-tooltip={rate.reset ? `Đặt lại ${formatReset(rate.reset)}` : undefined}>
                 API còn {fmtNum(rate.remaining)}
                 {rate.limit ? `/${fmtNum(rate.limit)}` : ''} lượt{keys.github ? '' : ' (chưa dùng token)'}
                 {searchRate && searchRate.remaining !== null ? ` · Search còn ${searchRate.remaining}` : ''}
@@ -557,7 +557,7 @@ export default function RepoAnalyticsPage() {
                 {a.info.description && <p className="text-sm text-slate-600 mt-0.5">{a.info.description}</p>}
               </div>
               {a.status && (
-                <div className={`px-3 py-1.5 rounded-lg border text-xs ${STATUS_STYLE[a.status.level]}`} title={a.status.reason}>
+                <div className={`px-3 py-1.5 rounded-lg border text-xs ${STATUS_STYLE[a.status.level]}`} data-tooltip={a.status.reason}>
                   <div className="font-bold">{a.status.label}</div>
                   <div className="max-w-xs">{a.status.reason}</div>
                 </div>
