@@ -6,7 +6,7 @@ import {
   ImageDown, QrCode, Palette, FileArchive,
   FileJson2, Terminal, GitCompareArrows, ListTree, Database, Container, FileCog, Dices, Calculator,
   Globe, Tags, KeyRound, FileLock, FolderTree, NotebookText, ScrollText, AppWindow, LayoutGrid, BookMarked,
-  CalendarDays, Percent, LockKeyhole, HeartPulse, Shuffle, Receipt, Wallet, Landmark, ArrowLeftRight, Speech, Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
+  CalendarDays, Percent, LockKeyhole, HeartPulse, Shuffle, Zap, QrCode as QrCodeIcon, ShieldCheck, FileText, Receipt, Wallet, Landmark, ArrowLeftRight, Speech, Fingerprint, FileBadge, Workflow, Server, ChartNoAxesCombined, Coins, ImagePlus, Boxes,
 } from 'lucide-react';
 
 export interface ToolDef {
@@ -145,6 +145,14 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
         description: 'Tính BMI theo chuẩn người châu Á, BMR và lượng calo mỗi ngày (TDEE) — chỉ để tham khảo', keywords: ['bmi', 'calo', 'calorie', 'tdee', 'bmr', 'can nang', 'chieu cao', 'suc khoe', 'giam can', 'beo phi'], badge: 'Mới' },
       { id: 'random-picker', name: 'Bốc thăm & chia nhóm', href: '/random-picker', icon: Shuffle,
         description: 'Bốc thăm ngẫu nhiên, chia nhóm, xáo thứ tự hoặc quay số công bằng', keywords: ['boc tham', 'chia nhom', 'ngau nhien', 'random', 'quay so', 'xao tron', 'shuffle', 'team', 'lucky draw'], badge: 'Mới' },
+      { id: 'utility-bill', name: 'Tính tiền điện & nước', href: '/utility-bill', icon: Zap,
+        description: 'Tính hóa đơn điện, nước theo bậc thang (biểu giá chỉnh được) hoặc suy ngược số đã dùng từ số tiền đã trả', keywords: ['tien dien', 'tien nuoc', 'evn', 'bac thang', 'kwh', 'hoa don dien', 'utility', 'electricity', 'water'], badge: 'Mới' },
+      { id: 'vietqr', name: 'Mã QR chuyển khoản VietQR', href: '/vietqr', icon: QrCodeIcon,
+        description: 'Tạo mã QR chuẩn VietQR để nhận tiền: ngân hàng, số tài khoản, số tiền và nội dung', keywords: ['vietqr', 'qr', 'chuyen khoan', 'ngan hang', 'tai khoan', 'napas', 'nhan tien', 'bank'], badge: 'Mới' },
+      { id: 'vn-id-check', name: 'Kiểm tra MST, CCCD & SĐT', href: '/vn-id-check', icon: ShieldCheck,
+        description: 'Kiểm tra cấu trúc mã số thuế, CCCD 12 số và số di động Việt Nam, ngay trên trình duyệt', keywords: ['mst', 'ma so thue', 'cccd', 'can cuoc', 'so dien thoai', 'sdt', 'nha mang', 'validate', 'kiem tra'], badge: 'Mới' },
+      { id: 'invoice', name: 'Báo giá, hóa đơn & phiếu thu', href: '/invoice', icon: FileText,
+        description: 'Soạn phiếu báo giá, hóa đơn bán hàng, phiếu thu có đọc số tiền bằng chữ, in hoặc lưu PDF', keywords: ['bao gia', 'hoa don', 'phieu thu', 'invoice', 'quotation', 'receipt', 'pdf', 'in an'], badge: 'Mới' },
       { id: 'password-gen', name: 'Tạo mật khẩu & cụm từ bảo mật', href: '/password-gen', icon: LockKeyhole,
         description: 'Sinh mật khẩu ngẫu nhiên hoặc cụm từ dễ nhớ và kiểm tra độ mạnh, chạy ngay trên trình duyệt', keywords: ['mat khau', 'password', 'passphrase', 'random', 'bao mat', 'do manh', 'generator'], badge: 'Mới' },
       { id: 'split-bill', name: 'Chia tiền nhóm', href: '/split-bill', icon: Receipt,
